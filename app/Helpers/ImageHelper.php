@@ -426,28 +426,67 @@ if (! function_exists('imageSrcset')) {
             return '';
         }
 
+        // Dihitung sekali per URL per permintaan. Satu halaman grid memanggil
+        // ini untuk setiap kartu, dan tiap panggilan menyentuh disk dua sampai
+        // tiga kali; tanpa memo, halaman berisi 12 kartu membayar puluhan
+        // pemeriksaan berkas untuk pertanyaan yang jawabannya sama.
+        static $memo = [];
+        if (array_key_exists($resolvedUrl, $memo)) {
+            return $memo[$resolvedUrl];
+        }
+
         $rel = ltrim((string) parse_url($resolvedUrl, PHP_URL_PATH), '/');
-        // Skip if already a variant, or the base file isn't a local public asset.
-        if ($rel === '' || preg_match('/-(400|800)\.webp$/i', $rel) || ! is_file(public_path($rel))) {
-            return '';
+        if ($rel === '') {
+            return $memo[$resolvedUrl] = '';
         }
 
-        $v400 = preg_replace('/\.webp$/i', '-400.webp', $rel);
-        $v800 = preg_replace('/\.webp$/i', '-800.webp', $rel);
+        // ---- Jalur 1: aset bawaan di public/, konvensi "-400/-800".
+        if (! preg_match('/-(400|800)\.webp$/i', $rel) && is_file(public_path($rel))) {
+            $v400 = preg_replace('/\.webp$/i', '-400.webp', $rel);
+            $v800 = preg_replace('/\.webp$/i', '-800.webp', $rel);
 
-        $parts = [];
-        if (is_file(public_path($v400))) {
-            $parts[] = asset($v400).' 400w';
-        }
-        if (is_file(public_path($v800))) {
-            $parts[] = asset($v800).' 800w';
-        }
-        if (empty($parts)) {
-            return '';
-        }
-        $parts[] = $resolvedUrl.' 1200w';
+            $parts = [];
+            if (is_file(public_path($v400))) {
+                $parts[] = asset($v400).' 400w';
+            }
+            if (is_file(public_path($v800))) {
+                $parts[] = asset($v800).' 800w';
+            }
+            if (! empty($parts)) {
+                $parts[] = $resolvedUrl.' 1200w';
 
-        return implode(', ', $parts);
+                return $memo[$resolvedUrl] = implode(', ', $parts);
+            }
+        }
+
+        // ---- Jalur 2: unggahan admin di /storage/, konvensi mobile/medium/large.
+        //
+        // Dua konvensi hidup berdampingan di proyek ini: aset bawaan dipotong
+        // dengan akhiran ukuran, sedangkan berkas yang diunggah lewat panel
+        // admin dipotong ke dalam subfolder oleh pipeline Media. Kartu paket
+        // memakai KEDUANYA -- paket contoh menunjuk gambar bawaan, paket asli
+        // menunjuk unggahan admin -- jadi helper yang cuma tahu satu konvensi
+        // akan diam persis di paket yang paling ramai dilihat.
+        if (str_contains($rel, 'storage/')) {
+            $bersih = substr($rel, strpos($rel, 'storage/') + 8);
+            $dir = dirname($bersih);
+            $base = basename($bersih);
+            $awalan = ($dir === '.' || $dir === '/') ? '' : $dir.'/';
+
+            $disk = \Illuminate\Support\Facades\Storage::disk('public');
+            $parts = [];
+            foreach (['mobile' => 480, 'medium' => 800, 'large' => 1200] as $folder => $lebar) {
+                $jalur = $awalan.$folder.'/'.$base;
+                if ($disk->exists($jalur)) {
+                    $parts[] = $disk->url($jalur).' '.$lebar.'w';
+                }
+            }
+            if (! empty($parts)) {
+                return $memo[$resolvedUrl] = implode(', ', $parts);
+            }
+        }
+
+        return $memo[$resolvedUrl] = '';
     }
 }
 

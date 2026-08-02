@@ -137,7 +137,16 @@
                             <div class="relative aspect-[4/3] overflow-hidden shrink-0 bg-slate-100">
                                 <a href="/tour/detail/{{ $pkgSlug }}" class="block w-full h-full"
                                    aria-label="{{ $pkg->translated_name }}">
+                                    {{-- sizes: kartunya selebar layar di ponsel, separuh
+                                         di tablet, sepertiga kolom 1280px di desktop
+                                         (~380px). Tanpa srcset, tiap kartu menarik gambar
+                                         ukuran penuh -- halaman ini dulu mengunduh 1 MB
+                                         gambar untuk delapan kotak selebar 380px. --}}
                                     <img src="{{ $pkg->first_image }}" alt="{{ $pkg->translated_name }}"
+                                         @if($pkgSrcset = imageSrcset($pkg->first_image))
+                                             srcset="{{ $pkgSrcset }}"
+                                             sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 400px"
+                                         @endif
                                          class="w-full h-full object-cover group-hover:scale-105 transition duration-[1.5s]"
                                          loading="{{ $i < 3 ? 'eager' : 'lazy' }}"
                                          fetchpriority="{{ $i === 0 ? 'high' : 'auto' }}"

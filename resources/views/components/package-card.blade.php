@@ -52,9 +52,14 @@
         <div class="relative aspect-[4/3] overflow-hidden shrink-0">
             <img
                 src="{{ $image }}"
+                @if($kartuSrcset = imageSrcset($image))
+                    srcset="{{ $kartuSrcset }}"
+                    sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 400px"
+                @endif
                 alt="{{ $name }}"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 loading="lazy"
+                decoding="async"
             >
             {{-- Badges --}}
             <div class="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
