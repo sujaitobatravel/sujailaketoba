@@ -172,7 +172,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-8 py-32 text-center">
+                            <td colspan="4" class="px-8 py-14 text-center">
                                 <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">No Blog Posts Available</p>
                             </td>
                         </tr>

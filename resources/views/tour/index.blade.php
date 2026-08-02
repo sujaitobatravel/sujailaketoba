@@ -90,7 +90,7 @@
 
     <!-- Featured Packages -->
     @if($settings['show_featured'] ?? true)
-    <section class="py-16 md:py-24 bg-surface overflow-hidden"
+    <section class="py-6 md:py-8 bg-surface overflow-hidden"
              x-data="{
                  isDragging: false, startX: 0, scrollLeft: 0,
                  scrollPercent: 0,
@@ -102,7 +102,7 @@
                  scrollNext() { this.el.scrollBy({ left: 380, behavior: 'smooth' }); },
              }">
         <div class="max-w-7xl mx-auto px-5 md:px-8">
-            <div class="flex flex-col md:flex-row items-start md:items-end justify-between mb-10 md:mb-14 gap-6">
+            <div class="flex flex-col md:flex-row items-start md:items-end justify-between mb-6 md:mb-8 gap-6">
                 <div class="max-w-xl">
                     <span class="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-secondary mb-3">
                         <span class="w-6 h-px bg-secondary"></span>{{ __('Paket Pilihan') }}
@@ -171,7 +171,7 @@
         }
     @endphp
 
-    <section class="bg-primary py-16 md:py-24 overflow-hidden"
+    <section class="bg-primary py-6 md:py-8 overflow-hidden"
              x-data="{
                  slides: @js($slides),
                  scrollContainer: null,
@@ -246,7 +246,7 @@
              }">
 
         {{-- Header --}}
-        <div class="max-w-7xl mx-auto px-5 md:px-8 mb-8 md:mb-12 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
+        <div class="max-w-7xl mx-auto px-5 md:px-8 mb-5 md:mb-7 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
             <div class="max-w-xl">
                 <span class="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-secondary-fixed mb-3">
                     <span class="w-6 h-px bg-secondary-fixed"></span>{{ __('Galeri Destinasi') }}
@@ -347,7 +347,7 @@
         ));
     @endphp
     @if(($settings['show_testimonials'] ?? true) && count($testimonials))
-    <section class="py-16 md:py-24 bg-slate-50/50 border-t border-b border-slate-100 overflow-hidden"
+    <section class="py-6 md:py-8 bg-slate-50/50 border-t border-b border-slate-100 overflow-hidden"
              x-data="{
                  isDragging: false, startX: 0, scrollLeft: 0,
                  get el() { return this.$refs.tstStrip },
@@ -377,7 +377,7 @@
              seperti strip paket di atas. --}}
         <div x-ref="tstStrip"
              @mousedown="onDown($event)" @mousemove="onMove($event)" @mouseup="onUp()" @mouseleave="onUp()"
-             class="flex items-start gap-6 overflow-x-auto scroll-smooth px-5 md:px-[max(1.5rem,calc((100vw-64rem)/2+1.5rem))] pt-10 md:pt-12 pb-4 no-scrollbar select-none snap-x snap-mandatory overscroll-x-contain"
+             class="flex items-start gap-6 overflow-x-auto scroll-smooth px-5 md:px-[max(1.5rem,calc((100vw-64rem)/2+1.5rem))] pt-6 md:pt-8 pb-4 no-scrollbar select-none snap-x snap-mandatory overscroll-x-contain"
              :class="isDragging ? 'cursor-grabbing' : 'cursor-grab'">
             @foreach($testimonials as $t)
             <figure class="shrink-0 snap-start w-[300px] sm:w-[360px] md:w-[420px] bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-300 p-6 md:p-8 flex flex-col">
@@ -431,7 +431,7 @@
 
     <!-- Specialist — High Contrast Banner -->
     @if($settings['show_specialist'] ?? true)
-    <section class="py-12 md:py-16 px-4 md:px-8">
+    <section class="py-6 md:py-8 px-4 md:px-8">
         <div class="max-w-5xl mx-auto">
             <div class="bg-slate-900 rounded-2xl p-6 md:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl border border-slate-800">
                 <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 text-center sm:text-left">
@@ -457,8 +457,8 @@
 
     <!-- Journal/Blog -->
     @if($settings['show_blogs'] ?? true)
-    <section class="py-16 md:py-24 max-w-7xl mx-auto px-5 md:px-8 bg-surface">
-        <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-10 md:mb-14 gap-4">
+    <section class="py-6 md:py-8 max-w-7xl mx-auto px-5 md:px-8 bg-surface">
+        <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-6 md:mb-8 gap-4">
             <div class="max-w-xl">
                 <span class="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-secondary mb-3">
                     <span class="w-6 h-px bg-secondary"></span>{{ __('Cerita') }}
@@ -482,9 +482,9 @@
     @endif
 
     <!-- FAQ -->
-    <section class="py-16 md:py-24 bg-surface-container-low">
+    <section class="py-6 md:py-8 bg-surface-container-low">
         <div class="max-w-3xl mx-auto px-5">
-            <div class="text-center mb-10 md:mb-14">
+            <div class="text-center mb-6 md:mb-8">
                 <h2 class="text-3xl md:text-5xl font-bold text-primary tracking-tight mb-4">{{ __('Pertanyaan Umum') }}</h2>
                 <div class="w-12 h-0.5 bg-secondary mx-auto"></div>
             </div>
@@ -538,7 +538,7 @@
     </section>
 
     <!-- Cinema CTA -->
-    <section class="py-16 md:py-32 px-5 md:px-8 bg-surface">
+    <section class="py-6 md:py-8 px-5 md:px-8 bg-surface">
         <div class="max-w-7xl mx-auto bg-primary rounded-[2rem] md:rounded-[4rem] p-8 md:p-24 relative overflow-hidden shadow-[0_50px_100px_-20px] shadow-primary/30">
             <div class="absolute inset-0 opacity-40">
                 <img src="{{ $ctaImg }}" alt="{{ $ctaAlt ?? 'Call to action image' }}" loading="lazy" decoding="async" class="w-full h-full object-cover">
@@ -553,7 +553,7 @@
                 <h2 class="text-2xl sm:text-4xl md:text-7xl font-bold text-white mb-5 md:mb-8 tracking-tight leading-[1.1] md:leading-[0.95]">
                     {{ __('Siap Untuk') }} <br/> <span class="text-white">{{ __('Petualangan Nyata?') }}</span>
                 </h2>
-                <p class="text-base md:text-xl text-slate-300 mb-8 md:mb-12 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                <p class="text-base md:text-xl text-slate-300 mb-5 md:mb-7 leading-relaxed max-w-2xl mx-auto lg:mx-0">
                     @php
                         $touristsCount = $settings['stat_customers'] ?? '1.500+';
                     @endphp
@@ -586,7 +586,7 @@
     </section>
 
     <!-- SEO Internal Links (Cities) -->
-    <section class="py-12 bg-surface border-t border-slate-100">
+    <section class="py-8 bg-surface border-t border-slate-100">
         <div class="max-w-7xl mx-auto px-5 md:px-8">
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Populer: Paket Wisata dari Berbagai Kota</h3>
             <div class="flex flex-wrap gap-x-4 gap-y-2">

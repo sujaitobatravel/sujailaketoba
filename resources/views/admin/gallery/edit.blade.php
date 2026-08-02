@@ -4,7 +4,7 @@
 @section('page-title', 'Detail Foto Galeri')
 
 @section('content')
-<div class="max-w-4xl mx-auto space-y-10">
+<div class="max-w-4xl mx-auto space-y-6">
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-4">
             <a href="{{ route('admin.gallery.index') }}" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 text-slate-400 hover:bg-slate-900 hover:text-white transition">
@@ -94,7 +94,7 @@
                     </div>
                 </form>
 
-                <div class="mt-10 pt-10 border-t border-slate-50">
+                <div class="mt-6 pt-6 border-t border-slate-50">
                     <form action="{{ route('admin.gallery.destroy', $gallery) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus foto ini secara permanen?')">
                         @csrf
                         @method('DELETE')

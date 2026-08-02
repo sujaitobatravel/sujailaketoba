@@ -69,7 +69,7 @@
             this.lightbox.index = (this.lightbox.index + 1) % this.filteredImages.length;
         }
     }"
-    class="bg-surface min-h-screen pb-32 font-body-md text-on-background selection:bg-primary-container selection:text-on-primary-container"
+    class="bg-surface min-h-screen pb-14 font-body-md text-on-background selection:bg-primary-container selection:text-on-primary-container"
     @keydown.escape.window="closeLightbox()"
     @keydown.left.window="if(lightbox.open) prev()"
     @keydown.right.window="if(lightbox.open) next()"
@@ -86,7 +86,7 @@
         <div class="absolute inset-0 bg-gradient-to-r from-primary via-primary/50 to-transparent"></div>
         <div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
 
-        <div class="relative z-10 w-full max-w-7xl mx-auto px-5 md:px-8 pt-20">
+        <div class="relative z-10 w-full max-w-7xl mx-auto px-5 md:px-8 pt-10">
             <div class="max-w-4xl animate-fade-in-up">
                 <x-breadcrumb :dark="true" class="mb-4" :items="[
                     ['label' => __('Galeri')],
@@ -140,8 +140,8 @@
     </div>
 
     <!-- Masonry Gallery Grid -->
-    <div class="max-w-7xl mx-auto px-5 md:px-8 mt-14 md:mt-20">
-        <div class="flex items-center justify-between mb-8 md:mb-10">
+    <div class="max-w-7xl mx-auto px-5 md:px-8 mt-8 md:mt-10">
+        <div class="flex items-center justify-between mb-6 md:mb-8">
             <div>
                 <h2 class="text-2xl md:text-3xl font-bold text-primary tracking-tight">{{ __('Koleksi') }} <span class="text-secondary">{{ __('Visual') }}</span></h2>
                 <p class="text-on-surface-variant font-light text-xs mt-1">
@@ -190,7 +190,7 @@
         </div>
 
         <!-- Premium Empty State -->
-        <div x-show="filteredImages.length === 0" class="text-center py-24 bg-white rounded-[2.5rem] border border-outline-variant/20 shadow-xl animate-in fade-in zoom-in duration-700">
+        <div x-show="filteredImages.length === 0" class="text-center py-12 bg-white rounded-[2.5rem] border border-outline-variant/20 shadow-xl animate-in fade-in zoom-in duration-700">
             <div class="w-20 h-20 bg-surface-container rounded-full flex items-center justify-center mx-auto mb-6 text-outline/50 shadow-inner">
                 <span class="material-symbols-outlined text-3xl font-light">image_not_supported</span>
             </div>

@@ -45,7 +45,11 @@
          pax yang sudah ia setel. --}}
     <a href="/tour/detail/{{ $slug }}" class="flex flex-col flex-grow">
         {{-- Gambar --}}
-        <div class="relative h-44 overflow-hidden shrink-0">
+        {{-- Rasio, bukan tinggi mati: h-44 membuat bentuk gambar berubah-ubah
+             ikut lebar kartu (1,48 di ponsel, 1,76 di desktop). 4:3 menjaga
+             bentuknya sama di semua layar dan memberi gambar porsi yang
+             sepadan dengan kartu pesaing. --}}
+        <div class="relative aspect-[4/3] overflow-hidden shrink-0">
             <img
                 src="{{ $image }}"
                 alt="{{ $name }}"
@@ -89,5 +93,8 @@
     @include('partials.package-details', ['xdata' => $detailsXdata, 'uid' => $detailsUid])
 
     {{-- Kalkulator pax + estimasi total + booking (di luar <a> agar tombol bisa diklik) --}}
-    @include('partials.pax-calc', ['xdata' => $paxXdata])
+    @include('partials.pax-calc', [
+        'xdata' => $paxXdata,
+        'priceImage' => \Illuminate\Support\Js::from($package->price_image_url ?? null),
+    ])
 </div>

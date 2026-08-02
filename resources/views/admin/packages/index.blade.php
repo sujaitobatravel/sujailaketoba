@@ -13,7 +13,7 @@
     $shadowColor = 'shadow-green-100';
 @endphp
 
-<div class="space-y-10 w-full max-w-none" x-data="{ 
+<div class="space-y-6 w-full max-w-none" x-data="{ 
     selected: [],
     
     toggleAll(ids) {
@@ -216,12 +216,12 @@
                 </div>
             </div>
         @empty
-            <div class="col-span-full py-40 text-center bg-white rounded-[4rem] border border-dashed border-slate-200">
+            <div class="col-span-full py-20 text-center bg-white rounded-[4rem] border border-dashed border-slate-200">
                 <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-8 text-slate-200">
                     <i class="fas fa-box-open text-4xl"></i>
                 </div>
                 <h5 class="text-2xl font-black text-slate-900 mb-2">Daftar Paket Tour Kosong</h5>
-                <a href="{{ route('admin.packages.create') }}" class="mt-10 inline-block bg-slate-900 text-white px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition">Buat Paket Sekarang</a>
+                <a href="{{ route('admin.packages.create') }}" class="mt-6 inline-block bg-slate-900 text-white px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition">Buat Paket Sekarang</a>
             </div>
         @endforelse
     </div>

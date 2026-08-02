@@ -4,7 +4,7 @@
 @section('page-title', 'Pusat Kontrol & Analitik')
 
 @section('content')
-<div x-data="dashboardHandler()" x-init="initDashboard()" class="space-y-10">
+<div x-data="dashboardHandler()" x-init="initDashboard()" class="space-y-6">
     
     <!-- 1. TOP CARDS & ANALYTICS -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">

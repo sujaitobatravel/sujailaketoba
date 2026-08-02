@@ -38,7 +38,7 @@
 @endpush
 
 @section('content')
-<div class="bg-surface min-h-screen pb-32 font-body-md text-on-background selection:bg-primary-container selection:text-on-primary-container">
+<div class="bg-surface min-h-screen pb-14 font-body-md text-on-background selection:bg-primary-container selection:text-on-primary-container">
 
     {{-- ====== IMMERSIVE CINEMATIC HERO ====== --}}
     <div class="relative h-[55dvh] w-full overflow-hidden bg-primary">
@@ -49,7 +49,7 @@
         <div class="absolute inset-0 bg-gradient-to-r from-primary/70 via-primary/20 to-transparent"></div>
 
         {{-- Hero content --}}
-        <div class="relative z-10 h-full max-w-5xl mx-auto px-5 md:px-8 flex flex-col justify-center pt-16">
+        <div class="relative z-10 h-full max-w-5xl mx-auto px-5 md:px-8 flex flex-col justify-center pt-8">
             <div class="animate-in fade-in slide-in-from-bottom-12 duration-1000">
                 {{-- Back button --}}
                 <a href="/tour/blog" 
@@ -93,7 +93,7 @@
                 <article class="bg-white rounded-3xl p-6 md:p-14 shadow-sm border border-outline-variant/30">
                     
                     {{-- Author meta --}}
-                    <div class="flex items-center gap-4 mb-10 pb-8 border-b border-outline-variant/30">
+                    <div class="flex items-center gap-4 mb-6 pb-8 border-b border-outline-variant/30">
                         <div class="w-12 h-12 rounded-xl bg-primary text-on-primary flex items-center justify-center font-bold text-lg">
                             S
                         </div>
@@ -104,7 +104,7 @@
                     </div>
 
                     @if($coverExif)
-                    <div class="mb-10 p-5 bg-slate-50 border border-slate-200/60 rounded-2xl flex flex-wrap gap-4 items-center justify-between text-xs text-slate-500 animate-in fade-in slide-in-from-top-4 duration-500 shadow-sm">
+                    <div class="mb-6 p-5 bg-slate-50 border border-slate-200/60 rounded-2xl flex flex-wrap gap-4 items-center justify-between text-xs text-slate-500 animate-in fade-in slide-in-from-top-4 duration-500 shadow-sm">
                         <div class="flex items-center gap-3">
                             <span class="text-lg">📸</span>
                             <div>
@@ -138,13 +138,13 @@
                         @if(!empty($post->content) && strlen($post->content) > 10)
                             {!! nl2br($post->content) !!}
                         @else
-                            <p class="text-slate-400 italic text-center py-10">{{ $post->translated_excerpt }}</p>
+                            <p class="text-slate-400 italic text-center py-6">{{ $post->translated_excerpt }}</p>
                         @endif
                     </div>
 
                     {{-- Tags --}}
                     @if(isset($post->tags) && count($post->tags) > 0)
-                        <div class="mt-12 pt-8 border-t border-outline-variant/30 flex flex-wrap gap-2">
+                        <div class="mt-6 pt-8 border-t border-outline-variant/30 flex flex-wrap gap-2">
                             @foreach($post->tags as $tag)
                                 {{-- Gaya hover dihapus: tag ini bukan tautan (belum ada
                                      halaman arsip per tag), jadi warna yang berubah saat
@@ -157,7 +157,7 @@
                     @endif
 
                     {{-- Premium share bar --}}
-                    <div class="mt-12 p-6 bg-surface-container-low border border-outline-variant/30 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="mt-6 p-6 bg-surface-container-low border border-outline-variant/30 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6">
                         <div>
                             <h4 class="text-base font-bold font-headline-md text-on-surface tracking-tight mb-1">{{ __('Bagikan Inspirasi Ini') }}</h4>
                             <p class="text-xs text-on-surface-variant font-body-md">{{ __('Bantu orang lain menemukan petualangan impian mereka.') }}</p>
@@ -251,8 +251,8 @@
 
         {{-- ====== RELATED POSTS ====== --}}
         @if(count($relatedPosts) > 0)
-            <div class="mt-16 md:mt-24 pt-12 md:pt-16 border-t border-outline-variant/30">
-                <div class="flex items-center gap-3 mb-10 md:mb-12">
+            <div class="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-outline-variant/30">
+                <div class="flex items-center gap-3 mb-6 md:mb-6">
                     <span class="w-10 h-px bg-secondary"></span>
                     <span class="text-[10px] font-bold text-secondary uppercase tracking-[0.25em]">{{ __('Inspirasi Lainnya') }}</span>
                 </div>

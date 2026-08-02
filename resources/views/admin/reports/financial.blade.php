@@ -186,7 +186,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-12 text-center">
+                                <td colspan="5" class="px-6 py-6 text-center">
                                     <div class="text-4xl mb-4">📭</div>
                                     <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Tidak ada transaksi ditemukan</p>
                                 </td>

@@ -195,7 +195,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-16 text-center">
+                            <td colspan="6" class="px-6 py-8 text-center">
                                 <div class="flex flex-col items-center justify-center text-gray-400">
                                     <i class="fas fa-users text-5xl mb-4"></i>
                                     <p class="text-sm font-black uppercase tracking-widest">No users found</p>

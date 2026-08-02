@@ -3,7 +3,7 @@
 @section('title', 'Kebijakan Privasi – Sujai Laketoba')
 
 @section('content')
-<div class="bg-slate-50 min-h-screen pt-32 pb-24">
+<div class="bg-slate-50 min-h-screen pt-14 pb-12">
     <div class="max-w-4xl mx-auto px-5">
         <div class="bg-white rounded-3xl p-6 md:p-12 shadow-sm border border-slate-100 animate-in fade-in slide-in-from-bottom-8 duration-1000">
             <h1 class="text-3xl md:text-5xl font-bold text-slate-900 mb-6 tracking-tight">Kebijakan <span class="text-toba-green">Privasi</span></h1>

@@ -4,14 +4,14 @@
 @section('description', $content['meta_description'] ?? '')
 
 @section('content')
-<div class="bg-surface min-h-screen pb-32 font-body-md text-on-background selection:bg-primary-container selection:text-on-primary-container">
+<div class="bg-surface min-h-screen pb-14 font-body-md text-on-background selection:bg-primary-container selection:text-on-primary-container">
     <!-- Cinematic Premium Hero Section -->
     <div class="relative h-[60dvh] flex items-center overflow-hidden bg-slate-900">
         <img src="{{ imageUrl($content['hero_image'] ?? '2026/04/lake-toba-premium.webp') }}" alt="About Hero" class="absolute inset-0 w-full h-full object-cover opacity-45 animate-subtle-zoom">
         <div class="absolute inset-0 bg-gradient-to-r from-primary via-primary/50 to-transparent"></div>
         <div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
 
-        <div class="relative z-10 w-full max-w-7xl mx-auto px-5 md:px-8 pt-20">
+        <div class="relative z-10 w-full max-w-7xl mx-auto px-5 md:px-8 pt-10">
             <div class="max-w-4xl">
                 <div class="flex items-center space-x-2 mb-4 animate-fade-in-down">
                     <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/10 text-white text-[10px] font-semibold uppercase tracking-[0.25em] rounded-full">
@@ -30,7 +30,7 @@
     </div>
 
     <!-- Luxury Story Section -->
-    <section class="py-16 md:py-36 relative overflow-hidden bg-surface">
+    <section class="py-8 md:py-16 relative overflow-hidden bg-surface">
         <div class="max-w-7xl mx-auto px-5 md:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
                 
@@ -110,12 +110,12 @@
     </section>
 
     <!-- Luxury Vision & Mission Section -->
-    <section class="py-16 md:py-36 bg-surface-container-low relative overflow-hidden">
+    <section class="py-8 md:py-16 bg-surface-container-low relative overflow-hidden">
         <div class="absolute inset-0 bg-[radial-gradient(#ffe088_0.5px,transparent_0.5px)] [background-size:16px_16px] opacity-15"></div>
         <div class="absolute top-0 right-0 w-1/3 h-full bg-surface-container skew-x-12 translate-x-20"></div>
         
         <div class="max-w-7xl mx-auto px-5 md:px-8 relative z-10">
-            <div class="text-center max-w-3xl mx-auto mb-12 md:mb-20">
+            <div class="text-center max-w-3xl mx-auto mb-6 md:mb-10">
                 <span class="text-secondary font-semibold text-xs uppercase tracking-[0.2em] mb-4 block">
                     {{ __('OUR MISSION & VISION') }}
                 </span>
@@ -128,7 +128,7 @@
                 <!-- Vision Card (Premium Dark Theme) -->
                 <div class="group bg-white p-10 md:p-14 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-between transition duration-300 hover:-translate-y-1">
                     <div>
-                        <div class="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center text-green-700 mb-10 shadow-sm group-hover:scale-105 transition-transform duration-500">
+                        <div class="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center text-green-700 mb-6 shadow-sm group-hover:scale-105 transition-transform duration-500">
                             <span class="material-symbols-outlined text-3xl font-black">visibility</span>
                         </div>
                         <h3 class="text-2xl font-headline-md text-slate-900 mb-6 tracking-tight">
@@ -138,7 +138,7 @@
                             {{ $content['vision'] ?? 'Membawa Anda menikmati keaslian alam dan budaya Sumatera Utara melalui perjalanan yang tenang, aman, dan berkesan.' }}
                         </p>
                     </div>
-                    <div class="pt-10 flex justify-end">
+                    <div class="pt-6 flex justify-end">
                         <span class="text-[9px] font-semibold tracking-widest text-secondary uppercase">{{ __('EXCELLENCE SERVICE') }}</span>
                     </div>
                 </div>
@@ -146,7 +146,7 @@
                 <!-- Mission Card (Elegant White Theme) -->
                 <div class="group bg-white p-10 md:p-14 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-between transition duration-300 hover:-translate-y-1">
                     <div>
-                        <div class="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white mb-10 shadow-sm group-hover:scale-105 transition-transform duration-500">
+                        <div class="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white mb-6 shadow-sm group-hover:scale-105 transition-transform duration-500">
                             <span class="material-symbols-outlined text-3xl font-black">task_alt</span>
                         </div>
                         <h3 class="text-2xl font-headline-md text-slate-900 mb-6 tracking-tight">
@@ -176,7 +176,7 @@
     </section>
 
     <!-- Why Choose Us Section -->
-    <section class="py-16 md:py-36 bg-surface">
+    <section class="py-8 md:py-16 bg-surface">
         <div class="max-w-7xl mx-auto px-5 md:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
                 
@@ -240,10 +240,10 @@
     </section>
 
     <!-- Trusted Partners Section (Sophisticated Dark Mode Showcase) -->
-    <section class="py-16 md:py-24 bg-primary relative overflow-hidden">
+    <section class="py-8 md:py-12 bg-primary relative overflow-hidden">
         <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] [background-size:24px_24px]"></div>
         <div class="max-w-7xl mx-auto px-5 md:px-8 relative z-10">
-            <div class="text-center mb-16">
+            <div class="text-center mb-8">
                 <span class="text-secondary-fixed font-black text-[9px] uppercase tracking-[0.3em] mb-2 block">OFFICIAL PARTNERS</span>
                 <h3 class="text-2xl md:text-4xl font-bold text-white tracking-tight">Dipercaya Oleh Institusi Terkemuka</h3>
             </div>
@@ -270,7 +270,7 @@
             </div>
 
             <!-- Wonderful Indonesia Badge -->
-            <div class="mt-20 pt-10 border-t border-white/10 flex flex-col md:flex-row items-center justify-center gap-6 text-center md:text-left">
+            <div class="mt-10 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-center gap-6 text-center md:text-left">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Wonderful_Indonesia_logo.svg" alt="Wonderful Indonesia" class="h-10 opacity-70 hover:opacity-100 transition-opacity duration-300">
                 <div>
                     <p class="text-white font-bold text-sm tracking-tight">Agen Wisata Resmi Program Wonderful Indonesia</p>
@@ -281,7 +281,7 @@
     </section>
 
     <!-- Luxury Call to Action Section -->
-    <section class="py-16 md:py-36 px-5 md:px-8 bg-surface">
+    <section class="py-8 md:py-16 px-5 md:px-8 bg-surface">
         <div class="max-w-7xl mx-auto bg-surface-container rounded-3xl md:rounded-[2.5rem] p-8 md:p-24 relative overflow-hidden text-center border border-outline-variant/20 shadow-2xl">
             <div class="absolute -top-32 -right-32 w-[30rem] h-[30rem] bg-secondary/5 rounded-full blur-3xl"></div>
             <div class="absolute -bottom-32 -left-32 w-[30rem] h-[30rem] bg-primary/10 rounded-full blur-3xl"></div>

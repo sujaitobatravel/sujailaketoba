@@ -26,7 +26,7 @@
                     {{ $user->role === 'superadmin' ? 'Superadmin' : ($user->role === 'admin' ? 'Tour Admin' : 'User') }}
                 </span>
                 
-                <div class="mt-10 pt-10 border-t border-slate-50 space-y-4">
+                <div class="mt-6 pt-6 border-t border-slate-50 space-y-4">
                     <a href="{{ route('admin.users.edit', $user) }}" class="w-full flex items-center justify-center gap-3 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition">
                         <i class="fas fa-user-pen"></i> Edit Profil
                     </a>

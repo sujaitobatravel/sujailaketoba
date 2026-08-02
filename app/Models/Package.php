@@ -25,19 +25,20 @@ class Package extends Model
     protected $fillable = [
         'slug', 'name', 'shortDescription', 'description', 'locationTag',
         'price', 'childPrice', 'cost_price', 'priceDisplay', 'duration', 'images',
-        'videos', 'brochure', 'mapEmbed', 'accommodations',
+        'videos', 'brochure', 'priceImage', 'mapEmbed', 'accommodations', 'highlights',
         'includes', 'excludes', 'pricingDetails', 'itinerary', 'itineraryText',
         'dronePrice', 'droneLocation', 'notes', 'status', 'isFeatured',
         'sortOrder', 'metaTitle', 'metaDescription',
         'translations', 'cityId',
     ];
 
-    protected $appends = ['first_image', 'image_url', 'formatted_price', 'translated_name', 'translated_description', 'translated_short_description', 'translated_itinerary_text'];
+    protected $appends = ['first_image', 'image_url', 'price_image_url', 'formatted_price', 'translated_name', 'translated_description', 'translated_short_description', 'translated_itinerary_text'];
 
     protected $casts = [
         'images' => 'array',
         'videos' => 'array',
         'accommodations' => 'array',
+        'highlights' => 'array',
         'includes' => 'array',
         'excludes' => 'array',
         'pricingDetails' => 'array',
@@ -113,6 +114,41 @@ class Package extends Model
      *
      * @return array<int, array{night: int, name: string, class: string, image: string|null}>
      */
+    /**
+     * Pembeda khusus paket ini, sudah siap dirender.
+     *
+     * Baris tanpa judul dibuang dengan alasan yang sama seperti penginapan:
+     * poin kosong terbaca sebagai janji yang belum selesai ditulis, dan itu
+     * lebih buruk daripada tidak ada poinnya sama sekali.
+     *
+     * Kosong berarti "belum diisi", dan pemanggilnya jatuh ke poin situs --
+     * BUKAN menampilkan blok kosong.
+     *
+     * @return array<int, array{title: string, text: string}>
+     */
+    public function highlightList(): array
+    {
+        $out = [];
+
+        foreach ((array) ($this->highlights ?? []) as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+
+            $title = trim((string) ($row['title'] ?? ''));
+            if ($title === '') {
+                continue;
+            }
+
+            $out[] = [
+                'title' => $title,
+                'text' => trim((string) ($row['text'] ?? '')),
+            ];
+        }
+
+        return $out;
+    }
+
     public function accommodationList(): array
     {
         $out = [];
@@ -202,6 +238,21 @@ class Package extends Model
     public function brochureUrl(): ?string
     {
         $path = trim((string) ($this->brochure ?? ''));
+
+        return $path === '' ? null : Storage::disk('public')->url($path);
+    }
+
+    /**
+     * URL gambar informasi harga, atau null bila belum diunggah.
+     *
+     * Sengaja TIDAK lewat imageUrl(): helper itu memulangkan gambar
+     * placeholder saat path kosong, dan bingkai harga harus benar-benar
+     * hilang kalau adminnya belum mengunggah apa pun -- bukan menampilkan
+     * kotak berisi gambar pengganti.
+     */
+    public function getPriceImageUrlAttribute(): ?string
+    {
+        $path = trim((string) ($this->priceImage ?? ''));
 
         return $path === '' ? null : Storage::disk('public')->url($path);
     }

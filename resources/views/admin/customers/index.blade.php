@@ -179,7 +179,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-8 py-32 text-center">
+                            <td colspan="6" class="px-8 py-14 text-center">
                                 <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">Belum ada data pelanggan</p>
                             </td>
                         </tr>

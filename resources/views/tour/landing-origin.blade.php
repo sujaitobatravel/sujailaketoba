@@ -79,13 +79,18 @@
 <div x-data="{ waNumber: @js(\App\Helpers\ContactHelper::whatsappDigits()) }">
     
     <!-- Programmatic SEO Hero Banner -->
-    <section class="relative pt-32 pb-16 md:pt-40 md:pb-24 overflow-hidden bg-primary px-5 md:px-8">
+    <section class="relative pt-14 pb-8 md:pt-20 md:pb-12 overflow-hidden bg-primary px-5 md:px-8">
         <div class="absolute inset-0 opacity-40">
             {{-- Halaman pSEO adalah jalur masuk utama dari Google, tapi selama ini
                  gambarnya melewatkan semua optimasi yang sudah dipakai homepage.
                  responsiveImage() memasang srcset 480/800/1200w. Hero tetap eager
                  + fetchpriority high karena dialah elemen LCP-nya. --}}
-            {!! responsiveImage($settings['hero_image_1_url'] ?? null, 'w-full h-full object-cover', __('Panorama Danau Toba'), 'fetchpriority="high" decoding="async"') !!}
+            {{-- Gambar kota asal dipakai lebih dulu bila ada (lihat
+                 PublicController::landingOrigin), baru jatuh ke hero umum
+                 dari Pengaturan. Alt-nya ikut berubah supaya tidak
+                 menjanjikan "Panorama Danau Toba" pada foto kota asal. --}}
+            @php $heroPath = ($originImage ?? null) ?: ($settings['hero_image_1_url'] ?? null); @endphp
+            {!! responsiveImage($heroPath, 'w-full h-full object-cover', ($originImage ?? null) ? __('Panorama :city', ['city' => $originName]) : __('Panorama Danau Toba'), 'fetchpriority="high" decoding="async"') !!}
         </div>
         <div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/80 to-transparent"></div>
         <div class="max-w-5xl mx-auto relative z-10 text-center">
@@ -100,7 +105,7 @@
             <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.1] mb-6">
                 Paket Wisata Danau Toba dari <span class="text-secondary">{{ $originName }}</span>
             </h1>
-            <p class="text-slate-300 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p class="text-slate-300 text-lg md:text-xl max-w-2xl mx-auto mb-6 leading-relaxed">
                 Penerbangan dan perjalanan Anda dari {{ $originName }} kini lebih mudah. Nikmati penjemputan VIP dari bandara Kualanamu / Silangit, rute terkurasi, dan pengalaman premium di Danau Toba tanpa ribet.
             </p>
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -115,7 +120,7 @@
 
     <!-- Featured Packages -->
     @if($settings['show_featured'] ?? true)
-    <section class="py-16 md:py-24 bg-surface overflow-hidden"
+    <section class="py-8 md:py-12 bg-surface overflow-hidden"
              x-data="{
                  isDragging: false, startX: 0, scrollLeft: 0,
                  scrollPercent: 0,
@@ -127,7 +132,7 @@
                  scrollNext() { this.el.scrollBy({ left: 380, behavior: 'smooth' }); },
              }">
         <div class="max-w-7xl mx-auto px-5 md:px-8">
-            <div class="flex flex-col md:flex-row items-start md:items-end justify-between mb-10 md:mb-14 gap-6">
+            <div class="flex flex-col md:flex-row items-start md:items-end justify-between mb-6 md:mb-8 gap-6">
                 <div class="max-w-xl">
                     <span class="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-secondary mb-3">
                         <span class="w-6 h-px bg-secondary"></span>{{ __('Paket Pilihan') }}
@@ -194,7 +199,7 @@
         }
     @endphp
 
-    <section class="bg-primary py-16 md:py-24 overflow-hidden"
+    <section class="bg-primary py-8 md:py-12 overflow-hidden"
              x-data="{
                  slides: @js($slides),
                  scrollContainer: null,
@@ -257,7 +262,7 @@
              }">
 
         {{-- Header --}}
-        <div class="max-w-7xl mx-auto px-5 md:px-8 mb-8 md:mb-12 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
+        <div class="max-w-7xl mx-auto px-5 md:px-8 mb-6 md:mb-8 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
             <div class="max-w-xl">
                 <span class="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-secondary-fixed mb-3">
                     <span class="w-6 h-px bg-secondary-fixed"></span>{{ __('Galeri Destinasi') }}
@@ -347,9 +352,9 @@
     <!-- Testimonials — Modern & Elegant -->
     @php $testimonials = $settings['testimonials'] ?? []; @endphp
     @if(($settings['show_testimonials'] ?? true) && count($testimonials))
-    <section class="py-16 md:py-24 bg-slate-50/50 border-t border-b border-slate-100">
+    <section class="py-8 md:py-12 bg-slate-50/50 border-t border-b border-slate-100">
         <div class="max-w-5xl mx-auto px-5 md:px-8">
-            <div class="flex items-center gap-3 mb-10 md:mb-12">
+            <div class="flex items-center gap-3 mb-6 md:mb-6">
                 <span class="w-6 h-px bg-toba-green"></span>
                 <span class="text-[11px] font-bold text-toba-green uppercase tracking-[0.25em]">{{ __('Testimoni Wisatawan') }}</span>
             </div>
@@ -386,7 +391,7 @@
 
     <!-- Specialist — High Contrast Banner -->
     @if($settings['show_specialist'] ?? true)
-    <section class="py-12 md:py-16 px-4 md:px-8">
+    <section class="py-6 md:py-8 px-4 md:px-8">
         <div class="max-w-5xl mx-auto">
             <div class="bg-slate-900 rounded-2xl p-6 md:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl border border-slate-800">
                 <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 text-center sm:text-left">
@@ -412,8 +417,8 @@
 
     <!-- Journal/Blog -->
     @if($settings['show_blogs'] ?? true)
-    <section class="py-16 md:py-24 max-w-7xl mx-auto px-5 md:px-8 bg-surface">
-        <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-10 md:mb-14 gap-4">
+    <section class="py-8 md:py-12 max-w-7xl mx-auto px-5 md:px-8 bg-surface">
+        <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-6 md:mb-8 gap-4">
             <div class="max-w-xl">
                 <span class="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.25em] text-secondary mb-3">
                     <span class="w-6 h-px bg-secondary"></span>{{ __('Cerita') }}
@@ -437,9 +442,9 @@
     @endif
 
     <!-- FAQ -->
-    <section class="py-16 md:py-24 bg-surface-container-low">
+    <section class="py-8 md:py-12 bg-surface-container-low">
         <div class="max-w-3xl mx-auto px-5">
-            <div class="text-center mb-10 md:mb-14">
+            <div class="text-center mb-6 md:mb-8">
                 <h2 class="text-3xl md:text-5xl font-bold text-primary tracking-tight mb-4">{{ __('Pertanyaan Umum') }}</h2>
                 <div class="w-12 h-0.5 bg-secondary mx-auto"></div>
             </div>
@@ -490,7 +495,7 @@
     </section>
 
     <!-- Cinema CTA -->
-    <section class="py-16 md:py-32 px-5 md:px-8 bg-surface">
+    <section class="py-8 md:py-14 px-5 md:px-8 bg-surface">
         <div class="max-w-7xl mx-auto bg-primary rounded-[2rem] md:rounded-[4rem] p-8 md:p-24 relative overflow-hidden shadow-[0_50px_100px_-20px] shadow-primary/30">
             <div class="absolute inset-0 opacity-40">
                 <img src="{{ $ctaImg }}" alt="{{ $ctaAlt ?? __('Suasana perjalanan bersama Sujai Laketoba') }}" class="w-full h-full object-cover" loading="lazy" decoding="async">
@@ -505,7 +510,7 @@
                 <h2 class="text-3xl sm:text-4xl md:text-7xl font-bold text-white mb-6 md:mb-8 tracking-tight leading-[1.05] md:leading-[0.95]">
                     {{ __('Siap Untuk') }} <br/> <span class="text-white">{{ __('Petualangan Nyata?') }}</span>
                 </h2>
-                <p class="text-base md:text-xl text-slate-300 mb-8 md:mb-12 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                <p class="text-base md:text-xl text-slate-300 mb-6 md:mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
                     @php
                         $touristsCount = $settings['stat_customers'] ?? '1.500+';
                     @endphp

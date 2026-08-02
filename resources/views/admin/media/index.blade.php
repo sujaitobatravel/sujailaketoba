@@ -258,7 +258,7 @@
             </div>
 
             <!-- Empty State -->
-            <div x-show="!loading && media.length === 0" class="py-40 text-center bg-white rounded-[4rem] border border-dashed border-slate-200">
+            <div x-show="!loading && media.length === 0" class="py-20 text-center bg-white rounded-[4rem] border border-dashed border-slate-200">
                 <div class="w-24 h-24 bg-slate-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 text-slate-200">
                     <i class="fas fa-folder-open text-4xl"></i>
                 </div>
@@ -274,7 +274,7 @@
             </div>
 
             <!-- Pagination -->
-            <div x-show="last_page > 1" class="flex flex-col sm:flex-row items-center justify-between gap-8 pt-12 border-t border-slate-100">
+            <div x-show="last_page > 1" class="flex flex-col sm:flex-row items-center justify-between gap-8 pt-6 border-t border-slate-100">
                 <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest">
                     Showing <span class="text-slate-900" x-text="media.length"></span> of <span class="text-slate-900" x-text="stats.total"></span> Assets
                 </p>
@@ -366,7 +366,7 @@
                             </template>
                             <template x-if="!auditLoading && (!auditData.orphans || auditData.orphans.length === 0)">
                                 <tr>
-                                    <td colspan="5" class="py-20 text-center text-slate-400 font-bold text-sm">
+                                    <td colspan="5" class="py-10 text-center text-slate-400 font-bold text-sm">
                                         <i class="fas fa-circle-check text-green-400 text-3xl mb-4"></i>
                                         <p>Hebat! Tidak ditemukan file yatim (orphan) fisik di disk. Penyimpanan Anda 100% sehat.</p>
                                     </td>
@@ -374,7 +374,7 @@
                             </template>
                             <template x-if="auditLoading">
                                 <tr>
-                                    <td colspan="5" class="py-20 text-center text-slate-400 font-bold text-sm">
+                                    <td colspan="5" class="py-10 text-center text-slate-400 font-bold text-sm">
                                         <i class="fas fa-spinner animate-spin text-green-800 text-3xl mb-4"></i>
                                         <p>Memindai seluruh penyimpanan disk server...</p>
                                     </td>
@@ -392,7 +392,7 @@
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" @click="uploadingUrlModal = false"></div>
         <div class="relative bg-white w-full max-w-lg rounded-3xl md:rounded-[3.5rem] p-6 md:p-12 shadow-2xl max-h-[90dvh] overflow-y-auto" x-transition>
             <h3 class="text-3xl font-black text-slate-900 tracking-tighter leading-none mb-4">Upload from URL</h3>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-10">Unduh & konversi otomatis ke WebP</p>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-6">Unduh & konversi otomatis ke WebP</p>
             
             <div class="space-y-8">
                 <div>
@@ -423,7 +423,7 @@
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" @click="renamingFolder = null"></div>
         <div class="relative bg-white w-full max-w-md rounded-3xl md:rounded-[3.5rem] p-6 md:p-12 shadow-2xl max-h-[90dvh] overflow-y-auto" x-transition>
             <h3 class="text-3xl font-black text-slate-900 tracking-tighter leading-none mb-4">Rename Folder</h3>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-10">Folder: <span x-text="renamingFolderData.old_name" class="text-green-800"></span></p>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-6">Folder: <span x-text="renamingFolderData.old_name" class="text-green-800"></span></p>
             
             <div class="space-y-8">
                 <div>
@@ -442,7 +442,7 @@
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" @click="movingAssets = null"></div>
         <div class="relative bg-white w-full max-w-md rounded-3xl md:rounded-[3.5rem] p-6 md:p-12 shadow-2xl max-h-[90dvh] overflow-y-auto" x-transition>
             <h3 class="text-3xl font-black text-slate-900 tracking-tighter leading-none mb-4">Move Items</h3>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-10">Relocate <span x-text="selectedIds.length" class="text-green-800"></span> selected items</p>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-6">Relocate <span x-text="selectedIds.length" class="text-green-800"></span> selected items</p>
             
             <div class="space-y-8">
                 <div>

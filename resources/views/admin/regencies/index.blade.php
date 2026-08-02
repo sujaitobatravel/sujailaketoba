@@ -93,7 +93,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="px-8 py-20 text-center">
+                        <td colspan="4" class="px-8 py-10 text-center">
                             <div class="flex flex-col items-center gap-4 text-slate-300">
                                 <i class="fas fa-map text-4xl"></i>
                                 <p class="font-black text-sm uppercase tracking-widest">Tidak ada data kabupaten</p>

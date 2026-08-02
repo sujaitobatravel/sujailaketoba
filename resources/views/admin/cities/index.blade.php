@@ -4,7 +4,7 @@
 @section('page-title', 'Location & Categories')
 
 @section('content')
-<div class="space-y-10">
+<div class="space-y-6">
     <!-- Header with Tabs -->
     <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-50">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -30,7 +30,7 @@
     </div>
 
     <!-- TAB 1: DAFTAR DESTINASI -->
-    <div id="tab-destinasi" class="space-y-10 tab-content active">
+    <div id="tab-destinasi" class="space-y-6 tab-content active">
         <!-- Multi-Level Filters -->
         <div class="bg-white p-8 rounded-[2.5rem] border border-slate-50 shadow-sm">
             <form action="{{ route('admin.cities.index') }}" method="GET" id="filter-form" class="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -123,7 +123,7 @@
                     </div>
                 </div>
             @empty
-                <div class="col-span-full py-32 text-center bg-white rounded-[2.5rem] border border-dashed border-slate-200">
+                <div class="col-span-full py-14 text-center bg-white rounded-[2.5rem] border border-dashed border-slate-200">
                     <i class="fas fa-map-location-dot text-4xl text-slate-100 mb-4"></i>
                     <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">Tidak ada destinasi yang cocok</p>
                 </div>

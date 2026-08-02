@@ -77,7 +77,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-10 py-20 text-center">
+                        <td colspan="5" class="px-10 py-10 text-center">
                             <div class="flex flex-col items-center">
                                 <i class="fas fa-folder-open text-3xl text-slate-200 mb-4"></i>
                                 <p class="text-slate-400 font-bold text-xs uppercase tracking-widest">Belum ada data transaksi yang tersimpan.</p>

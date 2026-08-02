@@ -13,7 +13,7 @@
         return asset('storage/' . $clean);
     };
 @endphp
-<div class="space-y-12 pb-32">
+<div class="space-y-6 pb-14">
     <!-- Header -->
     <div class="flex flex-col gap-2">
         <h1 class="text-3xl font-black text-slate-900 tracking-tight">Halaman Statis</h1>
@@ -50,7 +50,7 @@ document.addEventListener('alpine:init', () => {
     <div x-cloak x-data="cmsPagesHandler()" class="bg-white rounded-[2.5rem] p-10 border border-slate-50 shadow-sm">
         <form action="{{ route('admin.cms.save', 'page_about') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <div class="flex items-center justify-between mb-10">
+            <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-2xl bg-toba-green flex items-center justify-center text-white shadow-lg">
                         <i class="fas fa-info-circle text-sm"></i>
@@ -135,7 +135,7 @@ document.addEventListener('alpine:init', () => {
     <div class="bg-white rounded-[2.5rem] p-10 border border-slate-50 shadow-sm">
         <form action="{{ route('admin.cms.save', 'page_terms') }}" method="POST">
             @csrf
-            <div class="flex items-center justify-between mb-10">
+            <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-2xl bg-amber-500 flex items-center justify-center text-white shadow-lg">
                         <i class="fas fa-file-contract text-sm"></i>
@@ -159,7 +159,7 @@ document.addEventListener('alpine:init', () => {
     <div class="bg-white rounded-[2.5rem] p-10 border border-slate-50 shadow-sm">
         <form action="{{ route('admin.cms.save', 'page_privacy') }}" method="POST">
             @csrf
-            <div class="flex items-center justify-between mb-10">
+            <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-2xl bg-green-700 flex items-center justify-center text-white shadow-lg">
                         <i class="fas fa-shield-halved text-sm"></i>

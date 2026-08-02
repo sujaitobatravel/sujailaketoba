@@ -97,7 +97,7 @@
             console.error(e);
         }
     }
-}" class="space-y-10 w-full max-w-none">
+}" class="space-y-6 w-full max-w-none">
 
     <!-- Previews Floating Bar -->
     <template x-if="previews.length > 0">
@@ -195,7 +195,7 @@
             </div>
 
             <div class="w-full lg:w-2/3 flex flex-col gap-4">
-                <button type="button" @click="openMediaPickerForGallery()" class="w-full py-16 bg-white/5 border border-white/10 rounded-[2.5rem] text-white flex flex-col items-center justify-center gap-4 hover:bg-white/10 transition group">
+                <button type="button" @click="openMediaPickerForGallery()" class="w-full py-8 bg-white/5 border border-white/10 rounded-[2.5rem] text-white flex flex-col items-center justify-center gap-4 hover:bg-white/10 transition group">
                     <div class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-xl">
                         <i class="fas fa-images text-2xl"></i>
                     </div>
@@ -259,7 +259,7 @@
                 </div>
             </div>
         @empty
-            <div class="col-span-full py-40 text-center bg-white rounded-[3.5rem] border border-dashed border-slate-200">
+            <div class="col-span-full py-20 text-center bg-white rounded-[3.5rem] border border-dashed border-slate-200">
                 <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
                     <i class="fas fa-camera-retro text-3xl"></i>
                 </div>

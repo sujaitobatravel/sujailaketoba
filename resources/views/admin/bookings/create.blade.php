@@ -22,7 +22,7 @@
             </div>
         </div>
 
-        <form action="{{ route('admin.bookings.store') }}" method="POST" class="p-10 space-y-10">
+        <form action="{{ route('admin.bookings.store') }}" method="POST" class="p-10 space-y-6">
             @csrf
 
             <!-- Booking Type Selection -->
@@ -129,7 +129,7 @@
             </div>
 
             <!-- Form Actions -->
-            <div class="pt-10 border-t border-slate-50 flex flex-col sm:flex-row items-center gap-4">
+            <div class="pt-6 border-t border-slate-50 flex flex-col sm:flex-row items-center gap-4">
                 <button type="submit" class="w-full sm:w-auto px-12 py-5 bg-slate-900 text-white rounded-[2rem] font-black text-xs uppercase tracking-widest hover:bg-toba-green transition shadow-xl shadow-slate-200 group">
                     <i class="fas fa-save mr-2 group-hover:scale-125 transition"></i> Simpan Reservasi
                 </button>

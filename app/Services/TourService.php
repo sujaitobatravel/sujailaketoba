@@ -164,6 +164,33 @@ class TourService
             $data['accommodations'] = $rows;
         }
 
+        // 5b-3. Pembeda khusus paket. Sama seperti penginapan: barisnya dikirim
+        // ulang utuh tiap simpan, jadi menghapus baris di form = menghapus
+        // poinnya. Baris tanpa judul dibuang di sini, bukan disaring saat
+        // render -- supaya yang tersimpan di database sudah bersih dan tidak
+        // ada pembaca lain yang perlu tahu aturannya.
+        if (array_key_exists('highlights', $data)) {
+            $rows = [];
+
+            foreach ((array) $data['highlights'] as $row) {
+                if (! is_array($row)) {
+                    continue;
+                }
+
+                $title = trim((string) ($row['title'] ?? ''));
+                if ($title === '') {
+                    continue;
+                }
+
+                $rows[] = [
+                    'title' => $title,
+                    'text' => trim((string) ($row['text'] ?? '')),
+                ];
+            }
+
+            $data['highlights'] = $rows;
+        }
+
         // 5c. Brosur PDF -- satu berkas, unggahan baru menggantikan yang lama.
         if (! empty($data['remove_brochure']) && $package->brochure) {
             Storage::disk('public')->delete($package->brochure);
@@ -174,6 +201,19 @@ class TourService
                 Storage::disk('public')->delete($package->brochure);
             }
             $data['brochure'] = $data['brochure_file']->store('packages/brochures', 'public');
+        }
+
+        // 5d. Gambar informasi harga -- pola sama dengan brosur di atas:
+        // satu berkas, unggahan baru menggantikan yang lama.
+        if (! empty($data['remove_price_image']) && $package->priceImage) {
+            Storage::disk('public')->delete($package->priceImage);
+            $data['priceImage'] = null;
+        }
+        if (isset($data['price_image_file']) && $data['price_image_file']) {
+            if ($package->priceImage) {
+                Storage::disk('public')->delete($package->priceImage);
+            }
+            $data['priceImage'] = $data['price_image_file']->store('packages/price-images', 'public');
         }
 
         // 6. Save Package

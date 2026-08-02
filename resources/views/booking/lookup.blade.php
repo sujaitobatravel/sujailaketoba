@@ -5,7 +5,7 @@
 
 @section('content')
 <section class="bg-slate-950 text-white">
-    <div class="mx-auto max-w-3xl px-5 py-20 text-center md:px-8 md:py-28">
+    <div class="mx-auto max-w-3xl px-5 py-10 text-center md:px-8 md:py-14">
         <p class="text-xs font-bold uppercase tracking-[0.28em] text-green-300">Cek Booking</p>
         <h1 class="mt-4 text-3xl font-extrabold leading-tight md:text-5xl">Lihat Status Booking</h1>
         <p class="mx-auto mt-5 max-w-xl text-sm leading-7 text-slate-200 md:text-base">
@@ -14,7 +14,7 @@
     </div>
 </section>
 
-<section class="bg-slate-50 py-10 md:py-16">
+<section class="bg-slate-50 py-6 md:py-8">
     <div class="mx-auto max-w-xl px-5 md:px-8">
         {{-- Kode yang tidak ditemukan dulu berakhir di 404 mentah; sekarang tamu
              dikembalikan ke sini beserta alasannya. --}}

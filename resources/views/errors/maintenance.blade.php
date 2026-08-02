@@ -11,7 +11,7 @@
     </style>
 </head>
 <body class="bg-slate-50 flex items-center justify-center min-h-screen p-6">
-    <div class="max-w-xl w-full text-center space-y-10">
+    <div class="max-w-xl w-full text-center space-y-6">
         <div class="relative inline-block">
             <div class="w-32 h-32 bg-slate-900 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-2xl shadow-slate-200">
                 <i class="fas fa-hammer text-4xl text-white"></i>

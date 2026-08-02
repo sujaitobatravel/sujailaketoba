@@ -100,6 +100,15 @@
      membagi peringkat antara dua URL kembar. --}}
 @section('canonical', route('tour.package.detail', $package->slug))
 
+{{-- Halaman ini memasang batang ajakannya sendiri di kaki layar (harga paket +
+     WhatsApp + Pesan), jadi pil melayang bawaan layout dilewati. Dua-duanya
+     menempati sudut yang sama; yang bertahan harus yang tahu paket mana yang
+     sedang dibaca. Hanya versi tanpa form: halaman berform tidak punya batang
+     sendiri, jadi ia tetap butuh pil itu. --}}
+@if(! $showBookingForm)
+    @section('bar-bawah-sendiri', 'ya')
+@endif
+
 @section('og_image')
     @php
         $mainImg = count($packageImagesArray) > 0 ? $packageImagesArray[0]['url'] : null;
@@ -173,6 +182,16 @@
         'customerPhone' => (string) old('customerPhone', ''),
         'startDate' => (string) old('startDate', ''),
     ];
+
+    // Halaman /tour/detail dibaca di ponsel. Kartu putih bersudut lengkung di
+    // dalam halaman yang latarnya sudah terang hanya menyisakan bingkai dan
+    // padding: di layar 390px itu ~32px lebar bacaan yang hilang tanpa
+    // menambah kejelasan apa pun. Di sana blok dibiarkan rata; kartunya baru
+    // kembali mulai md. Halaman berform tidak diubah.
+    $sales = ! $showBookingForm;
+    $kartu = $sales
+        ? 'md:bg-white md:p-8 md:rounded-2xl md:border md:border-slate-200 md:shadow-sm'
+        : 'bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm';
 @endphp
 
 <div
@@ -321,13 +340,13 @@
     }"
     x-init="$watch('totalAkhir', value => { totalChanged = true; setTimeout(() => totalChanged = false, 500); })"
     @scroll.window="showConcierge = window.scrollY > 300"
-    {{-- pt-32 bawaan itu mengimbangi navbar seolah-olah ia `fixed`. Navbar-nya
+    {{-- pt-14 bawaan itu mengimbangi navbar seolah-olah ia `fixed`. Navbar-nya
          `sticky`, jadi sudah memakan ruangnya sendiri di alur normal --
          128px itu ruang kosong murni di bawah menu. Di halaman tanpa form
          (yang dibaca sambil menggulir cepat di ponsel) dipangkas habis.
          Halaman berform sengaja dibiarkan apa adanya: bukan bagian dari
          permintaan ini. --}}
-    class="bg-background text-on-background font-body-md min-h-screen {{ $showBookingForm ? 'pb-32 pt-32 md:pt-28' : 'pb-10 pt-4 md:pt-8' }}"
+    class="bg-background text-on-background font-body-md min-h-screen {{ $showBookingForm ? 'pb-14 pt-14 md:pt-14' : 'pb-6 pt-4 md:pt-8' }}"
 >
     {{-- Ringkasan teks untuk pembaca layar & crawler. sr-only saja (TANPA
          aria-hidden) supaya teknologi bantu ikut membacanya — ini pola sah,
@@ -373,7 +392,7 @@
     {{-- pb ekstra di mobile khusus halaman tanpa form: batang lengket di bawah
          menutupi ~72px terakhir, dan tanpa ini tombol penutup tersembunyi
          permanen di baliknya. --}}
-    <section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-10 {{ $showBookingForm ? '' : 'layout-rapat pb-28 md:pb-10' }} grid grid-cols-1 md:grid-cols-12 gap-8">
+    <section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-6 {{ $showBookingForm ? '' : 'layout-rapat pb-24 md:pb-6' }} grid grid-cols-1 md:grid-cols-12 gap-8">
         
         <!-- LEFT COLUMN WRAPPER -->
         {{-- Tanpa form, tidak ada lagi yang perlu duduk di sebelah kanan:
@@ -381,9 +400,227 @@
         <div class="contents md:block {{ $showBookingForm ? 'md:col-span-8' : 'md:col-span-12' }}">
 
         <!-- Hero/Gallery Part -->
-        <div class="space-y-8 animate-in fade-in slide-in-from-left-8 duration-1000 order-1 mb-8 md:mb-12">
+        @if(! $showBookingForm)
+        {{-- ================= HERO HALAMAN /tour/detail =================
+             Disusun dari ponsel dulu, baru dinaikkan ke desktop.
+
+             Kartu kaca yang menumpang di atas foto dilepas di sini. Di layar
+             390px ia menutupi sepertiga foto, memaksa judul patah jadi empat
+             baris, dan menyimpan harga 3.000px di bawah -- padahal harga dan
+             satu tombol WhatsApp adalah dua hal yang dicari tamu ponsel dalam
+             lima detik pertama. Judul, harga, dan ajakan sekarang duduk di alur
+             normal tepat di bawah foto.
+
+             Judulnya juga jadi teks server, bukan x-text: crawler yang tidak
+             menjalankan JavaScript ikut membaca H1 halaman ini. --}}
+        <div class="animate-in fade-in duration-700 order-1 mb-6 md:mb-8">
+
+            {{-- Galeri geser khusus ponsel. Semua foto berjajar dan digeser
+                 dengan jempol memakai scroll-snap bawaan browser -- tanpa
+                 pustaka geser, tanpa penangan sentuh buatan sendiri. Deretan
+                 thumbnail lama menuntut ketukan tepat pada kotak 140px;
+                 menggeser foto seukuran layar tidak menuntut apa pun.
+
+                 Fotonya dicetak server dengan @foreach, BUKAN template x-for:
+                 isi <template> baru ada setelah Alpine bangun, jadi foto
+                 terbesar halaman ini -- yang menentukan LCP -- akan menunggu
+                 satu berkas JavaScript selesai diunduh dan dijalankan sebelum
+                 permintaan gambarnya bahkan dimulai. Dengan src biasa, pemindai
+                 pramuat browser menemukannya sejak byte pertama HTML. Alpine di
+                 sini hanya mengurus titik penanda. --}}
+            <div class="bleed-mobile md:hidden">
+                <div x-ref="strip"
+                     @scroll.passive="activeImg = Math.round($refs.strip.scrollLeft / Math.max(1, $refs.strip.clientWidth))"
+                     class="flex overflow-x-auto snap-x snap-mandatory overscroll-x-contain no-scrollbar">
+                    @foreach($packageImagesArray as $i => $imgObj)
+                        <img class="w-full shrink-0 snap-center aspect-[4/3] object-cover bg-slate-100"
+                             src="{{ $imgObj['url'] }}"
+                             @if($imgObj['srcset']) srcset="{{ $imgObj['srcset'] }}" sizes="100vw" @endif
+                             alt="{{ $package->translated_name }}"
+                             fetchpriority="{{ $i === 0 ? 'high' : 'low' }}"
+                             loading="{{ $i === 0 ? 'eager' : 'lazy' }}" decoding="async"
+                             onerror="this.src='{{ asset('images/home/tour.webp') }}'">
+                    @endforeach
+                </div>
+
+                {{-- Titik penanda. Kotak ketuknya dibesarkan lewat padding di
+                     tombol, bukan lewat titiknya: titik setinggi 6px yang bisa
+                     diketuk memang mustahil kena. --}}
+                @if(count($packageImagesArray) > 1)
+                <div class="flex justify-center items-center gap-1 pt-3">
+                    @foreach($packageImagesArray as $i => $imgObj)
+                        <button type="button"
+                                @click="$refs.strip.scrollTo({ left: {{ $i }} * $refs.strip.clientWidth, behavior: 'smooth' })"
+                                aria-label="{{ __('Foto') }} {{ $i + 1 }}"
+                                class="px-1 py-2.5">
+                            <span class="block h-1.5 rounded-full transition-all duration-300"
+                                  :class="activeImg === {{ $i }} ? 'w-6 bg-toba-green' : 'w-1.5 bg-slate-300'"></span>
+                        </button>
+                    @endforeach
+                </div>
+                @endif
+            </div>
+
+            {{-- Versi desktop: satu foto besar + deretan thumbnail, seperti
+                 sisa situs. --}}
+            <div class="hidden md:block space-y-4">
+                <div class="relative h-[550px] overflow-hidden group rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+                    {{-- src biasa lebih dulu, baru :src menimpanya saat Alpine
+                         bangun: keduanya bernilai sama untuk foto pertama, jadi
+                         yang berubah hanya kapan browser boleh mulai mengunduh. --}}
+                    <img class="w-full h-full object-cover ken-burns group-hover:scale-110 transition-transform duration-[10s]"
+                         fetchpriority="high" decoding="async"
+                         alt="{{ $package->translated_name }}"
+                         src="{{ $packageImagesArray[0]['url'] ?? imageUrl($package->images[0] ?? null) }}"
+                         @if(!empty($packageImagesArray[0]['srcset'])) srcset="{{ $packageImagesArray[0]['srcset'] }}" @endif
+                         :src="package_images[activeImg] ? package_images[activeImg].url : '{{ imageUrl($package->images[0] ?? null) }}'"
+                         :srcset="package_images[activeImg] ? package_images[activeImg].srcset : ''"
+                         sizes="(max-width: 1024px) 50vw, 33vw"
+                         onerror="this.src='{{ asset('images/home/tour.webp') }}'"/>
+                </div>
+                <div x-show="package_images && package_images.length > 1" class="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+                    <template x-for="(imgObj, i) in package_images" :key="i">
+                        <div @click="activeImg = i"
+                             :class="activeImg === i ? 'ring-2 ring-green-500 ring-offset-2' : 'border border-slate-200/50'"
+                             class="min-w-[180px] h-32 rounded-xl overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition duration-300 shadow-sm">
+                            <img class="w-full h-full object-cover" loading="lazy" decoding="async" :src="imgObj.url" alt="" onerror="this.src='{{ asset('images/home/tour.webp') }}'"/>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            {{-- ---- Kepala halaman: judul, harga, ajakan ---- --}}
+            <div class="mt-3.5 md:mt-8">
+                <x-breadcrumb class="mb-2" :items="[
+                    ['label' => __('Paket Wisata'), 'url' => route('tour.packages')],
+                    ['label' => $package->translated_name ?? $package->name],
+                ]" />
+
+                <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                    <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-toba-green uppercase tracking-[0.14em]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-toba-green"></span>
+                        <span x-text="locationDisplay"></span>
+                    </span>
+                    @if(isset($originCity) && $originCity)
+                        <span class="bg-toba-green text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">
+                            Dari {{ $originCity }}
+                        </span>
+                    @endif
+                </div>
+
+                <h1 class="font-headline-lg text-[26px] leading-[1.15] md:text-4xl md:leading-tight font-bold text-primary">
+                    {{ $package->translated_name }}{{ $originSuffix }}
+                </h1>
+
+                {{-- Fakta cepat: dua hal yang selalu ditanyakan lebih dulu di
+                     obrolan WhatsApp -- berapa hari, dan berangkat dari mana. --}}
+                @php
+                    // Hanya kunci terjemahan yang sudah ada di ketiga bahasa
+                    // yang dipakai di sini (Hari, Malam) -- blok ini tidak boleh
+                    // jadi satu-satunya tempat di halaman yang jatuh ke bahasa
+                    // Indonesia saat tamu membuka versi Inggris.
+                    $jumlahMalam = count($package->accommodationList());
+                    $jumlahHari = is_array($package->itinerary) ? count($package->itinerary) : 0;
+                    // Satu keping waktu saja. Kolom duration umumnya sudah berbunyi
+                    // "3 Hari 2 Malam"; menambah keping "3 Hari" dari jumlah baris
+                    // rencana perjalanan di sebelahnya hanya mengulang hal yang sama.
+                    $kepingWaktu = trim((string) $package->duration) !== ''
+                        ? $package->duration
+                        : ($jumlahHari ? $jumlahHari . ' ' . __('Hari') : null);
+                    $faktaCepat = array_values(array_filter([
+                        $kepingWaktu ? ['schedule', $kepingWaktu] : null,
+                        $jumlahMalam ? ['hotel', $jumlahMalam . ' ' . __('Malam')] : null,
+                    ]));
+                @endphp
+                @if(count($faktaCepat))
+                <div class="flex flex-wrap gap-1.5 mt-2.5">
+                    @foreach($faktaCepat as [$ikon, $teks])
+                        <span class="inline-flex items-center gap-1.5 bg-primary/5 text-primary px-2.5 py-1.5 rounded-lg text-[13px] font-semibold">
+                            <span class="material-symbols-outlined text-[15px]">{{ $ikon }}</span>
+                            {{ $teks }}
+                        </span>
+                    @endforeach
+                </div>
+                @endif
+
+                {{-- Harga dinaikkan ke atas. Sebelumnya ia hanya ada di batang
+                     lengket dan di blok paling bawah halaman. Harga dan satuan
+                     per-orangnya disatukan sebaris: bentuk tiga barisnya (label,
+                     angka, "Setiap Orang") memakan tinggi tiga kali lipat untuk
+                     satu keping informasi yang sama.
+
+                     Tombol Pesan naik ke SEBELAH harga. Situs ini berjalan tanpa
+                     rating Google, jadi separuh kanan baris harga selama ini
+                     kosong melompong sementara tombolnya antre di baris sendiri
+                     di bawah -- ruang yang sudah ada dibayar penuh tapi tidak
+                     dipakai. Kalau ratingnya nanti diisi, ia kembali menempati
+                     tempatnya dan tombolnya turun lagi: tidak ada yang hilang di
+                     kedua keadaan, hanya barisnya yang berkurang satu. --}}
+                @php
+                    $__ratingHero = siteRating();
+                    $heroPesan = __('Halo, saya berminat dengan paket *:name*.', ['name' => $package->translated_name ?? $package->name])
+                        ."\n".url()->current();
+                    // Tanpa ukuran huruf: dua pemakainya butuh ukuran berbeda, dan
+                    // menulis dua kelas text-* pada satu elemen membuat pemenangnya
+                    // ditentukan urutan di dalam CSS hasil build -- bukan urutan
+                    // penulisan di atribut class, yang tidak berpengaruh apa pun.
+                    $kelasPesan = 'inline-flex items-center justify-center gap-2 min-h-[46px] border-2 border-primary/15 text-primary rounded-xl font-bold active:scale-[0.98] transition-transform';
+                @endphp
+                {{-- flex-wrap: di layar yang sangat sempit (320px) tombolnya turun
+                     sendiri ke baris berikutnya alih-alih menggencet angka harga
+                     sampai terpotong. --}}
+                <div class="flex flex-wrap items-end justify-between gap-3 mt-3 pt-3 border-t border-slate-200">
+                    <div class="min-w-0">
+                        <span class="font-label-caps text-[10px] text-slate-500 uppercase tracking-widest">{{ __('Mulai dari') }}</span>
+                        <p class="flex items-baseline gap-1.5 leading-tight">
+                            <span class="text-[26px] md:text-3xl font-extrabold text-toba-green" x-text="AppCurrency.format(package.price)"></span>
+                            {{-- Kunci 'org', sama dengan kalkulator di kartu paket
+                                 dan di grid /tour/packages: satu paket tidak boleh
+                                 menyebut satuan harga dengan kata yang berbeda dari
+                                 halaman yang baru saja ditinggalkan tamu. --}}
+                            <span class="text-[12px] text-slate-500 font-body-md font-normal">/{{ __('org') }}</span>
+                        </p>
+                    </div>
+                    @if($__ratingHero)
+                    <div class="text-right shrink-0">
+                        <span class="text-secondary font-bold text-lg font-body-md">★ {{ number_format($__ratingHero['value'], 1) }}</span>
+                        @if($__ratingHero['count'])
+                        <span class="text-slate-500 text-[11px] font-body-md block">
+                            {{ number_format($__ratingHero['count']) }} {{ __('ulasan') }}
+                        </span>
+                        @endif
+                    </div>
+                    @else
+                    <a href="{{ route('tour.package.detail', $package->slug) }}" class="{{ $kelasPesan }} shrink-0 whitespace-nowrap px-3.5 text-[14px]">
+                        <span class="material-symbols-outlined text-[19px]">calendar_month</span>
+                        {{ __('Pesan Sekarang') }}
+                    </a>
+                    @endif
+                </div>
+
+                {{-- Halaman ini tidak punya form: satu-satunya jalan keluar tamu
+                     adalah WhatsApp atau halaman berform, dan keduanya tidak boleh
+                     menunggu sampai tamu selesai menggulir. --}}
+                <div class="grid grid-cols-1 {{ $__ratingHero ? 'sm:grid-cols-2' : '' }} gap-2 mt-2.5">
+                    <a href="https://wa.me/{{ \App\Helpers\ContactHelper::whatsappDigits() }}?text={{ rawurlencode($heroPesan) }}"
+                       target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center justify-center gap-2.5 min-h-[46px] bg-toba-green text-white rounded-xl font-bold text-[15px] active:scale-[0.98] transition-transform">
+                        <x-icon name="whatsapp" class="w-5 h-5" />
+                        {{ __('Tanya lewat WhatsApp') }}
+                    </a>
+                    @if($__ratingHero)
+                    <a href="{{ route('tour.package.detail', $package->slug) }}" class="{{ $kelasPesan }} text-[15px]">
+                        <span class="material-symbols-outlined text-[20px]">calendar_month</span>
+                        {{ __('Pesan Sekarang') }}
+                    </a>
+                    @endif
+                </div>
+            </div>
+        </div>
+        @else
+        <div class="space-y-8 animate-in fade-in slide-in-from-left-8 duration-1000 order-1 mb-6 md:mb-8">
             <!-- Main Gallery -->
-            <div class="relative h-[min(420px,60dvh)] md:h-[550px] overflow-hidden group {{ $showBookingForm ? 'rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.12)]' : 'bleed-mobile md:rounded-[2rem] md:shadow-[0_8px_30px_rgb(0,0,0,0.12)]' }}">
+            <div class="relative h-[min(420px,60dvh)] md:h-[550px] overflow-hidden group rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
                 <img class="w-full h-full object-cover ken-burns group-hover:scale-110 transition-transform duration-[10s]"
                      fetchpriority="high" decoding="async"
                      :src="package_images[activeImg] ? package_images[activeImg].url : '{{ imageUrl($package->images[0] ?? null) }}'"
@@ -425,8 +662,8 @@
                 </template>
             </div>
         </div>
+        @endif
 
-        
     <style>
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
@@ -434,24 +671,22 @@
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
     </style>
 
-    </style>
-
         <!-- Content Part -->
-        <div class="space-y-16 animate-in fade-in slide-in-from-left-8 duration-1000 order-3 mt-8 md:mt-0">
+        <div class="space-y-8 animate-in fade-in slide-in-from-left-8 duration-1000 order-3 mt-8 md:mt-0">
             
             <!-- Section: Itinerary -->
             <div class="space-y-8" id="section-itinerary">
                 <!-- Header Section Itinerary -->
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
-                        <span class="material-symbols-outlined text-[24px]">map</span>
+                <div class="flex items-center gap-2.5 md:gap-3">
+                    <div class="w-9 h-9 md:w-12 md:h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+                        <span class="material-symbols-outlined text-[18px] md:text-[24px]">map</span>
                     </div>
-                    <h2 class="font-headline-md text-2xl text-primary font-bold">{{ __('AGENDA PERJALANAN') }}</h2>
+                    <h2 class="font-headline-md text-lg md:text-2xl text-primary font-bold">{{ __('AGENDA PERJALANAN') }}</h2>
                 </div>
 
                 <!-- Ringkasan Pengalaman -->
-                <div class="bg-white p-6 md:p-8 rounded-2xl border border-slate-200">
-                    <h2 class="font-headline-md text-headline-md text-primary mb-4 md:mb-6">{{ __('Ringkasan Pengalaman') }}</h2>
+                <div class="{{ $sales ? 'md:bg-white md:p-8 md:rounded-2xl md:border md:border-slate-200' : 'bg-white p-6 md:p-8 rounded-2xl border border-slate-200' }}">
+                    <h2 class="font-headline-md text-xl md:text-headline-md text-primary mb-3 md:mb-6">{{ __('Ringkasan Pengalaman') }}</h2>
                     <div class="prose prose-slate max-w-none text-slate-600 font-body-md text-body-md leading-relaxed" x-html="package.translated_description"></div>
 
                     @if($coverExif)
@@ -486,19 +721,31 @@
                     $pSEOCities    = array_filter(array_map('trim', explode(',', $originsString)));
                 @endphp
                 @if(count($pSEOCities) > 0)
-                <div class="bg-toba-green/5 border border-toba-green/15 rounded-2xl p-6 md:p-8">
-                    <p class="text-[10px] font-black text-toba-green uppercase tracking-widest mb-4">
-                        <span class="material-symbols-outlined text-[14px] align-middle mr-1">flight_takeoff</span>
-                        Paket ini tersedia keberangkatan dari:
-                    </p>
-                    <div class="flex flex-wrap gap-2">
+                {{-- Daftar kota keberangkatan itu 15 tautan. Di ponsel ia
+                     menyita satu layar penuh tepat di tengah bacaan, padahal
+                     tugasnya menautkan halaman untuk mesin pencari -- bukan
+                     dibaca berurutan oleh tamu. Jadi ia terlipat di ponsel
+                     (tautannya tetap ada di DOM, hanya tidak tampak) dan
+                     terbuka apa adanya mulai md. --}}
+                <div x-data="{ bukaKota: window.innerWidth >= 768 }" class="bg-toba-green/5 border border-toba-green/15 rounded-2xl p-4 md:p-8">
+                    <button type="button" @click="bukaKota = !bukaKota"
+                            :aria-expanded="bukaKota ? 'true' : 'false'"
+                            class="w-full flex items-center justify-between gap-3 text-left min-h-[44px] md:min-h-0 md:pointer-events-none">
+                        <span class="text-[11px] font-black text-toba-green uppercase tracking-widest flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px]">flight_takeoff</span>
+                            Paket ini tersedia keberangkatan dari:
+                        </span>
+                        <span class="material-symbols-outlined text-toba-green text-[22px] md:hidden transition-transform duration-300"
+                              :class="bukaKota ? 'rotate-180' : ''">expand_more</span>
+                    </button>
+                    <div x-show="bukaKota" x-cloak class="flex flex-wrap gap-2 mt-4">
                         @foreach($pSEOCities as $cityLink)
                             @php
                                 $citySlug = \Illuminate\Support\Str::slug($cityLink);
                                 $isActive = (isset($originCity) && strtolower($originCity) === strtolower(trim($cityLink)));
                             @endphp
                             <a href="{{ url('/tour/package/' . $package->slug . '-dari-' . $citySlug) }}"
-                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition
+                               class="inline-flex items-center gap-1.5 px-3.5 min-h-[40px] rounded-full text-[13px] font-bold transition
                                       {{ $isActive ? 'bg-toba-green text-white shadow-sm' : 'bg-white text-toba-green border border-toba-green/25 hover:bg-toba-green hover:text-white hover:border-toba-green' }}">
                                 @if($isActive)<span class="material-symbols-outlined text-[13px]">check_circle</span>@endif
                                 {{ ucwords(trim($cityLink)) }}
@@ -509,31 +756,50 @@
                 @endif
 
 
-                <div x-show="package.itinerary || package.translated_itinerary_text" class="space-y-6 py-8 border-t border-outline-variant">
-                    <h2 class="font-headline-md text-headline-md text-primary">{{ __('Rencana Perjalanan') }}</h2>
+                <div x-show="package.itinerary || package.translated_itinerary_text" class="space-y-5 md:space-y-6 py-6 md:py-8 border-t border-outline-variant">
+                    <h2 class="font-headline-md text-xl md:text-headline-md text-primary">{{ __('Rencana Perjalanan') }}</h2>
+
+                    <div x-show="package.translated_itinerary_text" class="{{ $sales ? 'md:bg-white md:rounded-2xl md:p-8 md:border md:border-slate-200 md:shadow-sm' : 'bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-sm' }} whitespace-pre-line text-slate-600 font-body-md text-body-md leading-relaxed" x-text="package.translated_itinerary_text"></div>
                     
-                    <div x-show="package.translated_itinerary_text" class="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-sm whitespace-pre-line text-slate-600 font-body-md text-body-md leading-relaxed" x-text="package.translated_itinerary_text"></div>
-                    
-                    <div x-show="!package.translated_itinerary_text && package.itinerary" class="space-y-8 relative">
+                    {{-- Kegiatan satu hari dikumpulkan dalam SATU kotak, bukan
+                         satu kotak per kegiatan. Bentuk lamanya memberi tiap
+                         baris bingkai, sudut lengkung, dan padding 12px
+                         sendiri-sendiri: satu hari dengan lima kegiatan jadi
+                         lima kotak setinggi hampir satu layar penuh, dan
+                         pembacanya harus menggulir jauh hanya untuk tahu isi
+                         satu hari. Bingkainya juga tidak memisahkan apa pun --
+                         semua isinya setara. Satu kotak dengan garis pemisah
+                         tipis menyampaikan hal yang sama dalam sepertiga
+                         tinggi. --}}
+                    <div x-show="!package.translated_itinerary_text && package.itinerary" class="space-y-3 md:space-y-8 relative">
                         <template x-for="(day, i) in package.itinerary" :key="i">
-                            <div class="flex gap-5 group">
+                            <div class="flex gap-3 md:gap-5 group">
                                 <div class="flex flex-col items-center">
-                                    <div class="w-10 h-10 rounded-full border border-secondary flex items-center justify-center text-secondary font-semibold group-hover:bg-secondary group-hover:text-on-secondary transition-colors" x-text="String(day.day || (i + 1)).padStart(2, '0')"></div>
-                                    <div class="w-px h-full bg-outline-variant my-2"></div>
+                                    <div class="w-8 h-8 md:w-10 md:h-10 rounded-full border border-secondary flex items-center justify-center text-secondary text-[13px] md:text-base font-semibold shrink-0 group-hover:bg-secondary group-hover:text-on-secondary transition-colors" x-text="String(day.day || (i + 1)).padStart(2, '0')"></div>
+                                    <div class="w-px h-full bg-outline-variant my-1.5"></div>
                                 </div>
-                                <div class="pb-6 flex-1">
-                                    <h3 class="font-headline-md text-body-lg font-semibold text-slate-900" x-text="day.title"></h3>
-                                    <p class="font-body-md text-slate-600 leading-relaxed mt-2" x-text="day.description"></p>
-                                    
+                                <div class="pb-3 md:pb-6 flex-1 min-w-0">
+                                    <h3 class="font-headline-md text-body-lg font-semibold text-slate-900 leading-snug mt-1 md:mt-0" x-text="day.title"></h3>
+                                    <p class="font-body-md text-slate-600 leading-relaxed mt-1" x-text="day.description"></p>
+
                                     <template x-if="day.activities && day.activities.length > 0">
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                                        {{-- Garis pemisah ditempel per-baris dengan
+                                             last:border-b-0, BUKAN divide-y pada
+                                             pembungkusnya. divide-y memilih anak
+                                             lewat :first-child / sibling, dan
+                                             <template> Alpine tetap terhitung
+                                             sebagai anak pertama walau tidak
+                                             tampak -- akibatnya baris pertama ikut
+                                             kebagian garis dan muncul sebagai
+                                             coretan liar di tepi atas kotak. --}}
+                                        <ul class="mt-2.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-0.5">
                                             <template x-for="(act, j) in day.activities" :key="j">
-                                                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200 transition">
-                                                    <div class="w-1.5 h-1.5 bg-secondary rounded-full"></div>
-                                                    <span class="text-xs font-medium text-slate-700" x-text="act"></span>
-                                                </div>
+                                                <li class="flex items-start gap-2.5 py-[7px] border-b border-slate-200/70 last:border-b-0">
+                                                    <span class="mt-[7px] w-1.5 h-1.5 bg-secondary rounded-full shrink-0"></span>
+                                                    <span class="text-[14px] md:text-xs font-medium text-slate-700 leading-snug" x-text="act"></span>
+                                                </li>
                                             </template>
-                                        </div>
+                                        </ul>
                                     </template>
                                 </div>
                             </div>
@@ -545,18 +811,18 @@
             <!-- Section: Pricing & Facilities -->
             <div class="space-y-8 pt-8 border-t border-slate-200" id="section-pricing">
                 <!-- Header Section Pricing -->
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
-                        <span class="material-symbols-outlined text-[24px]">payments</span>
+                <div class="flex items-center gap-2.5 md:gap-3">
+                    <div class="w-9 h-9 md:w-12 md:h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+                        <span class="material-symbols-outlined text-[18px] md:text-[24px]">payments</span>
                     </div>
-                    <h2 class="font-headline-md text-2xl text-primary font-bold">{{ __('BIAYA & FASILITAS') }}</h2>
+                    <h2 class="font-headline-md text-lg md:text-2xl text-primary font-bold">{{ __('BIAYA & FASILITAS') }}</h2>
                 </div>
                 <!-- Rincian Biaya -->
-                <div x-show="package.pricingDetails && package.pricingDetails.length > 0" class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div x-show="package.pricingDetails && package.pricingDetails.length > 0" class="{{ $kartu }}">
+                    <div class="flex flex-row justify-between items-center mb-5 md:mb-8 gap-4">
                         <div>
                             <span class="font-label-caps text-label-caps text-secondary block mb-1">{{ __('RINCIAN BIAYA') }}</span>
-                            <h3 class="font-headline-md text-headline-md text-primary">{{ __('Investasi Perjalanan') }}</h3>
+                            <h3 class="font-headline-md text-xl md:text-headline-md text-primary">{{ __('Investasi Perjalanan') }}</h3>
                         </div>
                         <div class="px-4 py-2 bg-slate-900 rounded-lg text-on-primary">
                             <span class="font-label-caps text-[10px] uppercase tracking-wider opacity-60 block">{{ __('Musim') }}</span>
@@ -564,11 +830,11 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-6 md:mb-8">
                         <template x-for="price in package.pricingDetails" :key="price.pax">
-                            <div class="flex items-center justify-between p-5 bg-slate-50 rounded-xl border border-slate-200 group">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-secondary transition">
+                            <div class="flex items-center justify-between p-4 md:p-5 bg-slate-50 rounded-xl border border-slate-200 group">
+                                <div class="flex items-center gap-3 md:gap-4">
+                                    <div class="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-secondary transition shrink-0">
                                         <span class="material-symbols-outlined text-[20px]">group</span>
                                     </div>
                                     <div>
@@ -586,13 +852,13 @@
                         </template>
                     </div>
 
-                    <div class="p-6 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-4">
+                    <div class="p-4 md:p-6 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-3 md:gap-4">
                         <div class="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-primary shrink-0">
                             <span class="material-symbols-outlined text-[20px]">info</span>
                         </div>
                         <div>
                             <p class="font-label-caps text-xs font-semibold text-primary mb-1 uppercase tracking-wider">{{ __('Catatan Penting') }}</p>
-                            <p class="text-xs text-slate-600 font-body-md font-normal leading-relaxed">{{ __('Harga bisa berubah sesuai musim dan ketersediaan. Untuk grup besar, kami bisa bantu buat penawaran khusus.') }}</p>
+                            <p class="text-[13px] md:text-xs text-slate-600 font-body-md font-normal leading-relaxed">{{ __('Harga bisa berubah sesuai musim dan ketersediaan. Untuk grup besar, kami bisa bantu buat penawaran khusus.') }}</p>
                         </div>
                     </div>
                 </div>
@@ -609,35 +875,38 @@
                      tanpa error, sementara datanya duduk lengkap di
                      package.includes. Ini justru informasi yang paling
                      menentukan orang jadi memesan atau tidak. --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200" x-show="(package.includes || []).length" x-cloak>
-                        <h3 class="text-lg font-semibold text-slate-900 mb-6 flex items-center gap-3 font-headline-md">
-                            <div class="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shadow-sm">
+                {{-- Isi paket itu bacaan penentu, bukan keterangan kaki. Ukuran
+                     12px dengan leading-tight praktis tidak terbaca di ponsel;
+                     di sana ia dinaikkan ke 15px dan diberi napas antar-baris. --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+                    <div class="{{ $kartu }}" x-show="(package.includes || []).length" x-cloak>
+                        <h3 class="text-lg font-semibold text-slate-900 mb-4 md:mb-6 flex items-center gap-3 font-headline-md">
+                            <div class="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shadow-sm shrink-0">
                                 <span class="material-symbols-outlined text-[20px]">check_circle</span>
                             </div>
                             {{ __('Termasuk') }}
                         </h3>
-                        <ul class="space-y-4">
+                        <ul class="space-y-3 md:space-y-4">
                             <template x-for="(item, i) in (package.includes || [])" :key="i">
                                 <li class="flex items-start gap-3">
-                                    <div class="mt-1.5 w-1.5 h-1.5 bg-primary rounded-full shrink-0 shadow-sm"></div>
-                                    <span class="text-slate-700 font-medium text-xs leading-tight font-body-md" x-text="item"></span>
+                                    <div class="mt-2 w-1.5 h-1.5 bg-primary rounded-full shrink-0 shadow-sm"></div>
+                                    <span class="text-slate-700 font-medium text-[15px] md:text-xs leading-snug md:leading-tight font-body-md" x-text="item"></span>
                                 </li>
                             </template>
                         </ul>
                     </div>
-                    <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200" x-show="(package.excludes || []).length" x-cloak>
-                        <h3 class="text-lg font-semibold text-slate-900 mb-6 flex items-center gap-3 font-headline-md">
-                            <div class="w-9 h-9 rounded-lg bg-red-100 text-error flex items-center justify-center">
+                    <div class="{{ $kartu }}" x-show="(package.excludes || []).length" x-cloak>
+                        <h3 class="text-lg font-semibold text-slate-900 mb-4 md:mb-6 flex items-center gap-3 font-headline-md">
+                            <div class="w-9 h-9 rounded-lg bg-red-100 text-error flex items-center justify-center shrink-0">
                                 <span class="material-symbols-outlined text-[20px]">cancel</span>
                             </div>
                             {{ __('Tidak Termasuk') }}
                         </h3>
-                        <ul class="space-y-4">
+                        <ul class="space-y-3 md:space-y-4">
                             <template x-for="(item, i) in (package.excludes || [])" :key="i">
                                 <li class="flex items-start gap-3">
-                                    <div class="mt-1.5 w-1.5 h-1.5 bg-error rounded-full shrink-0"></div>
-                                    <span class="text-slate-700 font-medium text-xs leading-tight font-body-md" x-text="item"></span>
+                                    <div class="mt-2 w-1.5 h-1.5 bg-error rounded-full shrink-0"></div>
+                                    <span class="text-slate-700 font-medium text-[15px] md:text-xs leading-snug md:leading-tight font-body-md" x-text="item"></span>
                                 </li>
                             </template>
                         </ul>
@@ -648,13 +917,13 @@
             <!-- Section: Reviews -->
             <div class="space-y-8 pt-8 border-t border-slate-200" id="section-reviews">
                 <!-- Header Section Reviews -->
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
-                        <span class="material-symbols-outlined text-[24px]">grade</span>
+                <div class="flex items-center gap-2.5 md:gap-3">
+                    <div class="w-9 h-9 md:w-12 md:h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+                        <span class="material-symbols-outlined text-[18px] md:text-[24px]">grade</span>
                     </div>
-                    <h2 class="font-headline-md text-2xl text-primary font-bold">{{ __('ULASAN') }}</h2>
+                    <h2 class="font-headline-md text-lg md:text-2xl text-primary font-bold">{{ __('ULASAN') }}</h2>
                 </div>
-                <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200">
+                <div class="{{ $kartu }}">
                     @php
                         $testimonials = $siteSettings['cms_tour']['testimonials'] ?? [];
                     @endphp
@@ -664,9 +933,9 @@
                             <h3 class="text-xl font-semibold font-headline-md text-primary mb-2">{{ __('Ulasan Pengunjung') }}</h3>
                             <p class="text-slate-600 font-body-md text-sm">{{ __('Cerita dari mereka yang sudah bepergian bersama kami.') }}</p>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
                             @foreach($testimonials as $t)
-                            <div class="p-6 bg-slate-50 rounded-xl border border-slate-200 transition">
+                            <div class="p-4 md:p-6 bg-slate-50 rounded-xl border border-slate-200 transition">
                                 <div class="flex items-center gap-3 mb-4">
                                     @if(!empty($t['image']))
                                         <img src="{{ imageUrl($t['image']) }}" loading="lazy" decoding="async" class="w-10 h-10 rounded-lg object-cover bg-slate-200" alt="{{ $t['name'] }}" onerror="this.style.display='none'">
@@ -676,16 +945,16 @@
                                         </div>
                                     @endif
                                     <div>
-                                        <p class="font-semibold text-slate-900 text-xs font-body-md">{{ $t['name'] }}</p>
-                                        <p class="text-[9px] font-semibold text-slate-500 uppercase tracking-wider font-label-caps">{{ __($t['location'] ?? '') }}</p>
+                                        <p class="font-semibold text-slate-900 text-sm md:text-xs font-body-md">{{ $t['name'] }}</p>
+                                        <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider font-label-caps">{{ __($t['location'] ?? '') }}</p>
                                     </div>
                                 </div>
-                                <p class="text-xs text-slate-600 font-body-md font-normal leading-relaxed italic">"{{ __($t['text'] ?? '') }}"</p>
+                                <p class="text-[14px] md:text-xs text-slate-600 font-body-md font-normal leading-relaxed italic">"{{ __($t['text'] ?? '') }}"</p>
                             </div>
                             @endforeach
                         </div>
                     @else
-                        <div class="text-center py-12">
+                        <div class="text-center py-6">
                             <div class="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <span class="material-symbols-outlined text-[40px] text-primary/40">chat_bubble</span>
                             </div>
@@ -701,6 +970,8 @@
                 </div>
             </div>
             
+            @include('tour.partials.package-gallery', ['foto' => $packageImagesArray, 'salesMode' => ! $showBookingForm])
+
             @include('tour.partials.package-media', ['salesMode' => ! $showBookingForm])
 
             @if(! $showBookingForm)
@@ -708,24 +979,24 @@
             @endif
 
             <!-- Travel Specialist & PDF CTA Row -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 pt-8">
                 {{-- Brosur yang diunggah admin menang atas itinerary PDF yang
                      dibangkitkan sistem: kalau admin sampai menyiapkan brosur
                      sendiri untuk paket ini, itulah yang ingin ia berikan. --}}
                 @php $brochureUrl = $package->brochureUrl(); @endphp
                 <a href="{{ $brochureUrl ?? route('itinerary.download', $package->slug) }}"
                    @if($brochureUrl) target="_blank" rel="noopener" @endif
-                   class="flex flex-col items-center justify-center p-8 bg-white border border-outline-variant rounded-xl shadow-lg hover:border-secondary hover:shadow-xl transition duration-300 group text-center h-full">
-                    <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary mb-4 group-hover:scale-110 transition-transform">
+                   class="flex flex-col items-center justify-center p-6 md:p-8 bg-white border border-outline-variant rounded-2xl shadow-lg hover:border-secondary hover:shadow-xl transition duration-300 group text-center h-full">
+                    <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary mb-3 md:mb-4 group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-[24px]">download</span>
                     </div>
                     <h3 class="font-headline-md text-body-lg font-semibold text-primary mb-1">{{ __('Unduh Brosur PDF') }}</h3>
-                    <p class="text-xs text-on-surface-variant font-body-md mb-4">{{ __('Dapatkan detail jadwal & informasi lengkap offline.') }}</p>
-                    <span class="text-xs font-bold text-secondary font-label-caps tracking-wider underline">{{ __('DOWNLOAD SEKARANG') }}</span>
+                    <p class="text-[13px] md:text-xs text-on-surface-variant font-body-md mb-3 md:mb-4">{{ __('Dapatkan detail jadwal & informasi lengkap offline.') }}</p>
+                    <span class="text-[13px] md:text-xs font-bold text-secondary font-label-caps tracking-wider underline">{{ __('DOWNLOAD SEKARANG') }}</span>
                 </a>
 
                 <!-- Contact Specialist Card -->
-                <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm relative overflow-hidden group">
+                <div class="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-sm relative overflow-hidden group">
                     <div class="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -mr-10 -mt-10 group-hover:scale-125 transition-transform duration-500"></div>
                     <div class="flex items-center gap-4 mb-4 relative z-10">
                         <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-primary overflow-hidden border-2 border-white shadow-md">
@@ -736,10 +1007,10 @@
                             <p class="text-sm font-bold text-primary font-body-md">{{ $siteSettings['cms_tour']['specialist_name'] ?? 'Sarah Anggraini' }}</p>
                         </div>
                     </div>
-                    <p class="text-[11px] text-slate-600 font-body-md font-normal leading-relaxed mb-4 relative z-10">{{ __($siteSettings['cms_tour']['specialist_desc'] ?? 'Punya pertanyaan khusus? Kami siap bantu pilih paket yang paling pas.') }}</p>
+                    <p class="text-[13px] md:text-[11px] text-slate-600 font-body-md font-normal leading-relaxed mb-4 relative z-10">{{ __($siteSettings['cms_tour']['specialist_desc'] ?? 'Punya pertanyaan khusus? Kami siap bantu pilih paket yang paling pas.') }}</p>
                     <a :href="'https://wa.me/{{ \App\Helpers\ContactHelper::specialistDigits() }}?text=' + encodeURIComponent('Halo ' + ('{{ $siteSettings['cms_tour']['specialist_name'] ?? 'Sarah' }}').split(' ')[0] + ', saya tertarik bertanya tentang paket: ' + package.translated_name)" 
                        target="_blank"
-                       class="flex items-center justify-center gap-1.5 py-2.5 bg-primary/5 text-primary rounded-lg font-semibold text-[10px] uppercase tracking-wider hover:bg-primary hover:text-on-primary transition relative z-10 border border-primary/20">
+                       class="flex items-center justify-center gap-1.5 min-h-[48px] md:min-h-0 md:py-2.5 bg-primary/5 text-primary rounded-xl font-semibold text-[12px] md:text-[10px] uppercase tracking-wider hover:bg-primary hover:text-on-primary transition relative z-10 border border-primary/20">
                         <span class="material-symbols-outlined text-[16px]">chat</span>
                         {{ __('Tanya Sekarang') }}
                     </a>
@@ -756,7 +1027,7 @@
              membaca, bukan sebelum. Sticky & max-h ikut dilepas -- tidak ada
              gunanya melengket kalau ia sudah jadi blok terakhir. --}}
         <div id="booking-form-sidebar" class="{{ $showBookingForm ? 'md:col-span-4 relative order-2 h-full' : 'md:col-span-12 relative order-last' }}">
-            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-md border border-slate-200 space-y-6 {{ $showBookingForm ? 'md:sticky md:top-28 md:max-h-[85vh] md:overflow-y-auto custom-scroll' : 'md:max-w-lg md:mx-auto' }}">
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 space-y-6 {{ $showBookingForm ? 'p-6 md:p-8 md:sticky md:top-28 md:max-h-[85vh] md:overflow-y-auto custom-scroll' : 'p-4 md:p-8 md:max-w-lg md:mx-auto' }}">
                 @if(session('success'))
                     {{-- Pesanan yang benar-benar tercatat sekarang dialihkan ke
                          halaman pelacakan (URL permanen), jadi panel ini hanya
@@ -821,8 +1092,14 @@
                                 . \Illuminate\Support\Js::from(array_values($quotePricing['tiers'] ?? [])) . ', '
                                 . \Illuminate\Support\Js::from($package->translated_name ?? $package->name) . ')';
                         @endphp
-                        <div class="-mx-6 md:-mx-8">
-                            @include('partials.pax-calc', ['xdata' => $quoteXdata])
+                        {{-- Margin negatifnya harus sama persis dengan padding
+                             kotak induk, kalau tidak kalkulatornya menjorok
+                             keluar kartu. Induk: p-4 di ponsel, p-8 mulai md. --}}
+                        <div class="-mx-4 md:-mx-8">
+                            @include('partials.pax-calc', [
+                                'xdata' => $quoteXdata,
+                                'priceImage' => \Illuminate\Support\Js::from($package->price_image_url ?? null),
+                            ])
                         </div>
                         <p class="text-center text-[11px] text-slate-500 font-body-md">{{ __('Konfirmasi cepat tersedia untuk tanggal terpilih.') }}</p>
                     @else
@@ -1056,12 +1333,12 @@
                 <a href="https://wa.me/{{ \App\Helpers\ContactHelper::whatsappDigits() }}?text={{ rawurlencode($barPesan) }}"
                    target="_blank" rel="noopener noreferrer"
                    aria-label="{{ __('Tanya lewat WhatsApp') }}"
-                   class="shrink-0 w-11 h-11 rounded-full border border-toba-green text-toba-green flex items-center justify-center active:scale-95 transition-transform">
-                    <x-icon name="whatsapp" class="w-4 h-4" />
+                   class="shrink-0 w-12 h-12 rounded-full border-2 border-toba-green text-toba-green flex items-center justify-center active:scale-95 transition-transform">
+                    <x-icon name="whatsapp" class="w-5 h-5" />
                 </a>
                 <a href="{{ route('tour.package.detail', $package->slug) }}"
-                   class="shrink-0 inline-flex items-center gap-1.5 bg-toba-green text-white px-5 py-3 rounded-full font-semibold text-[13px] active:scale-95 transition-transform">
-                    <span class="material-symbols-outlined text-[16px]">calendar_month</span>
+                   class="shrink-0 inline-flex items-center gap-1.5 min-h-[48px] bg-toba-green text-white px-5 rounded-full font-bold text-[14px] active:scale-95 transition-transform">
+                    <span class="material-symbols-outlined text-[18px]">calendar_month</span>
                     {{ __('Pesan Sekarang') }}
                 </a>
             </div>

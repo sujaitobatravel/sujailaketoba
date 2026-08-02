@@ -4,7 +4,7 @@
 @section('page-title', 'Preview Artikel Blog')
 
 @section('content')
-<div class="max-w-5xl mx-auto space-y-10 pb-32">
+<div class="max-w-5xl mx-auto space-y-6 pb-14">
     <!-- Action Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <div class="flex items-center gap-4">
@@ -28,7 +28,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <!-- Content Column -->
-        <div class="lg:col-span-8 space-y-10">
+        <div class="lg:col-span-8 space-y-6">
             <!-- Article Header -->
             <div class="bg-white rounded-[3rem] p-10 lg:p-16 border border-slate-50 shadow-sm space-y-8">
                 <div class="space-y-4">

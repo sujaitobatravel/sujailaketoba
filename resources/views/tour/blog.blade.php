@@ -55,7 +55,7 @@
         },
         locale: '{{ session('locale', 'my') === 'my' ? 'ms-MY' : (session('locale') === 'en' ? 'en-SG' : 'id-ID') }}'
     }"
-    class="bg-surface min-h-screen pb-32 font-body-md text-on-background selection:bg-primary-container selection:text-on-primary-container"
+    class="bg-surface min-h-screen pb-14 font-body-md text-on-background selection:bg-primary-container selection:text-on-primary-container"
 >
     <!-- Cinematic Premium Hero Section -->
     <div class="relative h-[60dvh] flex items-center overflow-hidden bg-primary">
@@ -66,7 +66,7 @@
         <div class="absolute inset-0 bg-gradient-to-r from-primary via-primary/50 to-transparent"></div>
         <div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
 
-        <div class="relative z-10 w-full max-w-7xl mx-auto px-5 md:px-8 pt-20">
+        <div class="relative z-10 w-full max-w-7xl mx-auto px-5 md:px-8 pt-10">
             <div class="max-w-4xl">
                 <x-breadcrumb :dark="true" class="mb-4" :items="[
                     ['label' => __('Blog')],
@@ -119,11 +119,11 @@
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-5 md:px-8 mt-14 md:mt-20">
+    <div class="max-w-7xl mx-auto px-5 md:px-8 mt-8 md:mt-10">
 
         <!-- Featured Post -->
         <template x-if="featured">
-            <article class="group relative bg-primary rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl transition duration-700 mb-12 md:mb-20 min-h-[420px] md:min-h-[550px] flex flex-col justify-end border border-outline-variant/20">
+            <article class="group relative bg-primary rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl transition duration-700 mb-6 md:mb-10 min-h-[420px] md:min-h-[550px] flex flex-col justify-end border border-outline-variant/20">
                 <img :src="featured.image_url || '{{ asset('images/sumut/sumatra_panorama.webp') }}'" :alt="featured.translated_title"
                     class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-[2s] ease-out">
                 
@@ -184,7 +184,7 @@
         </div>
 
         <!-- Empty State -->
-        <div x-show="filteredPosts.length === 0" class="text-center py-20 bg-white rounded-[2.5rem] border border-outline-variant/20 shadow-xl animate-in fade-in zoom-in duration-700">
+        <div x-show="filteredPosts.length === 0" class="text-center py-10 bg-white rounded-[2.5rem] border border-outline-variant/20 shadow-xl animate-in fade-in zoom-in duration-700">
             <div class="w-20 h-20 bg-surface-container rounded-full flex items-center justify-center mx-auto mb-6 text-outline/50 shadow-inner">
                 <span class="material-symbols-outlined text-3xl font-light">menu_book</span>
             </div>

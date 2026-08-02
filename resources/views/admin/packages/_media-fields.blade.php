@@ -22,6 +22,11 @@
     $akomodasiRows = is_array($oldAkomodasi)
         ? array_values(array_filter($oldAkomodasi, fn ($r) => is_array($r)))
         : ($package?->accommodationList() ?? []);
+
+    $oldHighlights = old('highlights');
+    $highlightRows = is_array($oldHighlights)
+        ? array_values(array_filter($oldHighlights, fn ($r) => is_array($r)))
+        : ($package?->highlightList() ?? []);
 @endphp
 
 <div class="border-t border-gray-200 pt-6 mt-2 space-y-6">
@@ -138,6 +143,33 @@
         </button>
     </div>
 
+    {{-- ============ PEMBEDA KHUSUS PAKET ============ --}}
+    <div x-data="{ poin: @js($highlightRows) }">
+        <label class="block text-sm font-bold text-gray-700 mb-2">Kenapa Paket Ini Berbeda</label>
+
+        <template x-for="(row, idx) in poin" :key="'usp' + idx">
+            <div class="flex flex-col sm:flex-row gap-2 mb-2">
+                <input type="text" :name="'highlights[' + idx + '][title]'" x-model="row.title"
+                       placeholder="Judul poin (mis. Titik pandang yang tidak didatangi operator lain)"
+                       class="sm:w-72 px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-toba-green focus:border-transparent transition">
+                <input type="text" :name="'highlights[' + idx + '][text]'" x-model="row.text"
+                       placeholder="Penjelasan singkat (opsional)"
+                       class="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-toba-green focus:border-transparent transition">
+                <button type="button" @click="poin.splice(idx, 1)"
+                        class="shrink-0 w-10 h-10 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center transition">
+                    <i class="fas fa-trash-alt text-xs"></i>
+                </button>
+            </div>
+        </template>
+
+        <button type="button" @click="poin.push({ title: '', text: '' })"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-700 text-[10px] font-black uppercase tracking-widest transition">
+            <i class="fas fa-plus text-[10px]"></i> Tambah Poin
+        </button>
+        <p class="text-[11px] text-gray-400 mt-2 italic">* Menggantikan blok "Kenapa Kami Berbeda" bawaan situs — tapi HANYA di paket ini. Dikosongkan berarti paket ini memakai poin situs seperti sekarang. Isi dengan hal yang cuma benar untuk paket ini; poin yang sama-sama berlaku di semua paket lebih tepat ditulis sekali di Pengaturan CMS.</p>
+        <p class="text-[11px] text-gray-400 mt-1 italic">* Baris tanpa judul tidak disimpan. Menghapus baris di sini menghapus poinnya.</p>
+    </div>
+
     {{-- ============ PETA ============ --}}
     <div>
         <label class="block text-sm font-bold text-gray-700 mb-2">Peta Lokasi</label>
@@ -164,5 +196,27 @@
         <input type="file" name="brochure_file" accept="application/pdf"
                class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-slate-900 file:text-white hover:file:bg-slate-800 transition cursor-pointer">
         <p class="text-[11px] text-gray-400 mt-2 italic">* Maks {{ round(maxUploadKb(20480) / 1024) }} MB. Mengunggah berkas baru menggantikan brosur lama.</p>
+    </div>
+
+    {{-- ============ GAMBAR INFORMASI HARGA ============ --}}
+    <div>
+        <label class="block text-sm font-bold text-gray-700 mb-2">Gambar Informasi Harga</label>
+        @if($package?->priceImage)
+            <div class="flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 mb-3">
+                <img src="{{ $package->price_image_url }}" alt="Pratinjau gambar harga"
+                     class="w-20 aspect-[4/3] object-contain bg-slate-50 rounded-lg border border-gray-100 shrink-0">
+                <a href="{{ $package->price_image_url }}" target="_blank" rel="noopener"
+                   class="text-xs text-slate-600 hover:text-toba-green truncate flex-1 transition">{{ basename($package->priceImage) }}</a>
+                <label class="flex items-center gap-2 cursor-pointer shrink-0">
+                    <input type="checkbox" name="remove_price_image" value="1"
+                           class="w-4 h-4 rounded border-gray-300 text-rose-600 focus:ring-rose-500">
+                    <span class="text-[9px] font-black uppercase tracking-widest text-rose-500">Hapus</span>
+                </label>
+            </div>
+        @endif
+        <input type="file" name="price_image_file" accept="image/jpeg,image/png,image/jpg,image/webp"
+               class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-slate-900 file:text-white hover:file:bg-slate-800 transition cursor-pointer">
+        <p class="text-[11px] text-gray-400 mt-2 italic">* Tampil di kartu paket, tepat di bawah tombol Booking &amp; WhatsApp. Bingkainya 4:3 — pakai gambar berbentuk 4:3 (misal 1200&times;900) supaya tidak ada bilah kosong di sisi. Maks 15 MB. Kosongkan bila paket ini tidak punya gambar harga.</p>
+        <p class="text-[11px] text-amber-600 mt-1 italic">* Paket yang sudah punya Harga Bertingkat TIDAK memakai gambar ini — kartunya menampilkan tabel harga grosir yang dibuat dari tingkatan itu. Tabelnya ikut berubah kalau harganya diubah dan ikut mengikuti mata uang tamu, jadi tidak pernah basi seperti gambar. Gambar ini hanya untuk paket yang belum punya tingkatan harga.</p>
     </div>
 </div>

@@ -5,11 +5,11 @@
 @section('keywords', 'cara pembayaran sujai laketoba, payment methods lake toba tour, bank transfer singapura malaysia, wise payment toba')
 
 @section('content')
-<div class="bg-slate-50 min-h-screen pt-32 pb-24">
+<div class="bg-slate-50 min-h-screen pt-14 pb-12">
     <div class="max-w-5xl mx-auto px-5 md:px-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
 
         {{-- Header --}}
-        <div class="text-center mb-12 md:mb-16">
+        <div class="text-center mb-6 md:mb-8">
             <span class="inline-flex items-center gap-2 px-3 py-1 bg-green-50 border border-green-100 text-green-700 text-[10px] font-semibold uppercase tracking-[0.2em] rounded-full">{{ __('Informasi') }}</span>
             <h1 class="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight mt-6">
                 {{ __('Cara') }} <span class="text-toba-green">{{ __('Pembayaran') }}</span>
@@ -21,7 +21,7 @@
         </div>
 
         {{-- Deposit Info --}}
-        <div class="card-flat p-6 md:p-8 mb-12 flex gap-5 items-start">
+        <div class="card-flat p-6 md:p-8 mb-6 flex gap-5 items-start">
             <div class="w-10 h-10 bg-green-50 text-green-700 rounded-xl flex items-center justify-center shrink-0 border border-green-100">
                 <span class="material-symbols-outlined text-[18px]">info</span>
             </div>
@@ -33,7 +33,7 @@
         </div>
 
         {{-- Currency Accepted --}}
-        <div class="mb-12">
+        <div class="mb-6">
             <h2 class="text-lg font-bold text-slate-900 mb-6 tracking-tight">Mata Uang yang Diterima / Accepted Currencies</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="card-flat p-6 text-center hover:border-green-200 transition duration-300">
@@ -58,7 +58,7 @@
         </div>
 
         {{-- Payment Methods --}}
-        <div class="mb-12">
+        <div class="mb-6">
             <h2 class="text-lg font-bold text-slate-900 mb-6 tracking-tight">Metode Pembayaran / Payment Methods</h2>
             <div class="space-y-6">
 
@@ -137,7 +137,7 @@
         </div>
 
         {{-- FAQ --}}
-        <div class="mb-12" x-data="{ open: null }">
+        <div class="mb-6" x-data="{ open: null }">
             <h2 class="text-lg font-bold text-slate-900 mb-6 tracking-tight">Pertanyaan Umum / FAQ</h2>
             @php
             $faqs = [

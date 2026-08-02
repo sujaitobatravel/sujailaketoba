@@ -4,7 +4,7 @@
 @section('page-title', 'Profil Pelanggan')
 
 @section('content')
-<div class="space-y-8 pb-20">
+<div class="space-y-8 pb-10">
     <div class="flex items-center justify-between">
         <a href="{{ route('admin.customers.index') }}" class="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-900 transition">
             <i class="fas fa-arrow-left"></i> Kembali
@@ -24,7 +24,7 @@
                 <h2 class="text-2xl font-black text-slate-900 tracking-tight">{{ $customer->name }}</h2>
                 <p class="text-xs font-bold text-slate-400 mt-1">{{ $customer->email }}</p>
                 
-                <div class="grid grid-cols-2 gap-4 mt-10">
+                <div class="grid grid-cols-2 gap-4 mt-6">
                     <div class="p-5 rounded-3xl bg-slate-50 text-center">
                         <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Trip</p>
                         <p class="text-xl font-black text-slate-900">{{ $customer->total_bookings }}</p>

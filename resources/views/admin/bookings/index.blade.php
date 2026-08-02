@@ -247,7 +247,7 @@
                         @endforeach
                     @empty
                         <tr>
-                            <td colspan="6" class="px-8 py-32 text-center">
+                            <td colspan="6" class="px-8 py-14 text-center">
                                 <div class="flex flex-col items-center justify-center text-slate-300">
                                     <i class="fas fa-folder-open text-6xl mb-4"></i>
                                     <p class="text-[10px] font-black uppercase tracking-[0.4em]">Tidak ada data ditemukan</p>

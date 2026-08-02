@@ -24,7 +24,7 @@
         </button>
     </div>
 
-    <form action="{{ route('admin.settings.general.update') }}" method="POST" enctype="multipart/form-data" class="space-y-8 pb-32">
+    <form action="{{ route('admin.settings.general.update') }}" method="POST" enctype="multipart/form-data" class="space-y-8 pb-14">
         @csrf
         
         <!-- Branding Tab -->
@@ -109,7 +109,7 @@
 
         <!-- Contact Tab -->
         <div x-show="activeTab === 'contact'" x-transition class="space-y-8">
-            <div class="bg-white rounded-[3.5rem] p-12 border border-slate-100 shadow-sm max-w-4xl mx-auto space-y-10">
+            <div class="bg-white rounded-[3.5rem] p-12 border border-slate-100 shadow-sm max-w-4xl mx-auto space-y-6">
                 <h3 class="text-xl font-black text-slate-900 flex items-center gap-3">
                     <span class="w-2 h-8 bg-green-500 rounded-full"></span> Konfigurasi Kontak & WA
                 </h3>
@@ -238,7 +238,7 @@
 
         <!-- SEO Tab -->
         <div x-show="activeTab === 'seo'" x-transition class="space-y-8">
-            <div class="bg-white rounded-[3.5rem] p-12 border border-slate-100 shadow-sm max-w-4xl mx-auto space-y-10">
+            <div class="bg-white rounded-[3.5rem] p-12 border border-slate-100 shadow-sm max-w-4xl mx-auto space-y-6">
                 <div class="flex items-center justify-between">
                     <h3 class="text-xl font-black text-slate-900 flex items-center gap-3">
                         <span class="w-2 h-8 bg-green-700 rounded-full"></span> Global SEO & Indexing
@@ -323,7 +323,7 @@
         <!-- Company & Invoice Tab -->
         @php $company = $company ?? []; @endphp
         <div x-show="activeTab === 'company'" x-transition class="space-y-8">
-            <div class="bg-white rounded-[3.5rem] p-12 border border-slate-100 shadow-sm max-w-4xl mx-auto space-y-10">
+            <div class="bg-white rounded-[3.5rem] p-12 border border-slate-100 shadow-sm max-w-4xl mx-auto space-y-6">
                 <div>
                     <h3 class="text-xl font-black text-slate-900 flex items-center gap-3">
                         <span class="w-2 h-8 bg-amber-500 rounded-full"></span> Identitas Perusahaan & Invoice
@@ -372,7 +372,7 @@
         <!-- Finance Tab -->
         @php $finance = $general['finance'] ?? []; @endphp
         <div x-show="activeTab === 'finance'" x-transition class="space-y-8">
-            <div class="bg-white rounded-[3.5rem] p-12 border border-slate-100 shadow-sm max-w-4xl mx-auto space-y-10">
+            <div class="bg-white rounded-[3.5rem] p-12 border border-slate-100 shadow-sm max-w-4xl mx-auto space-y-6">
                 <h3 class="text-xl font-black text-slate-900 flex items-center gap-3">
                     <span class="w-2 h-8 bg-blue-500 rounded-full"></span> Pengaturan Keuangan
                 </h3>

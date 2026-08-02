@@ -1,8 +1,8 @@
-<footer class="bg-slate-950 pt-16 md:pt-20 pb-10 px-5 md:px-8 relative overflow-hidden">
+<footer class="bg-slate-950 pt-8 md:pt-10 pb-6 px-5 md:px-8 relative overflow-hidden">
     <div class="absolute top-0 left-0 w-full h-[1px] bg-white/10"></div>
     
     <div class="max-w-7xl mx-auto relative z-10">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 mb-12 md:mb-16">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 mb-6 md:mb-8">
 
             <!-- ── Brand Column ── -->
             <div class="space-y-6 sm:col-span-2 lg:col-span-1">

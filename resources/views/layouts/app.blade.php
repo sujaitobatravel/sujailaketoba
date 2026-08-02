@@ -130,7 +130,11 @@
     @stack('head')
     @stack('schema')
 </head>
-<body class="font-sans text-slate-900 bg-white selection:bg-green-100 selection:text-green-900 overflow-x-hidden pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0" x-data="{ isDark: false }">
+{{-- situs-publik: penanda supaya aturan kerapatan & ukuran huruf di ponsel
+     (app.css) hanya mengenai halaman publik. Panel admin memuat berkas CSS
+     yang SAMA lewat layout-nya sendiri; tanpa penanda ini, tabel admin yang
+     padat ikut membesar dan merapat diam-diam. --}}
+<body class="situs-publik font-sans text-slate-900 bg-white selection:bg-green-100 selection:text-green-900 overflow-x-hidden pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0" x-data="{ isDark: false }">
     {{-- Kalkulator pax per-kartu (paxCalc) + config mata uang untuk total live.
          Harga paket disimpan MYR; dikali rate -> mata uang tampilan sesuai locale. --}}
     @php
@@ -386,6 +390,19 @@
     </div>
 
     <!-- Mobile Sticky Bottom CTA Bar (Floating Pill) -->
+    {{-- Dilewati di halaman yang sudah membawa batang ajakannya SENDIRI di kaki
+         layar. Tanpa penjagaan ini keduanya menempati sudut yang sama: pil ini
+         (z-90) mengambang tepat di atas batang halaman (z-50), jadi tamu
+         melihat dua baris tombol bertumpuk dengan dua ajakan berbeda -- dan
+         yang tertutup justru yang paling berguna, karena batang halaman
+         membawa harga dan tombol untuk paket yang sedang dibaca, sedangkan pil
+         ini hanya menuju daftar paket.
+
+         Halaman menyatakan dirinya lewat @section('bar-bawah-sendiri'). Dipilih
+         section, bukan pemeriksaan nama rute di sini: layout tidak perlu
+         menyimpan daftar rute yang harus diingat memperbaruinya setiap kali ada
+         halaman baru yang memasang batangnya sendiri. --}}
+    @sectionMissing('bar-bawah-sendiri')
     <div class="fixed bottom-4 left-4 right-4 z-[90] md:hidden bg-white/95 backdrop-blur-xl border border-slate-200/50 shadow-[0_12px_40px_rgb(0,0,0,0.15)] p-2 rounded-[1.25rem] flex items-center justify-between gap-2 safe-area-bottom">
         <a href="https://wa.me/{{ $waFloat }}" 
            class="flex-[0.8] bg-green-50 text-green-600 rounded-xl py-3 flex items-center justify-center gap-1.5 font-black text-[10px] uppercase tracking-[0.1em] transition-transform active:scale-95">
@@ -398,6 +415,7 @@
            <span class="mt-0.5">{{ __('Pesan') }}</span>
         </a>
     </div>
+    @endif
 
     <!-- CMS Realtime Sync (No-Supabase Version) -->
     <script>

@@ -36,7 +36,7 @@
         <div class="absolute inset-0" style="background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.015) 1px, transparent 0); background-size: 32px 32px;"></div>
     </div>
 
-    <div class="relative z-10 text-center px-6 max-w-2xl mx-auto py-12">
+    <div class="relative z-10 text-center px-6 max-w-2xl mx-auto py-6">
         
         <!-- Logo -->
         <div class="mb-8 flex justify-center scale-95 md:scale-100">

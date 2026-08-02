@@ -305,45 +305,86 @@
    Mau menyetel ulang? Ubah angkanya di sini. Mau satu bagian tetap lapang?
    Beri kelas md:-nya, atau naikkan spesifisitasnya seperti .layout-rapat. */
 @media (max-width: 767px) {
-  .py-36 { padding-top: 3.5rem; padding-bottom: 3.5rem; }
-  .py-24 { padding-top: 2.75rem; padding-bottom: 2.75rem; }
-  .py-20 { padding-top: 2.5rem; padding-bottom: 2.5rem; }
-  .py-16 { padding-top: 2.25rem; padding-bottom: 2.25rem; }
-  .py-12 { padding-top: 1.75rem; padding-bottom: 1.75rem; }
+  .py-36 { padding-top: 2.25rem; padding-bottom: 2.25rem; }
+  .py-24 { padding-top: 1.75rem; padding-bottom: 1.75rem; }
+  .py-20 { padding-top: 1.625rem; padding-bottom: 1.625rem; }
+  .py-16 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+  .py-12 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
 
-  .pt-32 { padding-top: 2.5rem; }
-  .pt-20 { padding-top: 2.5rem; }
-  .pt-16 { padding-top: 2.25rem; }
-  .pb-32 { padding-bottom: 2.5rem; }
-  .pb-24 { padding-bottom: 2.75rem; }
+  .pt-32 { padding-top: 1.75rem; }
+  .pt-20 { padding-top: 1.625rem; }
+  .pt-16 { padding-top: 1.5rem; }
+  .pb-32 { padding-bottom: 1.75rem; }
+  .pb-24 { padding-bottom: 1.75rem; }
 
-  .mb-16 { margin-bottom: 1.75rem; }
-  .mb-14 { margin-bottom: 1.5rem; }
-  .mb-12 { margin-bottom: 1.5rem; }
-  .mb-10 { margin-bottom: 1.25rem; }
-  .mt-16 { margin-top: 1.75rem; }
-  .mt-12 { margin-top: 1.5rem; }
+  .mb-16 { margin-bottom: 1.25rem; }
+  .mb-14 { margin-bottom: 1.125rem; }
+  .mb-12 { margin-bottom: 1rem; }
+  .mb-10 { margin-bottom: 0.875rem; }
+  .mt-16 { margin-top: 1.25rem; }
+  .mt-12 { margin-top: 1rem; }
 
-  .gap-16 { gap: 1.75rem; }
-  .gap-12 { gap: 1.5rem; }
-  .gap-10 { gap: 1.25rem; }
+  .gap-16 { gap: 1.25rem; }
+  .gap-12 { gap: 1rem; }
+  .gap-10 { gap: 0.875rem; }
 
-  .space-y-16 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.75rem; }
-  .space-y-12 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.5rem; }
-  .space-y-10 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.25rem; }
+  .space-y-16 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.25rem; }
+  .space-y-12 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+  .space-y-10 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.875rem; }
 }
 
-/* Halaman detail tanpa form (/tour/detail) dibaca sambil menggulir cepat di
-   ponsel. Jarak bawaan situs dirancang untuk halaman berform yang lebih
-   tenang; di sini ia meninggalkan terlalu banyak ruang kosong.
+/* ============================================================
+   KERAPATAN DALAM-BLOK DI PONSEL — SELURUH HALAMAN PUBLIK
+   ============================================================
+   Blok di atas merapatkan jarak ANTAR-BAGIAN (py-24, space-y-16). Yang tersisa
+   adalah jarak DI DALAM blok: padding kartu 32px, gap grid 32px, margin judul
+   24px. Ditulis dengan ukuran desktop, dipakai apa adanya di layar 375px --
+   di sana ia memakan lebar bacaan, bukan memberi napas.
 
-   Diperketat lewat SATU pembungkus, bukan dengan mengubah puluhan kelas satu
-   per satu di Blade: halaman berform tidak ikut berubah, angkanya terkumpul di
-   satu tempat kalau mau disetel ulang, dan tidak ada kelas yang tertinggal
-   waktu ada blok baru ditambahkan.
+   Angka-angka ini awalnya hanya berlaku di /tour/detail lewat pembungkus
+   .layout-rapat. Sudah terbukti enak dibaca di ponsel, jadi dinaikkan ke
+   seluruh situs publik alih-alih disalin per halaman.
 
-   Selector .layout-rapat .x lebih spesifik (0,2,0) daripada utilitas Tailwind
-   (0,1,0), jadi menang tanpa perlu !important. */
+   Kenapa disaring .situs-publik: panel admin memuat berkas CSS yang sama.
+   Tabel dan formulir di sana padat karena memang harus, dan tidak boleh ikut
+   berubah gara-gara halaman jualan minta lebih rapat.
+
+   Selector .situs-publik .x lebih spesifik (0,2,0) daripada utilitas Tailwind
+   (0,1,0), jadi menang tanpa perlu !important. Berlaku < 768px saja: utilitas
+   ber-prefix (md:p-8) dibungkus media query min-width oleh Tailwind, jadi
+   desktop tidak tersentuh.
+
+   Mau satu blok tetap lapang? Beri kelas md:-nya, atau naikkan spesifisitasnya
+   satu tingkat lagi. */
+@media (max-width: 767px) {
+  .situs-publik .space-y-8 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.875rem; }
+  .situs-publik .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.75rem; }
+
+  .situs-publik .pt-8 { padding-top: 0.875rem; }
+  .situs-publik .py-12 { padding-top: 1.125rem; padding-bottom: 1.125rem; }
+  .situs-publik .py-10 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+  .situs-publik .py-7 { padding-top: 0.875rem; padding-bottom: 0.875rem; }
+
+  .situs-publik .p-8 { padding: 0.875rem; }
+  .situs-publik .p-6 { padding: 0.875rem; }
+  .situs-publik .p-5 { padding: 0.75rem; }
+  .situs-publik .p-4 { padding: 0.625rem; }
+
+  .situs-publik .gap-8 { gap: 1rem; }
+  .situs-publik .gap-5 { gap: 0.625rem; }
+  .situs-publik .gap-4 { gap: 0.5rem; }
+  .situs-publik .gap-y-5 { row-gap: 0.75rem; }
+
+  .situs-publik .mb-12 { margin-bottom: 0.875rem; }
+  .situs-publik .mb-8 { margin-bottom: 0.75rem; }
+  .situs-publik .mb-6 { margin-bottom: 0.625rem; }
+  .situs-publik .mb-5 { margin-bottom: 0.5rem; }
+  .situs-publik .mt-4 { margin-top: 0.5rem; }
+}
+
+/* Halaman detail tanpa form (/tour/detail) dibaca sambil menggulir cepat.
+   Angka dalam-bloknya kini sama dengan sisa situs (blok di atas); yang tersisa
+   khusus di sini hanya pembungkusnya sendiri. */
 @media (max-width: 767px) {
   .layout-rapat {
     padding-top: 1.25rem;
@@ -353,28 +394,66 @@
      ini punya banyak sekat. Ini penyumbang ruang kosong terbesar setelah
      padding pembungkus. */
   .layout-rapat .space-y-16 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.75rem; }
-  .layout-rapat .space-y-8 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.25rem; }
-  .layout-rapat .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
-  .layout-rapat .pt-8 { padding-top: 1.25rem; }
-  .layout-rapat .py-12 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
-  .layout-rapat .p-8 { padding: 1.25rem; }
-  .layout-rapat .p-6 { padding: 1rem; }
-  .layout-rapat .p-5 { padding: 0.875rem; }
-  .layout-rapat .p-4 { padding: 0.75rem; }
-  .layout-rapat .gap-y-5 { row-gap: 0.875rem; }
-  .layout-rapat .gap-8 { gap: 1.25rem; }
-  .layout-rapat .gap-5 { gap: 0.75rem; }
-  .layout-rapat .gap-4 { gap: 0.625rem; }
-  .layout-rapat .mb-12 { margin-bottom: 1.25rem; }
-  .layout-rapat .mb-8 { margin-bottom: 1rem; }
-  .layout-rapat .mb-6 { margin-bottom: 0.875rem; }
-  .layout-rapat .mb-5 { margin-bottom: 0.75rem; }
-  .layout-rapat .mt-4 { margin-top: 0.625rem; }
+}
 
-  /* Blok berlatar warna (pembeda & CTA penutup) tetap butuh napas supaya
-     tidak terlihat sesak, tapi tidak sebanyak bawaannya. */
-  .layout-rapat .py-10 { padding-top: 1.75rem; padding-bottom: 1.75rem; }
-  .layout-rapat .py-7 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+/* ============================================================
+   LANTAI UKURAN HURUF DI PONSEL — SELURUH HALAMAN PUBLIK
+   ============================================================
+   Situs ini banyak memakai 9-12px untuk label, keterangan, dan isi kartu.
+   Di monitor 27 inci ukuran itu terlihat rapi; di ponsel yang dipegang
+   sambil berjalan ia berhenti jadi tulisan dan berubah jadi tekstur abu-abu.
+   Isi paket -- daftar Termasuk/Tidak Termasuk yang justru menentukan orang
+   jadi memesan atau tidak -- termasuk yang tertulis 12px rapat.
+
+   Yang dinaikkan hanya ukuran terkecilnya, 1-2px, bukan seluruh skala:
+   tujuannya membuat yang tidak terbaca jadi terbaca, bukan menggeser
+   hierarki visual halaman. Tinggi barisnya ikut dinaikkan -- huruf besar
+   dengan baris rapat tetap sulit dibaca.
+
+   Nilai yang ditulis eksplisit di Blade (text-[13px], text-[15px]) tidak
+   tersentuh: kelasnya lain, jadi aturan di sini tidak mengenainya. */
+@media (max-width: 767px) {
+  .situs-publik .text-\[8\.5px\] { font-size: 11.5px; }
+  .situs-publik .text-\[9px\] { font-size: 12px; }
+  /* Dua ukuran ini dipakai label di dalam kartu paket. Terlewat di putaran
+     pertama, jadi kartunya masih menyisakan tulisan di bawah lantai. */
+  .situs-publik .text-\[9\.5px\] { font-size: 12px; }
+  .situs-publik .text-\[10\.5px\] { font-size: 12.5px; }
+  .situs-publik .text-\[10px\] { font-size: 12.5px; }
+  .situs-publik .text-\[11px\] { font-size: 13.5px; line-height: 1.2rem; }
+  .situs-publik .text-xs { font-size: 14px; line-height: 1.3rem; }
+  .situs-publik .text-sm { font-size: 16px; line-height: 1.5rem; }
+  .situs-publik .text-base { font-size: 17px; line-height: 1.6rem; }
+  .situs-publik .text-body-md { font-size: 17px; line-height: 1.65rem; }
+
+  /* Ketebalan.
+
+     Font situs ini hanya memuat tiga berat: 400, 600, dan 800. Tailwind
+     menulis font-medium sebagai 500 -- berat yang TIDAK ADA berkasnya, jadi
+     mesin pencocokan font menjatuhkannya ke 400. Artinya setiap teks
+     font-medium di situs ini selama ini tampil persis sama dengan teks biasa;
+     kelasnya ada, efeknya nol. Dinaikkan ke 600 supaya ia benar-benar jadi
+     satu tingkat lebih tebal seperti yang dimaksud waktu kelas itu ditulis.
+
+     Label terkecil ikut ditebalkan: pada 12px, berat 400 di layar ponsel
+     terbaca sebagai abu-abu, bukan sebagai huruf.
+
+     font-bold (700) dibiarkan -- ia sudah jatuh ke 800, dan menaikkannya lagi
+     tidak ada tujuannya. */
+  .situs-publik .font-medium { font-weight: 600; }
+  .situs-publik .text-\[8\.5px\],
+  .situs-publik .text-\[9px\],
+  .situs-publik .text-\[10px\] { font-weight: 600; }
+
+  /* Tiga baris di bawah ini WAJIB berada sesudah aturan di atas dan tidak
+     boleh dipindah ke atasnya. Sebagian besar label 9-10px di situs ini sudah
+     ditulis font-black; aturan ukuran di atas punya spesifisitas yang sama
+     (0,2,0), jadi tanpa penegasan ini ia justru MENURUNKAN label-label itu
+     dari 800 ke 600 -- kebalikan dari yang diminta. Pada spesifisitas sama,
+     yang menang adalah yang ditulis belakangan. */
+  .situs-publik .font-bold,
+  .situs-publik .font-extrabold,
+  .situs-publik .font-black { font-weight: 800; }
 }
 
 /* Hide scrollbar but keep scrolling */

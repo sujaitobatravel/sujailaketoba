@@ -24,7 +24,7 @@
     </div>
     @endif
 
-    <form action="{{ route('admin.settings.app-config.update') }}" method="POST" class="space-y-8 pb-32">
+    <form action="{{ route('admin.settings.app-config.update') }}" method="POST" class="space-y-8 pb-14">
         @csrf
 
         @foreach($grouped as $groupName => $groupFields)

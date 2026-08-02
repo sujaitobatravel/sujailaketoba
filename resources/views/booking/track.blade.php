@@ -67,7 +67,7 @@
         <div class="h-full w-full bg-[radial-gradient(circle_at_top_left,_rgba(16,185,81,0.35),_transparent_38%),linear-gradient(135deg,_#020617,_#0f172a_46%,_#064e22)]"></div>
     </div>
 
-    <div class="relative mx-auto max-w-5xl px-5 py-20 md:px-8 md:py-28">
+    <div class="relative mx-auto max-w-5xl px-5 py-10 md:px-8 md:py-14">
         <p class="text-xs font-bold uppercase tracking-[0.28em] text-green-300">{{ __('Tracking Booking') }}</p>
         <h1 class="mt-4 text-3xl font-extrabold leading-tight md:text-5xl">
             {{ $booking->bookingCode }}
@@ -119,7 +119,7 @@
     </section>
 @endif
 
-<section class="bg-slate-50 py-10 md:py-16">
+<section class="bg-slate-50 py-6 md:py-8">
     <div class="mx-auto grid max-w-5xl gap-6 px-5 md:grid-cols-[1.1fr_0.9fr] md:px-8">
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
             <div class="flex flex-col gap-4 border-b border-slate-100 pb-6 sm:flex-row sm:items-start sm:justify-between">

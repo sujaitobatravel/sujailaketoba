@@ -265,12 +265,24 @@ class PublicController extends Controller
             }
 
             $originName = Str::title(str_replace('-', ' ', $kotaSlug));
-            
+
+            // Gambar kota untuk hero, bila admin sudah membuat entri kota
+            // dengan slug yang sama persis dengan slug URL ini.
+            //
+            // Daftar kota asal di atas berasal dari Pengaturan (teks bebas),
+            // sedangkan tabel `cities` saat ini berisi kota TUJUAN di Sumatera
+            // Utara -- jadi umumnya tidak ada yang cocok dan hero jatuh ke
+            // gambar dari Pengaturan seperti sebelumnya. Begitu admin
+            // menambah entri kota bernama sama dengan kota asal, gambarnya
+            // otomatis terpakai tanpa perlu sentuh kode lagi.
+            $originCity = City::with('imageMedia')->where('slug', $kotaSlug)->first();
+            $originImage = $originCity?->imageMedia?->path ?: ($originCity?->image ?: null);
+
             // Re-use logic from tour() method
             $packages = $this->tourService->getFeaturedPackages();
             $blogs = $this->tourService->getBlogs(3);
 
-            return view('tour.landing-origin', compact('packages', 'blogs', 'siteSettings', 'originName', 'kotaSlug'));
+            return view('tour.landing-origin', compact('packages', 'blogs', 'siteSettings', 'originName', 'kotaSlug', 'originImage'));
         } catch (\Exception $e) {
             Log::error('Error loading pSEO landing page: '.$e->getMessage());
             return redirect()->route('tour.packages');

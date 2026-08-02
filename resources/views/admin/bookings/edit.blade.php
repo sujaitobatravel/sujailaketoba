@@ -29,7 +29,7 @@
             @csrf
             @method('PATCH')
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
                 <!-- Status -->
                 <div class="space-y-4">
                     <label class="block text-xs font-black text-gray-400 uppercase tracking-widest">Update Status</label>
@@ -61,13 +61,13 @@
                 </div>
             </div>
 
-            <div class="space-y-4 mb-10">
+            <div class="space-y-4 mb-6">
                 <label class="block text-xs font-black text-gray-400 uppercase tracking-widest">Internal Admin Notes</label>
                 <textarea name="notes" rows="4" placeholder="Add private notes about this booking..." class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-toba-green/10 focus:border-toba-green transition font-medium text-gray-700">{{ $booking->notes }}</textarea>
             </div>
 
             <!-- Customer Read-only Info -->
-            <div class="bg-gray-50/50 rounded-[1.5rem] p-6 border border-gray-100 mb-10">
+            <div class="bg-gray-50/50 rounded-[1.5rem] p-6 border border-gray-100 mb-6">
                 <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Customer Details (Read-only)</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <div>

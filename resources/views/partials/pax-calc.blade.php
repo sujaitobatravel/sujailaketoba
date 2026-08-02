@@ -1,7 +1,13 @@
 {{-- Mini kalkulator pax (dewasa/anak) + estimasi total + tombol booking.
      Butuh $xdata = string ekspresi Alpine
      "paxCalc(hargaDewasaMYR, hargaAnakMYR|null, slug, tiersHargaGrosir)".
-     Dipakai oleh <x-package-card> (nilai PHP) dan kartu grid /tour/packages (nilai pkg.*). --}}
+     Dipakai oleh <x-package-card> (nilai PHP) dan kartu grid /tour/packages (nilai pkg.*).
+
+     $priceImage (opsional) = string ekspresi Alpine yang menghasilkan URL
+     gambar informasi harga, atau nilai kosong. Sengaja ekspresi, bukan URL
+     mentah: pemanggil PHP mengirim @js($package->price_image_url), sedangkan
+     grid /tour/packages mengirim `pkg.price_image_url` dari objek JS-nya --
+     satu jalur kode untuk dua sumber data. --}}
 <div x-data="{{ $xdata }}" class="border-t border-slate-100 px-4 py-3 space-y-2">
     {{-- Baris Dewasa --}}
     <div class="flex items-center justify-between gap-2">
@@ -51,5 +57,66 @@
                 {{ __('WhatsApp') }}
             </a>
         </div>
+
+        {{-- Tabel harga grosir, menggantikan gambar informasi harga.
+
+             Sumbernya `tiers` milik paxCalc -- array yang SAMA yang dipakai
+             tierFor() untuk menghitung total di atasnya. Jadi angka di tabel
+             ini tidak mungkin berbeda dari angka yang ditagih: keduanya membaca
+             satu larik yang sama, bukan dua salinan yang bisa berselisih.
+
+             Kenapa menggantikan gambar: gambar harga adalah teks yang dijepret.
+             Di kartu selebar ~300px ia harus diketuk dulu untuk terbaca, tidak
+             bisa dipilih atau dicari, tidak ikut diterjemahkan, tidak ikut
+             berubah kalau mata uang tamu bukan ringgit, dan tidak terbaca oleh
+             pembaca layar maupun mesin pencari. Tabel ini semuanya bisa.
+
+             Baris yang sedang berlaku disorot mengikuti jumlah dewasa yang
+             dipilih tamu, jadi ia sekaligus menjelaskan dari mana angka total
+             di atas berasal. --}}
+        <template x-if="tiers.length">
+            <div class="rounded-lg border border-slate-100 overflow-hidden">
+                <p class="flex items-center gap-1.5 px-2.5 py-1.5 bg-toba-green/5 text-[9.5px] font-bold uppercase tracking-widest text-toba-green">
+                    <svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                    {{ __('Harga Khusus (Lebih Banyak Lebih Murah!)') }}
+                </p>
+                <ul>
+                    <template x-for="(t, i) in tiers" :key="i">
+                        {{-- Dibandingkan lewat min_pax, BUKAN lewat kesamaan objek
+                             (tierFor(adults) === t). Alpine membungkus tiap objek
+                             dalam Proxy, jadi identitas objek di sini tidak dijamin
+                             sama dengan yang dikembalikan tierFor -- perbandingannya
+                             bisa diam-diam selalu bernilai salah, dan sorotannya
+                             tidak pernah muncul tanpa satu pun pesan galat. --}}
+                        <li class="flex items-center justify-between gap-2 px-2.5 py-1.5 border-b border-slate-100 last:border-b-0 text-[11px] leading-snug"
+                            :class="tierFor(adults) && tierFor(adults).min_pax === t.min_pax ? 'bg-toba-green/10 font-bold text-toba-green' : 'text-slate-600'">
+                            <span x-text="t.min_pax === t.max_pax ? t.min_pax + ' Pax' : t.min_pax + ' – ' + t.max_pax + ' Pax'"></span>
+                            {{-- Satuannya teks Blade biasa di luar ekspresi JS.
+                                 Menempelkannya ke dalam string JS lewat Blade akan
+                                 memutus string itu begitu ada terjemahan yang
+                                 mengandung apostrof. --}}
+                            <span class="shrink-0 whitespace-nowrap"><span x-text="fmt(t.price)"></span>/{{ __('org') }}</span>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </template>
+
+        {{-- Gambar informasi harga tetap disediakan untuk paket yang BELUM punya
+             tier. Object-contain, bukan object-cover seperti media kartu di atas:
+             isinya teks/angka, dan cover memotong tepinya begitu rasio gambarnya
+             meleset dari 4:3. Dibungkus <a> supaya bisa diketuk ke ukuran penuh. --}}
+        @if(! empty($priceImage))
+        <template x-if="!tiers.length && {{ $priceImage }}">
+            <a :href="{{ $priceImage }}" target="_blank" rel="noopener noreferrer"
+               class="block rounded-lg overflow-hidden border border-slate-100 bg-slate-50 hover:border-slate-200 transition"
+               aria-label="{{ __('Lihat informasi harga ukuran penuh') }}">
+                <div class="relative aspect-[4/3]">
+                    <img :src="{{ $priceImage }}" alt="{{ __('Informasi harga') }}" loading="lazy" decoding="async"
+                         class="absolute inset-0 w-full h-full object-contain">
+                </div>
+            </a>
+        </template>
+        @endif
     </div>
 </div>

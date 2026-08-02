@@ -965,7 +965,7 @@ document.addEventListener('alpine:init', () => {
             </section>
 
             <!-- Live Stats Section -->
-            <section class="py-12 px-5 md:px-12 lg:px-20 grid grid-cols-2 md:grid-cols-4 gap-8">
+            <section class="py-6 px-5 md:px-12 lg:px-20 grid grid-cols-2 md:grid-cols-4 gap-8">
                 <template x-for="i in [0,1,2,3]">
                     <div class="space-y-1">
                         <div class="text-3xl font-black text-slate-900 tracking-tighter" x-text="$data['stat'+i]"></div>
@@ -979,7 +979,7 @@ document.addEventListener('alpine:init', () => {
             </section>
 
             <!-- Dummy Gallery Section -->
-            <section class="px-5 md:px-12 lg:px-20 pb-20">
+            <section class="px-5 md:px-12 lg:px-20 pb-10">
                 <div class="flex items-center justify-between mb-8">
                     <h3 class="text-xl font-black text-slate-900 tracking-tight">Galeri Perjalanan</h3>
                     <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">View All</span>

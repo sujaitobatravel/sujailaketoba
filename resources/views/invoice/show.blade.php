@@ -100,14 +100,14 @@
     ];
     $st = $statusMap[$booking->status] ?? $statusMap['pending'];
 @endphp
-<body class="py-12 px-4 sm:px-6 lg:px-8 flex justify-center min-h-screen">
+<body class="py-6 px-4 sm:px-6 lg:px-8 flex justify-center min-h-screen">
 
     <div class="invoice-card bg-white w-full max-w-[850px] mx-auto rounded-lg overflow-hidden border border-neutral-300">
 
         <div class="p-5 sm:p-10 md:p-14 relative z-10 bg-pattern-subtle">
 
             <!-- Header Section -->
-            <div class="flex flex-col sm:flex-row justify-between items-start mb-10 pb-8 border-b-2 border-brand-light">
+            <div class="flex flex-col sm:flex-row justify-between items-start mb-6 pb-8 border-b-2 border-brand-light">
                 <div class="flex items-center gap-4">
                     @if(!empty($logoUrl))
                         <div class="h-14 flex items-center">
@@ -131,7 +131,7 @@
             </div>
 
             <!-- Info Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
                 <!-- Billed To -->
                 <div class="bg-neutral-100/50 p-5 rounded-xl border border-neutral-200">
                     <div class="flex items-center gap-2 mb-3">
@@ -191,7 +191,7 @@
             </div>
 
             <!-- Table Section -->
-            <div class="mb-10 bg-white rounded-xl border border-neutral-200 overflow-x-auto shadow-sm">
+            <div class="mb-6 bg-white rounded-xl border border-neutral-200 overflow-x-auto shadow-sm">
                 <table class="w-full min-w-[560px] text-left border-collapse">
                     <thead class="bg-neutral-50 border-b border-neutral-200">
                         <tr>
@@ -290,7 +290,7 @@
             </div>
 
             <!-- Totals Section -->
-            <div class="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
+            <div class="flex flex-col md:flex-row justify-between items-start gap-8 mb-6">
 
                 <!-- Payment Instructions -->
                 <div class="w-full md:w-1/2">

@@ -191,7 +191,7 @@ class PackageMediaTest extends TestCase
             // Tanpa ruang bawah, batang lengket menutupi tombol terakhir
             // secara permanen -- tidak ada gejalanya selain tombol yang
             // "tidak bisa ditekan".
-            'ruang bawah untuk batang lengket' => 'pb-28 md:pb-10',
+            'ruang bawah untuk batang lengket' => 'pb-24 md:pb-6',
         ];
 
         foreach ($poster as $apa => $penanda) {
@@ -212,5 +212,139 @@ class PackageMediaTest extends TestCase
         $this->assertStringContainsString('paxCalc(', $html);
         $this->assertStringContainsString(':href="bookingUrl"', $html);
         $this->assertStringContainsString(':href="waUrl"', $html);
+    }
+
+    public function test_tabel_harga_grosir_menggantikan_gambar_harga_di_kalkulator(): void
+    {
+        $paket = $this->paket([
+            'pricingDetails' => ['tiers' => [
+                ['min_pax' => 1, 'max_pax' => 2, 'price' => 800, 'child_price' => 400],
+                ['min_pax' => 3, 'max_pax' => 3, 'price' => 600, 'child_price' => 300],
+            ]],
+        ]);
+
+        $html = $this->withSession(['locale' => 'id'])
+            ->get(route('tour.package.detail.plain', $paket->slug))->assertOk()->getContent();
+
+        // Tabelnya muncul, dan angkanya datang dari larik tiers milik paxCalc --
+        // larik yang SAMA yang dipakai menghitung total, bukan salinan kedua.
+        $this->assertStringContainsString('Harga Khusus (Lebih Banyak Lebih Murah!)', $html);
+        $this->assertStringContainsString('x-for="(t, i) in tiers"', $html);
+        $this->assertStringContainsString('x-text="fmt(t.price)"', $html);
+
+        // Sorotan baris aktif WAJIB dibandingkan lewat min_pax. Alpine membungkus
+        // tiap objek dalam Proxy, jadi tierFor(adults) === t bisa diam-diam selalu
+        // bernilai salah dan sorotannya tidak pernah muncul -- tanpa satu pun galat.
+        $this->assertStringContainsString('tierFor(adults).min_pax === t.min_pax', $html);
+        $this->assertStringNotContainsString('tierFor(adults) === t ', $html);
+
+        // Gambar harga hanya untuk paket yang belum punya tier; kalau tier ada,
+        // ia tidak boleh ikut tampil dan menyajikan angka kedua yang bisa basi.
+        $this->assertStringContainsString('!tiers.length &&', $html);
+    }
+
+    public function test_pembeda_paket_menggantikan_poin_situs_hanya_bila_diisi(): void
+    {
+        // Poin situs WAJIB diisi di sini: tanpa itu blok pembeda tidak pernah
+        // dirender untuk paket polos, dan tesnya cuma membuktikan bahwa blok
+        // kosong tetap kosong -- bukan bahwa cadangannya benar-benar bekerja.
+        \App\Models\Setting::updateOrCreate(['key' => 'cms_tour'], ['value' => [
+            'detail_usp' => [
+                ['title' => 'Poin bawaan situs', 'text' => 'Berlaku di semua paket.'],
+            ],
+        ]]);
+
+        $polos = $this->paket();
+        $khusus = $this->paket([
+            'highlights' => [
+                ['title' => 'Titik pandang yang tidak didatangi operator lain', 'text' => 'Jalannya sempit, kami tetap ke sana.'],
+                ['title' => '', 'text' => 'baris tanpa judul, harus dibuang'],
+            ],
+        ]);
+
+        // Baris tanpa judul tidak pernah sampai ke tampilan.
+        $this->assertCount(1, $khusus->highlightList());
+
+        $htmlKhusus = $this->withSession(['locale' => 'id'])
+            ->get(route('tour.package.detail.plain', $khusus->slug))->assertOk()->getContent();
+        $htmlPolos = $this->withSession(['locale' => 'id'])
+            ->get(route('tour.package.detail.plain', $polos->slug))->assertOk()->getContent();
+
+        // Judul blok jadi penanda yang dicari, BUKAN isi poinnya. Seluruh objek
+        // paket ikut diserialisasi ke x-data lebih awal di halaman, jadi teks
+        // poin -- termasuk baris yang mestinya dibuang -- selalu ketemu di blob
+        // JSON itu betapapun benarnya tampilan yang dirender.
+        $this->assertStringContainsString('Kenapa Paket Ini Berbeda', $htmlKhusus);
+        $blok = substr($htmlKhusus, (int) strpos($htmlKhusus, 'Kenapa Paket Ini Berbeda'));
+        $this->assertStringContainsString('Titik pandang yang tidak didatangi operator lain', $blok);
+        $this->assertStringNotContainsString('baris tanpa judul, harus dibuang', $blok);
+
+        // Paket yang belum diisi TIDAK ikut kehilangan bloknya -- ia kembali ke
+        // poin situs. Ini yang membuat kolom baru ini aman dinyalakan tanpa
+        // menyentuh tujuh paket lain yang belum sempat diisi.
+        $this->assertStringNotContainsString('Kenapa Paket Ini Berbeda', $htmlPolos);
+        $this->assertStringContainsString('Kenapa Kami Berbeda', $htmlPolos);
+        $this->assertStringContainsString('Poin bawaan situs', $htmlPolos);
+
+        // Dan sebaliknya: paket yang punya poin sendiri tidak ikut menampilkan
+        // poin situs di bawahnya. Menampilkan keduanya berarti tamu membaca dua
+        // daftar "kenapa kami" yang bersaing di satu halaman.
+        $this->assertStringNotContainsString('Poin bawaan situs', $blok);
+    }
+
+    public function test_hanya_satu_batang_bawah_yang_tampil_di_ponsel(): void
+    {
+        $paket = $this->paket();
+
+        // Pil melayang bawaan layout (z-90) dan batang halaman detail (z-50)
+        // menempati sudut layar yang sama persis. Kalau keduanya ikut dirender,
+        // pil menutupi batang halaman -- dan justru batang halamanlah yang
+        // membawa harga serta tombol untuk paket yang sedang dibaca.
+        $pilGlobal = 'fixed bottom-4 left-4 right-4 z-[90]';
+        $batangHalaman = 'md:hidden fixed inset-x-0 bottom-0';
+
+        $tanpaForm = $this->withSession(['locale' => 'id'])
+            ->get(route('tour.package.detail.plain', $paket->slug))->assertOk()->getContent();
+        $berform = $this->withSession(['locale' => 'id'])
+            ->get(route('tour.package.detail', $paket->slug))->assertOk()->getContent();
+        $beranda = $this->withSession(['locale' => 'id'])->get('/')->assertOk()->getContent();
+
+        // Halaman tanpa form: batangnya sendiri yang bertahan.
+        $this->assertStringContainsString($batangHalaman, $tanpaForm);
+        $this->assertStringNotContainsString($pilGlobal, $tanpaForm);
+
+        // Halaman berform tidak punya batang sendiri, jadi ia TETAP butuh pil
+        // itu -- mematikannya di seluruh situs akan menghapus satu-satunya
+        // ajakan yang selalu terlihat di halaman-halaman lain.
+        $this->assertStringNotContainsString($batangHalaman, $berform);
+        $this->assertStringContainsString($pilGlobal, $berform);
+        $this->assertStringContainsString($pilGlobal, $beranda);
+    }
+
+    public function test_galeri_kisi_menyala_sendiri_setelah_foto_cukup(): void
+    {
+        $sedikit = $this->paket(['images' => ['a.webp', 'b.webp', 'c.webp']]);
+        $banyak = $this->paket(['images' => ['a.webp', 'b.webp', 'c.webp', 'd.webp', 'e.webp', 'f.webp']]);
+
+        $htmlSedikit = $this->withSession(['locale' => 'id'])
+            ->get(route('tour.package.detail.plain', $sedikit->slug))->assertOk()->getContent();
+        $htmlBanyak = $this->withSession(['locale' => 'id'])
+            ->get(route('tour.package.detail.plain', $banyak->slug))->assertOk()->getContent();
+
+        // Penandanya kalimat ajakan, BUKAN judul "Galeri Foto": judul itu juga
+        // dipakai tautan galeri di kaki halaman, jadi ia ada di SETIAP halaman
+        // dan tidak pernah bisa membuktikan apa pun tentang blok ini.
+        $penanda = 'Ketuk foto untuk melihat ukuran penuh.';
+
+        // Di bawah ambang, kisinya cuma mengulang carousel hero -- jadi diam.
+        $this->assertStringNotContainsString($penanda, $htmlSedikit);
+
+        // Di atas ambang ia menyala sendiri, tanpa saklar yang perlu diingat.
+        $this->assertStringContainsString($penanda, $htmlBanyak);
+
+        // Fotonya dicetak server, bukan menunggu Alpine: kisi ini SATU-SATUNYA
+        // alasan bloknya ada, dan tanpa JavaScript ia tetap harus utuh. Tujuh,
+        // bukan enam: satu kemunculan lagi adalah definisi metodenya di x-data.
+        $this->assertSame(7, substr_count($htmlBanyak, 'bukaDi('));
     }
 }
