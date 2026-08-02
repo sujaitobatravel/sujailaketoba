@@ -302,32 +302,44 @@
                  class="flex gap-5 overflow-x-auto scroll-smooth px-6 md:px-8 pb-4 no-scrollbar select-none snap-x snap-mandatory overscroll-x-contain"
                  :class="isDragging ? 'cursor-grabbing' : 'cursor-grab'">
 
-                <template x-for="(slide, i) in slides" :key="i">
+                {{-- Dicetak server. Isi <template x-for> tidak pernah ada di HTML,
+                     jadi empat foto terberat halaman ini -- termasuk batak_house
+                     165 KB -- tidak bisa ditemukan pemindai pramuat peramban
+                     maupun perayap. Alpine tetap mengurus geser-tarik dan
+                     gulir otomatisnya; yang berubah cuma siapa yang membuat
+                     elemennya. --}}
+                @foreach($slides as $i => $slide)
+                    @php
+                        $slideUrl = $slide['url'] ?? '';
+                        $slideCap = trim((string) ($slide['caption'] ?? ''));
+                        $slideCat = trim((string) ($slide['category'] ?? ''));
+                    @endphp
                     <div class="flex-shrink-0 snap-start w-[220px] sm:w-[250px] md:w-[280px] group/card py-2">
                         <div class="relative h-64 md:h-72 rounded-2xl overflow-hidden shadow-lg border border-white/10 transition-all duration-500 ease-out group-hover/card:shadow-2xl group-hover/card:shadow-black/50 group-hover/card:-translate-y-2">
-                            <img :src="slide.url"
-                                 :alt="slide.caption || 'Sujai Laketoba'"
+                            <img src="{{ $slideUrl }}"
+                                 @if($__ss = imageSrcset($slideUrl)) srcset="{{ $__ss }}" sizes="280px" @endif
+                                 alt="{{ $slideCap !== '' ? $slideCap : 'Sujai Laketoba' }}"
                                  class="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover/card:scale-105"
-                                 loading="lazy"
+                                 loading="lazy" decoding="async"
                                  onerror="this.src='{{ asset('images/home/tour.webp') }}'">
 
                             {{-- Gradient overlay permanent --}}
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent flex flex-col justify-end p-4">
-                                <span x-show="slide.category"
-                                      class="inline-block px-2.5 py-0.5 bg-toba-orange text-white text-[9px] font-bold uppercase tracking-wider rounded-full mb-1.5 w-fit shadow-sm"
-                                      x-text="slide.category"></span>
-                                <p x-show="slide.caption"
-                                   class="text-white text-[13px] font-semibold leading-snug line-clamp-2"
-                                   x-text="slide.caption"></p>
+                                @if($slideCat !== '')
+                                <span class="inline-block px-2.5 py-0.5 bg-toba-orange text-white text-[9px] font-bold uppercase tracking-wider rounded-full mb-1.5 w-fit shadow-sm">{{ $slideCat }}</span>
+                                @endif
+                                @if($slideCap !== '')
+                                <p class="text-white text-[13px] font-semibold leading-snug line-clamp-2">{{ $slideCap }}</p>
+                                @endif
                             </div>
 
                             {{-- Index badge --}}
                             <div class="absolute top-3 left-3 z-10 w-7 h-7 bg-white/20 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center shadow-sm">
-                                <span class="text-white text-[10px] font-bold" x-text="String(i + 1).padStart(2, '0')"></span>
+                                <span class="text-white text-[10px] font-bold">{{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}</span>
                             </div>
                         </div>
                     </div>
-                </template>
+                @endforeach
 
             </div>
         </div>
@@ -498,7 +510,7 @@
     <section class="py-8 md:py-14 px-5 md:px-8 bg-surface">
         <div class="max-w-7xl mx-auto bg-primary rounded-[2rem] md:rounded-[4rem] p-8 md:p-24 relative overflow-hidden shadow-[0_50px_100px_-20px] shadow-primary/30">
             <div class="absolute inset-0 opacity-40">
-                <img src="{{ $ctaImg }}" alt="{{ $ctaAlt ?? __('Suasana perjalanan bersama Sujai Laketoba') }}" class="w-full h-full object-cover" loading="lazy" decoding="async">
+                <img src="{{ $ctaImg }}" alt="{{ $ctaAlt ?? __('Suasana perjalanan bersama Sujai Laketoba') }}" @if($__ss = imageSrcset($ctaImg)) srcset="{{ $__ss }}" sizes="(max-width: 1023px) 100vw, 800px" @endif class="w-full h-full object-cover" loading="lazy" decoding="async">
             </div>
             <div class="absolute inset-0 bg-gradient-to-br from-primary via-primary/60 to-transparent"></div>
             

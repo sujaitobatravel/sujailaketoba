@@ -61,8 +61,19 @@
             }
         }
         
+        $url = imageUrl($path);
+
+        // Cadangan: kalau fotonya bukan unggahan yang terindeks di pustaka Media
+        // -- misalnya paket contoh yang menunjuk aset bawaan di public/images --
+        // pencarian di atas tidak menemukan apa pun dan srcset-nya kosong.
+        // imageSrcset() tahu konvensi "-400/-800" milik aset bawaan, jadi foto
+        // hero paket tidak lagi terkirim ukuran penuh ke layar 390px.
+        if ($srcset === '') {
+            $srcset = imageSrcset($url);
+        }
+
         return [
-            'url' => imageUrl($path),
+            'url' => $url,
             'srcset' => $srcset,
             'blur_hash' => $blurHash
         ];

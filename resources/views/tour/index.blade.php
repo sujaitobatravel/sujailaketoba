@@ -286,32 +286,44 @@
                  class="flex gap-5 overflow-x-auto scroll-smooth px-6 md:px-8 pb-4 no-scrollbar select-none snap-x snap-mandatory overscroll-x-contain"
                  :class="isDragging ? 'cursor-grabbing' : 'cursor-grab'">
 
-                <template x-for="(slide, i) in slides" :key="i">
+                {{-- Dicetak server. Isi <template x-for> tidak pernah ada di HTML,
+                     jadi empat foto terberat halaman ini -- termasuk batak_house
+                     165 KB -- tidak bisa ditemukan pemindai pramuat peramban
+                     maupun perayap. Alpine tetap mengurus geser-tarik dan
+                     gulir otomatisnya; yang berubah cuma siapa yang membuat
+                     elemennya. --}}
+                @foreach($slides as $i => $slide)
+                    @php
+                        $slideUrl = $slide['url'] ?? '';
+                        $slideCap = trim((string) ($slide['caption'] ?? ''));
+                        $slideCat = trim((string) ($slide['category'] ?? ''));
+                    @endphp
                     <div class="flex-shrink-0 snap-start w-[220px] sm:w-[250px] md:w-[280px] group/card py-2">
                         <div class="relative h-64 md:h-72 rounded-2xl overflow-hidden shadow-lg border border-white/10 transition-all duration-500 ease-out group-hover/card:shadow-2xl group-hover/card:shadow-black/50 group-hover/card:-translate-y-2">
-                            <img :src="slide.url"
-                                 :alt="slide.caption || 'Sujai Laketoba'"
+                            <img src="{{ $slideUrl }}"
+                                 @if($__ss = imageSrcset($slideUrl)) srcset="{{ $__ss }}" sizes="280px" @endif
+                                 alt="{{ $slideCap !== '' ? $slideCap : 'Sujai Laketoba' }}"
                                  class="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover/card:scale-105"
-                                 loading="lazy"
+                                 loading="lazy" decoding="async"
                                  onerror="this.src='{{ asset('images/home/tour.webp') }}'">
 
                             {{-- Gradient overlay permanent --}}
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent flex flex-col justify-end p-4">
-                                <span x-show="slide.category"
-                                      class="inline-block px-2.5 py-0.5 bg-toba-orange text-white text-[9px] font-bold uppercase tracking-wider rounded-full mb-1.5 w-fit shadow-sm"
-                                      x-text="slide.category"></span>
-                                <p x-show="slide.caption"
-                                   class="text-white text-[13px] font-semibold leading-snug line-clamp-2"
-                                   x-text="slide.caption"></p>
+                                @if($slideCat !== '')
+                                <span class="inline-block px-2.5 py-0.5 bg-toba-orange text-white text-[9px] font-bold uppercase tracking-wider rounded-full mb-1.5 w-fit shadow-sm">{{ $slideCat }}</span>
+                                @endif
+                                @if($slideCap !== '')
+                                <p class="text-white text-[13px] font-semibold leading-snug line-clamp-2">{{ $slideCap }}</p>
+                                @endif
                             </div>
 
                             {{-- Index badge --}}
                             <div class="absolute top-3 left-3 z-10 w-7 h-7 bg-white/20 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center shadow-sm">
-                                <span class="text-white text-[10px] font-bold" x-text="String(i + 1).padStart(2, '0')"></span>
+                                <span class="text-white text-[10px] font-bold">{{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}</span>
                             </div>
                         </div>
                     </div>
-                </template>
+                @endforeach
 
             </div>
         </div>
@@ -471,7 +483,7 @@
             @foreach($blogs as $blog)
             <a href="{{ route('tour.blog.detail', $blog->slug) }}" class="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 rounded-[1.5rem] p-4 bg-white shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-500 hover:-translate-y-2">
                 <div class="aspect-[16/10] overflow-hidden rounded-xl mb-5 shadow-sm bg-slate-100">
-                    <img alt="{{ $blog->translated_title }}" loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" src="{{ $blog->image_url }}"/>
+                    <img alt="{{ $blog->translated_title }}" loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" src="{{ $blog->image_url }}" @if($__ss = imageSrcset($blog->image_url)) srcset="{{ $__ss }}" sizes="(max-width: 639px) 100vw, (max-width: 767px) 50vw, 380px" @endif/>
                 </div>
                 <span class="font-label-caps text-[10px] text-secondary bg-secondary/10 px-3 py-1 rounded-full font-bold uppercase tracking-widest mb-4 inline-block">{{ strtoupper($blog->category ?? 'EKSPEDISI') }}</span>
                 <h3 class="font-headline-md text-[20px] md:text-[22px] group-hover:text-secondary transition-colors duration-300 font-bold leading-tight tracking-tight">{{ $blog->translated_title }}</h3>
@@ -541,7 +553,7 @@
     <section class="py-6 md:py-8 px-5 md:px-8 bg-surface">
         <div class="max-w-7xl mx-auto bg-primary rounded-[2rem] md:rounded-[4rem] p-8 md:p-24 relative overflow-hidden shadow-[0_50px_100px_-20px] shadow-primary/30">
             <div class="absolute inset-0 opacity-40">
-                <img src="{{ $ctaImg }}" alt="{{ $ctaAlt ?? 'Call to action image' }}" loading="lazy" decoding="async" class="w-full h-full object-cover">
+                <img src="{{ $ctaImg }}" alt="{{ $ctaAlt ?? 'Call to action image' }}" @if($__ss = imageSrcset($ctaImg)) srcset="{{ $__ss }}" sizes="(max-width: 1023px) 100vw, 800px" @endif loading="lazy" decoding="async" class="w-full h-full object-cover">
             </div>
             <div class="absolute inset-0 bg-gradient-to-br from-primary via-primary/60 to-transparent"></div>
             

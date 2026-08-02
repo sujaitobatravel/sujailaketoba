@@ -1,13 +1,19 @@
 @extends('layouts.app')
 
 @section('title', __('Tentang Kami') . ' - ' . ($siteSettings['general']['seo_meta_title'] ?? 'Sujai Laketoba'))
-@section('description', $content['meta_description'] ?? '')
+{{-- Cadangan wajib ada. meta_description di CMS kosong, dan tanpa cadangan
+     halaman ini terbit dengan <meta name="description" content=""> -- Google
+     mengarang sendiri cuplikannya dari potongan teks pertama yang ia temukan,
+     dan pratinjau tautan WhatsApp tampil tanpa satu baris penjelasan pun.
+     Satu-satunya halaman dari empat belas yang kehilangan ini. --}}
+@section('description', $content['meta_description']
+    ?? __('Sujai Laketoba adalah biro perjalanan Danau Toba yang menyusun perjalanan pribadi, rombongan, dan korporat di Samosir, Parapat, Berastagi, dan seluruh Sumatera Utara.'))
 
 @section('content')
 <div class="bg-surface min-h-screen pb-14 font-body-md text-on-background selection:bg-primary-container selection:text-on-primary-container">
     <!-- Cinematic Premium Hero Section -->
     <div class="relative h-[60dvh] flex items-center overflow-hidden bg-slate-900">
-        <img src="{{ imageUrl($content['hero_image'] ?? '2026/04/lake-toba-premium.webp') }}" alt="About Hero" class="absolute inset-0 w-full h-full object-cover opacity-45 animate-subtle-zoom">
+        <img src="{{ imageUrl($content['hero_image'] ?? '2026/04/lake-toba-premium.webp') }}" alt="About Hero" @if($__ss = imageSrcset(imageUrl($content['hero_image'] ?? '2026/04/lake-toba-premium.webp'))) srcset="{{ $__ss }}" sizes="100vw" @endif class="absolute inset-0 w-full h-full object-cover opacity-45 animate-subtle-zoom">
         <div class="absolute inset-0 bg-gradient-to-r from-primary via-primary/50 to-transparent"></div>
         <div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
 
@@ -37,7 +43,7 @@
                 <!-- Image Side -->
                 <div class="lg:col-span-6 relative">
                     <div class="relative z-10 aspect-[4/5] rounded-3xl overflow-hidden shadow-lg border border-slate-200">
-                        <img src="{{ imageUrl($content['image_url'] ?? '2026/04/sumatra-panorama.webp') }}" alt="Sujai Laketoba Story" class="w-full h-full object-cover">
+                        <img src="{{ imageUrl($content['image_url'] ?? '2026/04/sumatra-panorama.webp') }}" alt="Sujai Laketoba Story" @if($__ss = imageSrcset(imageUrl($content['image_url'] ?? '2026/04/sumatra-panorama.webp'))) srcset="{{ $__ss }}" sizes="(max-width: 1023px) 100vw, 600px" @endif class="w-full h-full object-cover">
                         <div class="absolute inset-0 bg-gradient-to-t from-primary/30 to-transparent"></div>
                     </div>
                     

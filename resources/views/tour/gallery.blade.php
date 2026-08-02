@@ -40,14 +40,22 @@
             window.history.replaceState({}, '', query ? window.location.pathname + '?' + query : window.location.pathname);
         },
 
+        {{-- Satu aturan penyaring, dipakai dua pihak: filteredImages (untuk
+             lightbox dan penghitung) dan cocokFilter (untuk menyembunyikan ubin
+             yang dicetak server). Ditulis sekali supaya keduanya mustahil
+             berselisih -- kalau tidak, ubin bisa terlihat sementara lightbox
+             menganggapnya tidak ada. --}}
+        cocokFilter(category, caption) {
+            const cat = this.activeCategory === 'Semua' || category === this.activeCategory;
+            const q = this.searchQuery.trim().toLowerCase();
+            const cari = !q
+                || (caption && caption.toLowerCase().includes(q))
+                || (category && category.toLowerCase().includes(q));
+            return cat && !! cari;
+        },
+
         get filteredImages() {
-            return this.images.filter(img => {
-                const matchCat = this.activeCategory === 'Semua' || img.category === this.activeCategory;
-                const matchSearch = !this.searchQuery || 
-                                   (img.caption && img.caption.toLowerCase().includes(this.searchQuery.toLowerCase())) || 
-                                   (img.category && img.category.toLowerCase().includes(this.searchQuery.toLowerCase()));
-                return matchCat && matchSearch;
-            });
+            return this.images.filter(img => this.cocokFilter(img.category, img.caption));
         },
         
         openLightbox(index) {
@@ -150,28 +158,53 @@
             </div>
         </div>
 
+        {{-- Ubinnya dicetak server, penyaringnya tetap milik Alpine.
+
+             Sebelumnya seluruh kisi digambar dari template x-for, jadi foto
+             galeri TIDAK ADA satu pun di HTML: halaman galeri sebuah biro
+             wisata -- kandidat terkuat masuk Google Images untuk kata kunci
+             Danau Toba -- datang kosong bagi perayap yang tidak menjalankan
+             JavaScript dan bagi pratinjau tautan WhatsApp.
+
+             Yang berubah cuma SIAPA yang membuat elemennya. Filter kategori,
+             pencarian, sinkronisasi URL, dan lightbox tetap utuh: Alpine
+             sekarang menyembunyikan ubin yang tidak cocok alih-alih
+             membangunnya dari nol. --}}
         <div class="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-5 md:gap-8 space-y-5 md:space-y-8">
-            <template x-for="(img, index) in filteredImages" :key="index">
+            @foreach($images as $img)
+                @php
+                    $imgUrl = $img->image_url;
+                    $imgAlt = trim((string) ($img->caption ?? '')) !== '' ? $img->caption : __('Galeri Sujai Laketoba');
+                @endphp
                 <div
                     class="break-inside-avoid relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg transition duration-[0.6s] border border-outline-variant/20 hover:border-secondary/40 hover:-translate-y-1 bg-white"
-                    @click="openLightbox(index)"
-                    x-transition:enter="transition opacity duration-500"
-                    x-transition:enter-start="opacity-0"
-                    x-transition:enter-end="opacity-100"
+                    x-show="cocokFilter({{ \Illuminate\Support\Js::from($img->category) }}, {{ \Illuminate\Support\Js::from($img->caption) }})"
+                    {{-- Posisi dihitung di dalam daftar TERSARING, bukan indeks
+                         cetak: tombol maju/mundur di lightbox harus menyusuri
+                         foto yang sedang terlihat, bukan seluruh koleksi. --}}
+                    @click="openLightbox(filteredImages.findIndex(x => x.id === {{ (int) $img->id }}))"
                 >
                     <img
-                        :src="img.image_url"
-                        :alt="img.caption || 'Galeri Sujai Laketoba'"
+                        src="{{ $imgUrl }}"
+                        @if($ss = imageSrcset($imgUrl))
+                            srcset="{{ $ss }}"
+                            sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, (max-width: 1279px) 33vw, 25vw"
+                        @endif
+                        alt="{{ $imgAlt }}"
                         class="w-full object-cover transform group-hover:scale-[1.03] transition-transform duration-[2s] ease-out"
                         loading="lazy"
                         decoding="async"
                     >
-                    
+
                     <!-- Cinematic Overlay -->
                     <div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 flex flex-col justify-end p-6">
                         <div class="transform translate-y-4 group-hover:translate-y-0 transition duration-[0.4s]">
-                            <span x-show="img.category" class="inline-block px-3 py-1 bg-secondary text-white text-[9px] font-black uppercase tracking-widest rounded-lg mb-3 shadow-sm" x-text="img.category"></span>
-                            <p x-show="img.caption" class="text-white text-base font-bold leading-tight tracking-tight mb-2" x-text="img.caption"></p>
+                            @if(trim((string) ($img->category ?? '')) !== '')
+                                <span class="inline-block px-3 py-1 bg-secondary text-white text-[9px] font-black uppercase tracking-widest rounded-lg mb-3 shadow-sm">{{ $img->category }}</span>
+                            @endif
+                            @if(trim((string) ($img->caption ?? '')) !== '')
+                                <p class="text-white text-base font-bold leading-tight tracking-tight mb-2">{{ $img->caption }}</p>
+                            @endif
                             <div class="flex items-center gap-1 text-secondary-fixed text-[9px] font-black uppercase tracking-widest">
                                 <span class="material-symbols-outlined text-sm">visibility</span>
                                 {{ __('Lihat Detail') }}
@@ -186,7 +219,7 @@
                         </div>
                     </div>
                 </div>
-            </template>
+            @endforeach
         </div>
 
         <!-- Premium Empty State -->
