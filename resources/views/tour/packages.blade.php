@@ -46,13 +46,23 @@
 @endpush
 
 @section('content')
-<div 
-    x-data="{ 
-        packages: @js($packages),
-        cities: @js($cities)
-    }"
-    class="min-h-screen flex flex-col bg-slate-50"
->
+{{-- Grid ini dulu dirender di sisi klien: seluruh koleksi paket disalin utuh ke
+     dalam atribut x-data (~50 KB, sepertiga berat halaman) lalu digambar oleh
+     x-for. Dua akibatnya berat.
+
+     Pertama, isi <template x-for> TIDAK ADA di HTML. Halaman paket -- halaman
+     jualan utama situs ini -- datang kosong bagi apa pun yang tidak menjalankan
+     JavaScript: pratinjau tautan WhatsApp, perayap selain Google, dan tamu yang
+     skripnya gagal termuat di sinyal buruk.
+
+     Kedua, muatan itu memuat SELURUH kolom setiap paket -- deskripsi panjang,
+     terjemahan, daftar gambar, meta SEO -- padahal kartu cuma memakai segelintir
+     di antaranya. Tamu ponsel membayar seluruhnya.
+
+     Sekarang dicetak server dengan @foreach. Alpine tetap dipakai untuk yang
+     memang butuh interaksi (akordeon detail & kalkulator pax), dan hanya data
+     yang benar-benar dipakai keduanya yang ikut diserialisasi. --}}
+<div class="min-h-screen flex flex-col bg-slate-50">
     <main class="flex-grow">
         <!-- Hero Section -->
         <div class="relative h-[55dvh] min-h-[320px] flex items-end overflow-hidden">
@@ -63,7 +73,7 @@
             @endphp
             <img src="{{ $heroImg }}" alt="Packages Hero" class="absolute inset-0 w-full h-full object-cover" fetchpriority="high" decoding="async">
             <div class="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-slate-900/50 to-slate-50"></div>
-            <div class="relative z-10 w-full max-w-7xl mx-auto px-5 md:px-8 pb-12 md:pb-16">
+            <div class="relative z-10 w-full max-w-7xl mx-auto px-5 md:px-8 pb-6 md:pb-8">
                 <div class="animate-in fade-in slide-in-from-bottom-8 duration-1000">
                     <x-breadcrumb :dark="true" class="mb-4" :items="[
                         ['label' => __('Paket Wisata')],
@@ -77,11 +87,11 @@
         </div>
 
         <!-- Results Grid -->
-        <div class="max-w-7xl mx-auto px-5 md:px-8 mt-8 md:mt-14">
+        <div class="max-w-7xl mx-auto px-5 md:px-8 mt-8 md:mt-8">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h2 class="text-xl font-bold text-slate-900 mb-0.5">Menampilkan Hasil</h2>
-                    <p class="text-slate-500 font-normal text-xs">Ditemukan <span class="text-toba-green font-bold" x-text="packages.length"></span> paket wisata</p>
+                    <p class="text-slate-500 font-normal text-xs">Ditemukan <span class="text-toba-green font-bold">{{ count($packages) }}</span> paket wisata</p>
                 </div>
             </div>
 
@@ -92,26 +102,48 @@
                  isinya menggantung di ruang kosong. Tinggi kartu tertutup
                  tetap seragam karena judul dan deskripsinya sudah dibatasi
                  line-clamp. --}}
+            @php $__pkgRating = siteRating(); @endphp
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 items-start">
-                <template x-for="(pkg, i) in packages" :key="pkg.id">
-                    <div class="animate-in fade-in slide-in-from-bottom-12 duration-1000" :style="'animation-delay: ' + (i * 100) + 'ms'">
+                @foreach($packages as $i => $pkg)
+                    @php
+                        $pkgSlug = $pkg->slug ?? $pkg->id;
+
+                        // Urutan yang sama persis dengan versi Alpine-nya: kota dari
+                        // relasi many-to-many dulu, baru cityId tunggal, baru cadangan.
+                        $pkgLokasi = $pkg->cities->count() > 0
+                            ? $pkg->cities->pluck('name')->join(', ')
+                            : (optional($cities->firstWhere('id', $pkg->cityId))->name ?? 'Sumatera Utara');
+
+                        $pkgPricing = is_array($pkg->pricingDetails ?? null) ? $pkg->pricingDetails : [];
+                        $pkgPaxXdata = 'paxCalc('
+                            . (float) ($pkg->price ?? 0) . ', '
+                            . \Illuminate\Support\Js::from($pkg->childPrice ?? null) . ', '
+                            . \Illuminate\Support\Js::from($pkgSlug) . ', '
+                            . \Illuminate\Support\Js::from(array_values($pkgPricing['tiers'] ?? [])) . ', '
+                            . \Illuminate\Support\Js::from($pkg->translated_name ?? $pkg->name) . ')';
+                        $pkgDetailsXdata = 'pkgDetails('
+                            . \Illuminate\Support\Js::from(array_values((array) ($pkg->includes ?? []))) . ', '
+                            . \Illuminate\Support\Js::from(array_values((array) ($pkg->excludes ?? []))) . ', '
+                            . \Illuminate\Support\Js::from(array_values((array) ($pkg->itinerary ?? []))) . ')';
+                    @endphp
+                    <div class="animate-in fade-in slide-in-from-bottom-12 duration-1000" style="animation-delay: {{ $i * 100 }}ms">
                         <div class="bg-white rounded-3xl overflow-hidden border border-slate-100 hover:border-slate-200 transition-colors duration-300 group h-full flex flex-col shadow-sm">
-                            <div class="relative h-64 overflow-hidden shrink-0" x-data="{ loaded: false }">
-                                <!-- Blur placeholder -->
-                                <div class="absolute inset-0 bg-gradient-to-br from-toba-green/20 via-slate-200/50 to-toba-green/20 animate-pulse"
-                                     x-show="!loaded"></div>
-                                <a :href="'/tour/detail/' + (pkg.slug || pkg.id)" class="block w-full h-full"
-                                   :aria-label="pkg.translated_name">
-                                <img :src="pkg.first_image" :alt="pkg.name"
-                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-[1.5s]"
-                                     :class="loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'"
-                                     style="transition: opacity 0.6s ease, transform 1.5s ease"
-                                     loading="lazy" decoding="async"
-                                     x-on:load="loaded = true"
-                                     x-on:error="loaded = true">
+                            {{-- Bayangan penanda muat (shimmer) dilepas bersama render
+                                 kliennya. Ia menyembunyikan gambar sampai peristiwa load
+                                 menyala; dengan src yang sudah ada di HTML, gambar yang
+                                 sudah tersimpan di cache sering selesai dimuat SEBELUM
+                                 Alpine sempat memasang penyimaknya -- peristiwanya lewat,
+                                 dan gambarnya tinggal permanen tak terlihat. --}}
+                            <div class="relative aspect-[4/3] overflow-hidden shrink-0 bg-slate-100">
+                                <a href="/tour/detail/{{ $pkgSlug }}" class="block w-full h-full"
+                                   aria-label="{{ $pkg->translated_name }}">
+                                    <img src="{{ $pkg->first_image }}" alt="{{ $pkg->translated_name }}"
+                                         class="w-full h-full object-cover group-hover:scale-105 transition duration-[1.5s]"
+                                         loading="{{ $i < 3 ? 'eager' : 'lazy' }}"
+                                         fetchpriority="{{ $i === 0 ? 'high' : 'auto' }}"
+                                         decoding="async">
                                 </a>
-                                
-                                @php $__pkgRating = siteRating(); @endphp
+
                                 <div class="absolute top-4 left-4 flex flex-col space-y-1.5">
                                     @if($__pkgRating)
                                     <div class="bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-lg flex items-center space-x-1 border border-slate-100 shadow-sm">
@@ -119,44 +151,45 @@
                                         <span class="font-bold text-slate-800 text-[10px] tracking-wider">{{ number_format($__pkgRating['value'], 1) }}</span>
                                     </div>
                                     @endif
-                                    <div class="bg-slate-950 text-white px-2.5 py-1 rounded-lg text-[9px] font-semibold uppercase tracking-wider" x-text="pkg.duration"></div>
+                                    @if(trim((string) $pkg->duration) !== '')
+                                    <div class="bg-slate-950 text-white px-2.5 py-1 rounded-lg text-[9px] font-semibold uppercase tracking-wider">{{ $pkg->duration }}</div>
+                                    @endif
                                 </div>
-
-                                {{-- Tombol wishlist dihapus: tidak pernah tersambung ke
-                                     apa pun. Ia menerima klik, memberi efek hover, lalu
-                                     tidak menyimpan apa-apa — dan pengunjung baru sadar
-                                     saat mencari daftar simpanannya yang tidak ada. --}}
                             </div>
 
                             <div class="px-6 pt-6 pb-4 flex flex-col flex-grow">
                                 <div class="flex items-center text-toba-green text-[9px] font-semibold uppercase tracking-wider mb-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin mr-1.5"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                                    <span x-text="(pkg.cities && pkg.cities.length > 0) ? pkg.cities.map(c => c.name).join(', ') : (cities.find(c => String(c.id) === String(pkg.cityId))?.name || 'Sumatera Utara')"></span>
+                                    <span>{{ $pkgLokasi }}</span>
                                 </div>
                                 {{-- Kartu di grid ini sebelumnya tidak bisa diklik sama
                                      sekali: satu-satunya jalan masuk cuma tombol Booking,
                                      jadi tamu yang cuma ingin membaca detail tidak punya
                                      pintu. Judulnya kini menuju halaman detail tanpa form. --}}
-                                <a :href="'/tour/detail/' + (pkg.slug || pkg.id)" class="block">
-                                    <h3 class="text-lg font-bold text-slate-900 mb-3 line-clamp-1 group-hover:text-toba-green transition-colors tracking-tight" x-text="pkg.translated_name"></h3>
+                                <a href="/tour/detail/{{ $pkgSlug }}" class="block">
+                                    <h3 class="text-lg font-bold text-slate-900 mb-3 line-clamp-1 group-hover:text-toba-green transition-colors tracking-tight">{{ $pkg->translated_name }}</h3>
                                 </a>
-                                <p class="text-slate-500 text-xs leading-relaxed mb-4 line-clamp-2 font-normal flex-grow" x-text="pkg.translated_description"></p>
+                                <p class="text-slate-500 text-xs leading-relaxed mb-4 line-clamp-2 font-normal flex-grow">{{ $pkg->translated_description }}</p>
                             </div>
                             @include('partials.package-details', [
-                                'xdata' => 'pkgDetails(pkg.includes || [], pkg.excludes || [], pkg.itinerary || [])',
-                                'uid' => '\'pkg-detail-grid-\' + pkg.id',
+                                'xdata' => $pkgDetailsXdata,
+                                'uid' => \Illuminate\Support\Js::from('pkg-detail-grid-'.$pkg->id),
                             ])
-                            @include('partials.pax-calc', ['xdata' => 'paxCalc(pkg.price, pkg.childPrice, pkg.slug || pkg.id, (pkg.pricingDetails && pkg.pricingDetails.tiers) || [], pkg.translated_name || pkg.name)'])
+                            @include('partials.pax-calc', [
+                                'xdata' => $pkgPaxXdata,
+                                'priceImage' => \Illuminate\Support\Js::from($pkg->price_image_url ?? null),
+                            ])
                         </div>
                     </div>
-                </template>
+                @endforeach
             </div>
 
             {{-- Tanpa filter, daftar kosong hanya berarti satu hal: memang belum
                  ada paket aktif. Tombol "Reset Semua Filter" di sini dulu
                  merujuk state yang sudah tidak ada -- sekali diklik, Alpine
                  melempar ReferenceError dan seluruh komponen berhenti bekerja. --}}
-            <div x-show="packages.length === 0" class="text-center py-24 bg-white rounded-3xl border border-slate-100 shadow-sm animate-in fade-in zoom-in duration-700">
+            @if(count($packages) === 0)
+            <div class="text-center py-12 bg-white rounded-3xl border border-slate-100 shadow-sm animate-in fade-in zoom-in duration-700">
                 <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search-x"><path d="m16 16 5 5"></path><circle cx="10" cy="10" r="7"></circle><path d="m7 7 6 6"></path><path d="m13 7-6 6"></path></svg>
                 </div>
@@ -172,10 +205,11 @@
                     {{ __('Tanya lewat WhatsApp') }}
                 </a>
             </div>
+            @endif
         </div>
 
         <!-- Custom CTA Section -->
-        <div class="max-w-7xl mx-auto px-5 md:px-8 mt-16 md:mt-24 mb-16 md:mb-24">
+        <div class="max-w-7xl mx-auto px-5 md:px-8 mt-8 md:mt-12 mb-8 md:mb-12">
             <div class="bg-gradient-to-r from-toba-green to-primary-container rounded-3xl p-8 md:p-12 text-center relative overflow-hidden shadow-sm">
                 <div class="absolute inset-0 opacity-10">
                     <img src="{{ imageUrl('sumatra-panorama') }}" alt="Paket wisata - destinasi" loading="lazy" decoding="async" class="w-full h-full object-cover">
