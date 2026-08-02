@@ -192,13 +192,43 @@
     $kartu = $sales
         ? 'md:bg-white md:p-8 md:rounded-2xl md:border md:border-slate-200 md:shadow-sm'
         : 'bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm';
+
+    // HANYA kolom yang benar-benar dibaca Alpine di halaman ini. Sebelumnya
+    // seluruh objek paket dikirim apa adanya, dan itu MEMBOCORKAN cost_price --
+    // harga modal ke pemasok -- ke dalam HTML publik, terbaca siapa pun yang
+    // membuka lihat-sumber. Bagi agen perjalanan itu marginnya sendiri yang
+    // dipajang ke pesaing dan ke tamu yang sedang menawar.
+    //
+    // Daftar putih, bukan daftar hitam: kolom baru yang ditambahkan nanti tidak
+    // ikut terkirim sampai ada yang sengaja menambahkannya ke sini. Membuang
+    // satu kolom sensitif satu per satu berarti kebocoran berikutnya cuma
+    // menunggu migrasi berikutnya.
+    //
+    // Efek sampingnya ikut menyingkirkan package_images yang duplikat -- ia
+    // sudah dikirim terpisah lewat package_images di bawah, lengkap dengan
+    // srcset yang panjang, dan selama ini terkirim dua kali.
+    $packageAlpine = [
+        'id' => $package->id,
+        'slug' => $package->slug,
+        'name' => $package->name,
+        'translated_name' => $package->translated_name,
+        'translated_description' => $package->translated_description,
+        'translated_itinerary_text' => $package->translated_itinerary_text,
+        'locationTag' => $package->locationTag,
+        'price' => $package->price,
+        'childPrice' => $package->childPrice,
+        'includes' => array_values((array) ($package->includes ?? [])),
+        'excludes' => array_values((array) ($package->excludes ?? [])),
+        'itinerary' => array_values((array) ($package->itinerary ?? [])),
+        'pricingDetails' => $package->pricingDetails,
+    ];
 @endphp
 
 <div
     x-data="{
         activeImg: 0,
         activeTab: 'itinerary',
-        package: @js($package),
+        package: @js($packageAlpine),
         package_images: @js($packageImagesArray),
         city: @js($city),
         contact: {
@@ -914,62 +944,6 @@
                 </div>
             </div>
 
-            <!-- Section: Reviews -->
-            <div class="space-y-8 pt-8 border-t border-slate-200" id="section-reviews">
-                <!-- Header Section Reviews -->
-                <div class="flex items-center gap-2.5 md:gap-3">
-                    <div class="w-9 h-9 md:w-12 md:h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
-                        <span class="material-symbols-outlined text-[18px] md:text-[24px]">grade</span>
-                    </div>
-                    <h2 class="font-headline-md text-lg md:text-2xl text-primary font-bold">{{ __('ULASAN') }}</h2>
-                </div>
-                <div class="{{ $kartu }}">
-                    @php
-                        $testimonials = $siteSettings['cms_tour']['testimonials'] ?? [];
-                    @endphp
-
-                    @if(!empty($testimonials))
-                        <div class="mb-8">
-                            <h3 class="text-xl font-semibold font-headline-md text-primary mb-2">{{ __('Ulasan Pengunjung') }}</h3>
-                            <p class="text-slate-600 font-body-md text-sm">{{ __('Cerita dari mereka yang sudah bepergian bersama kami.') }}</p>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
-                            @foreach($testimonials as $t)
-                            <div class="p-4 md:p-6 bg-slate-50 rounded-xl border border-slate-200 transition">
-                                <div class="flex items-center gap-3 mb-4">
-                                    @if(!empty($t['image']))
-                                        <img src="{{ imageUrl($t['image']) }}" loading="lazy" decoding="async" class="w-10 h-10 rounded-lg object-cover bg-slate-200" alt="{{ $t['name'] }}" onerror="this.style.display='none'">
-                                    @else
-                                        <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-base">
-                                            {{ strtoupper(substr($t['name'] ?? '?', 0, 1)) }}
-                                        </div>
-                                    @endif
-                                    <div>
-                                        <p class="font-semibold text-slate-900 text-sm md:text-xs font-body-md">{{ $t['name'] }}</p>
-                                        <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider font-label-caps">{{ __($t['location'] ?? '') }}</p>
-                                    </div>
-                                </div>
-                                <p class="text-[14px] md:text-xs text-slate-600 font-body-md font-normal leading-relaxed italic">"{{ __($t['text'] ?? '') }}"</p>
-                            </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="text-center py-6">
-                            <div class="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <span class="material-symbols-outlined text-[40px] text-primary/40">chat_bubble</span>
-                            </div>
-                            <h4 class="text-lg font-semibold text-slate-900 mb-2 font-headline-md">{{ __('Bagikan Pengalaman Anda') }}</h4>
-                            <p class="text-slate-600 font-body-md max-w-sm mx-auto mb-8 text-sm leading-relaxed">{{ __('Sudah pernah bepergian bersama kami? Ceritamu akan sangat membantu orang lain memilih.') }}</p>
-                            <a :href="'https://wa.me/' + waNumber + '?text=' + encodeURIComponent('Halo Sujai Laketoba, saya ingin berbagi pengalaman wisata bersama kalian 😊')" target="_blank"
-                               class="inline-flex items-center gap-2 bg-primary text-on-primary px-8 py-3.5 rounded-lg font-semibold text-xs uppercase tracking-wider hover:bg-primary-container transition shadow-sm">
-                                <span class="material-symbols-outlined text-[18px]">chat</span>
-                                {{ __('Ceritakan Perjalananmu') }}
-                            </a>
-                        </div>
-                    @endif
-                </div>
-            </div>
-            
             @include('tour.partials.package-gallery', ['foto' => $packageImagesArray, 'salesMode' => ! $showBookingForm])
 
             @include('tour.partials.package-media', ['salesMode' => ! $showBookingForm])
@@ -977,7 +951,6 @@
             @if(! $showBookingForm)
                 @include('tour.partials.package-sales-blocks')
             @endif
-
             <!-- Travel Specialist & PDF CTA Row -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 pt-8">
                 {{-- Brosur yang diunggah admin menang atas itinerary PDF yang
@@ -1017,6 +990,82 @@
                 </div>
             </div>
         </div>
+
+
+            {{-- ============ ULASAN ============
+                 Turun ke paling bawah. Ulasan itu penguat keputusan, bukan
+                 bahan pertimbangan: tamu membacanya SESUDAH tahu isi paket dan
+                 harganya, bukan di tengah membaca rencana perjalanan. Di
+                 tempatnya yang lama ia memotong bacaan tepat sebelum galeri dan
+                 blok penutup.
+
+                 Bentuknya geseran mendatar, bukan tumpukan kartu: empat ulasan
+                 bertumpuk memakan hampir dua layar penuh untuk hal yang tamu
+                 baca sekilas. Digeser, ia cukup satu layar dan tetap utuh. --}}
+            @php
+                // Baris kosong dibuang. Dua dari empat testimoni di CMS tidak
+                // punya nama maupun teks, dan selama ini ia tetap dirender:
+                // kartu berisi tanda tanya dan sepasang tanda kutip kosong,
+                // yang terbaca sebagai situs yang rusak -- bukan sebagai
+                // ulasan yang belum diisi.
+                $testimonials = array_values(array_filter(
+                    (array) ($siteSettings['cms_tour']['testimonials'] ?? []),
+                    fn ($t) => is_array($t)
+                        && trim((string) ($t['name'] ?? '')) !== ''
+                        && trim((string) ($t['text'] ?? '')) !== ''
+                ));
+            @endphp
+            <div class="space-y-4 md:space-y-6 pt-8 border-t border-slate-200" id="section-reviews">
+                <div class="flex items-center gap-2.5 md:gap-3">
+                    <div class="w-9 h-9 md:w-12 md:h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+                        <span class="material-symbols-outlined text-[18px] md:text-[24px]">grade</span>
+                    </div>
+                    <div class="min-w-0">
+                        <h2 class="font-headline-md text-lg md:text-2xl text-primary font-bold leading-tight">{{ __('ULASAN') }}</h2>
+                        <p class="text-[13px] md:text-sm text-slate-600 font-body-md">{{ __('Cerita dari mereka yang sudah bepergian bersama kami.') }}</p>
+                    </div>
+                </div>
+
+                @if(count($testimonials))
+                    {{-- bleed-mobile + padding tepi: kartu terakhir tidak menempel
+                         mati di tepi kanan, dan kartu berikutnya mengintip sedikit
+                         di tepi layar -- itu satu-satunya petunjuk bahwa daftarnya
+                         masih bisa digeser. --}}
+                    <div class="{{ $sales ? 'bleed-mobile' : '' }} flex gap-3 overflow-x-auto snap-x snap-mandatory overscroll-x-contain no-scrollbar pb-1 {{ $sales ? 'px-margin-mobile md:px-0' : '' }}">
+                        @foreach($testimonials as $t)
+                            <figure class="snap-start shrink-0 w-[85%] sm:w-[48%] md:w-[32%] p-4 md:p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                                <div class="flex items-center gap-3 mb-3">
+                                    @if(!empty($t['image']))
+                                        <img src="{{ imageUrl($t['image']) }}" loading="lazy" decoding="async" class="w-10 h-10 rounded-lg object-cover bg-slate-200 shrink-0" alt="{{ $t['name'] }}" onerror="this.style.display='none'">
+                                    @else
+                                        <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-base shrink-0">
+                                            {{ strtoupper(mb_substr($t['name'], 0, 1)) }}
+                                        </div>
+                                    @endif
+                                    <figcaption class="min-w-0">
+                                        <p class="font-semibold text-slate-900 text-sm font-body-md truncate">{{ $t['name'] }}</p>
+                                        <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider font-label-caps truncate">{{ __($t['location'] ?? '') }}</p>
+                                    </figcaption>
+                                </div>
+                                <blockquote class="text-[14px] md:text-xs text-slate-600 font-body-md font-normal leading-relaxed italic">"{{ __($t['text']) }}"</blockquote>
+                            </figure>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="{{ $kartu }} text-center py-6">
+                        <div class="w-16 h-16 bg-primary/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="material-symbols-outlined text-[32px] text-primary/40">chat_bubble</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-slate-900 mb-2 font-headline-md">{{ __('Bagikan Pengalaman Anda') }}</h3>
+                        <p class="text-slate-600 font-body-md max-w-sm mx-auto mb-6 text-sm leading-relaxed">{{ __('Sudah pernah bepergian bersama kami? Ceritamu akan sangat membantu orang lain memilih.') }}</p>
+                        <a :href="'https://wa.me/' + waNumber + '?text=' + encodeURIComponent('Halo Sujai Laketoba, saya ingin berbagi pengalaman wisata bersama kalian 😊')" target="_blank"
+                           class="inline-flex items-center gap-2 bg-primary text-on-primary px-8 min-h-[46px] rounded-xl font-semibold text-xs uppercase tracking-wider hover:bg-primary-container transition shadow-sm">
+                            <span class="material-symbols-outlined text-[18px]">chat</span>
+                            {{ __('Ceritakan Perjalananmu') }}
+                        </a>
+                    </div>
+                @endif
+            </div>
 
         </div> <!-- END LEFT COLUMN WRAPPER -->
 
