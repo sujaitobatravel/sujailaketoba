@@ -292,6 +292,40 @@ class PackageMediaTest extends TestCase
         $this->assertStringNotContainsString('Poin bawaan situs', $blok);
     }
 
+    public function test_ulasan_berada_di_dalam_kolom_berurutan_bukan_anak_langsung_grid(): void
+    {
+        // Pembungkus kolom kiri memakai `display: contents` di ponsel, jadi
+        // anak-anaknya NAIK jadi item grid langsung dan kelas order-* merekalah
+        // yang menentukan urutan tampil -- bukan urutan penulisannya di berkas.
+        // Blok tanpa kelas order-* mendapat order 0, yaitu SEBELUM hero yang
+        // order-1: ulasan yang ditulis paling bawah muncul paling atas di
+        // ponsel, sementara di desktop (tanpa display:contents) ia tampak benar.
+        // Tidak ada galat, tidak ada gejala lain selain urutan yang aneh.
+        $paket = $this->paket();
+
+        \App\Models\Setting::updateOrCreate(['key' => 'cms_tour'], ['value' => [
+            'testimonials' => [['name' => 'Uji Tamu', 'location' => 'Medan', 'text' => 'Perjalanannya menyenangkan.']],
+        ]]);
+
+        $html = $this->withSession(['locale' => 'id'])
+            ->get(route('tour.package.detail.plain', $paket->slug))->assertOk()->getContent();
+
+        $dom = new \DOMDocument;
+        libxml_use_internal_errors(true);
+        $dom->loadHTML('<?xml encoding="utf-8" ?>'.$html);
+        libxml_clear_errors();
+
+        $ulasan = (new \DOMXPath($dom))->query('//*[@id="section-reviews"]')->item(0);
+        $this->assertNotNull($ulasan, 'blok ulasan tidak ditemukan');
+
+        $indukKelas = (string) $ulasan->parentNode->getAttribute('class');
+        $this->assertStringContainsString(
+            'order-3',
+            $indukKelas,
+            'ulasan harus bersarang di kolom konten yang punya order-3; sebagai anak langsung grid ia melompat ke paling atas di ponsel'
+        );
+    }
+
     public function test_itinerary_pdf_dibuka_dulu_dan_baru_diunduh_bila_diminta(): void
     {
         $paket = $this->paket([

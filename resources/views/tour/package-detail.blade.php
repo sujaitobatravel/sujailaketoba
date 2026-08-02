@@ -1017,7 +1017,6 @@
                     </a>
                 </div>
             </div>
-        </div>
 
 
             {{-- ============ ULASAN ============
@@ -1095,6 +1094,7 @@
                 @endif
             </div>
 
+        </div>
         </div> <!-- END LEFT COLUMN WRAPPER -->
 
         <!-- Booking Form Sidebar (Sticky) -->
