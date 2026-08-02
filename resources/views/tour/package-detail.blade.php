@@ -955,18 +955,46 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 pt-8">
                 {{-- Brosur yang diunggah admin menang atas itinerary PDF yang
                      dibangkitkan sistem: kalau admin sampai menyiapkan brosur
-                     sendiri untuk paket ini, itulah yang ingin ia berikan. --}}
+                     sendiri untuk paket ini, itulah yang ingin ia berikan.
+
+                     Dua tindakan, bukan satu. Sebelumnya satu tombol "Unduh"
+                     berperilaku berbeda tergantung ada tidaknya brosur -- yang
+                     diunggah TERBUKA di tab baru, yang dibangkitkan sistem
+                     dipaksa TERUNDUH -- sementara tulisannya "Unduh" di kedua
+                     keadaan. Sekarang keduanya sama: buka dulu, unduh kalau
+                     memang mau disimpan.
+
+                     Atribut download pada tautan kedua hanya berlaku untuk
+                     sumber satu domain. Brosur duduk di /storage domain yang
+                     sama, jadi ia benar-benar mengunduh, bukan sekadar hiasan. --}}
                 @php $brochureUrl = $package->brochureUrl(); @endphp
-                <a href="{{ $brochureUrl ?? route('itinerary.download', $package->slug) }}"
-                   @if($brochureUrl) target="_blank" rel="noopener" @endif
-                   class="flex flex-col items-center justify-center p-6 md:p-8 bg-white border border-outline-variant rounded-2xl shadow-lg hover:border-secondary hover:shadow-xl transition duration-300 group text-center h-full">
+                <div class="flex flex-col items-center justify-center p-6 md:p-8 bg-white border border-outline-variant rounded-2xl shadow-lg hover:border-secondary hover:shadow-xl transition duration-300 group text-center h-full">
                     <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary mb-3 md:mb-4 group-hover:scale-110 transition-transform">
-                        <span class="material-symbols-outlined text-[24px]">download</span>
+                        {{-- article, bukan picture_as_pdf: font ikon situs ini
+                             dipangkas jadi subset, dan nama yang tidak ada di
+                             dalamnya tampil sebagai teks ligatur mentah. --}}
+                        <span class="material-symbols-outlined text-[24px]">article</span>
                     </div>
-                    <h3 class="font-headline-md text-body-lg font-semibold text-primary mb-1">{{ __('Unduh Brosur PDF') }}</h3>
-                    <p class="text-[13px] md:text-xs text-on-surface-variant font-body-md mb-3 md:mb-4">{{ __('Dapatkan detail jadwal & informasi lengkap offline.') }}</p>
-                    <span class="text-[13px] md:text-xs font-bold text-secondary font-label-caps tracking-wider underline">{{ __('DOWNLOAD SEKARANG') }}</span>
-                </a>
+                    <h3 class="font-headline-md text-body-lg font-semibold text-primary mb-1">
+                        {{ $brochureUrl ? __('Brosur Paket') : __('Rencana Perjalanan PDF') }}
+                    </h3>
+                    <p class="text-[13px] md:text-xs text-on-surface-variant font-body-md mb-4">{{ __('Dapatkan detail jadwal & informasi lengkap offline.') }}</p>
+
+                    <div class="flex items-center gap-2 w-full">
+                        <a href="{{ $brochureUrl ?? route('itinerary.download', $package->slug) }}"
+                           target="_blank" rel="noopener"
+                           class="flex-1 inline-flex items-center justify-center gap-1.5 min-h-[44px] bg-primary/5 text-primary border border-primary/20 rounded-xl font-bold text-[13px] hover:bg-primary hover:text-on-primary transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">visibility</span>
+                            {{ __('Lihat') }}
+                        </a>
+                        <a href="{{ $brochureUrl ?? route('itinerary.download', [$package->slug, 'unduh' => 1]) }}"
+                           @if($brochureUrl) download @endif
+                           class="flex-1 inline-flex items-center justify-center gap-1.5 min-h-[44px] bg-primary text-on-primary rounded-xl font-bold text-[13px] hover:bg-primary-container transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">download</span>
+                            {{ __('Unduh') }}
+                        </a>
+                    </div>
+                </div>
 
                 <!-- Contact Specialist Card -->
                 <div class="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-sm relative overflow-hidden group">

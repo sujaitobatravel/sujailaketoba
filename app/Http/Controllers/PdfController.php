@@ -12,10 +12,25 @@ use Illuminate\Support\Facades\Log;
 class PdfController extends Controller
 {
     /**
-     * Download Itinerary PDF for a package.
-     * Uses Eloquent so all model attributes, casts, and resolveImageUrl() work correctly.
+     * Itinerary PDF sebuah paket.
+     *
+     * Bawaannya DITAMPILKAN di peramban, bukan dipaksa terunduh. Tamu jarang
+     * mau menyimpan berkas yang belum ia lihat isinya; memaksa unduh di awal
+     * itu hambatan, dan di ponsel berkasnya sering hilang begitu saja ke folder
+     * unduhan tanpa pernah dibuka. Yang benar-benar ingin menyimpan menekan
+     * tautan unduh di sebelahnya (?unduh=1), atau tombol simpan milik pembaca
+     * PDF peramban.
+     *
+     * Ini juga menyamakan perilakunya dengan brosur unggahan admin, yang selalu
+     * terbuka di tab baru. Sebelumnya satu tombol yang sama berperilaku berbeda
+     * tergantung ada tidaknya brosur -- dan tulisannya "Unduh" di kedua keadaan.
+     *
+     * Nama rutenya dibiarkan (itinerary.download) supaya tautan lama tidak
+     * putus; yang berubah cuma cara berkasnya disajikan.
+     *
+     * Memakai Eloquent supaya atribut, cast, dan resolveImageUrl() bekerja.
      */
-    public function downloadItinerary($slug)
+    public function downloadItinerary($slug, \Illuminate\Http\Request $request)
     {
         $package = Package::with(['packageImages', 'city'])
             ->where('slug', $slug)
@@ -45,8 +60,11 @@ class PdfController extends Controller
         ];
 
         $pdf = Pdf::loadView('pdf.itinerary', $data);
+        $namaBerkas = "Itinerary-{$package->slug}.pdf";
 
-        return $pdf->download("Itinerary-{$package->slug}.pdf");
+        return $request->boolean('unduh')
+            ? $pdf->download($namaBerkas)
+            : $pdf->stream($namaBerkas);
     }
 
     public function streamInvoice($identifier)

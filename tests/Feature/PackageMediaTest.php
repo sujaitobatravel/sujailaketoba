@@ -292,6 +292,35 @@ class PackageMediaTest extends TestCase
         $this->assertStringNotContainsString('Poin bawaan situs', $blok);
     }
 
+    public function test_itinerary_pdf_dibuka_dulu_dan_baru_diunduh_bila_diminta(): void
+    {
+        $paket = $this->paket([
+            'itinerary' => [['day' => 1, 'title' => 'Hari pertama', 'activities' => ['Jemput bandara']]],
+        ]);
+
+        // Bawaannya ditampilkan. Memaksa unduh berkas yang belum dilihat isinya
+        // itu hambatan, dan di ponsel berkasnya sering hilang ke folder unduhan
+        // tanpa pernah dibuka.
+        $lihat = $this->get(route('itinerary.download', $paket->slug))->assertOk();
+        $this->assertStringStartsWith('inline;', (string) $lihat->headers->get('content-disposition'));
+
+        // Yang memang ingin menyimpan menekan tautan unduh.
+        $unduh = $this->get(route('itinerary.download', [$paket->slug, 'unduh' => 1]))->assertOk();
+        $this->assertStringStartsWith('attachment;', (string) $unduh->headers->get('content-disposition'));
+
+        // Halaman detail menawarkan KEDUA tindakan, bukan satu tombol yang
+        // perilakunya berubah-ubah tergantung ada tidaknya brosur unggahan.
+        $html = $this->withSession(['locale' => 'id'])
+            ->get(route('tour.package.detail.plain', $paket->slug))->assertOk()->getContent();
+
+        // Ditandai lewat ikon dan parameter rutenya, bukan lewat teks tombol:
+        // kata "Lihat" juga muncul di tempat lain halaman ini, dan Blade
+        // menyisipkan baris baru antara > dan teksnya sehingga penanda seperti
+        // ">Lihat" tidak pernah cocok walau tombolnya benar-benar ada.
+        $this->assertStringContainsString('text-[18px]">visibility', $html);
+        $this->assertStringContainsString('unduh=1', $html);
+    }
+
     public function test_hanya_satu_batang_bawah_yang_tampil_di_ponsel(): void
     {
         $paket = $this->paket();
