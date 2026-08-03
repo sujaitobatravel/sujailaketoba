@@ -338,15 +338,26 @@
             const v = this.pkgVehicle;
             return !!(v && v.price != null && this.pax >= Number(v.min_pax || 6));
         },
+        get vanWajib() {
+            const v = this.pkgVehicle;
+            if (!this.vanTersedia) return false;
+            const dari = Number(v.wajib_dari || (Number(v.min_pax || 6) + 1));
+            return this.pax >= dari;
+        },
         get vanAktif() {
-            return this.useVan && this.vanTersedia;
+            // Wajib menang atas centangan tamu, sama seperti di BookingService.
+            return this.vanWajib || (this.useVan && this.vanTersedia);
         },
         get currentUnitPrice() {
-            // Van menang atas tier: di daftar harga operator, 6 pax pakai Van
-            // adalah tarif tersendiri yang menggantikan tarif Innova.
+            // Cerminkan BookingService persis. Van WAJIB tidak menimpa tier:
+            // band 7+ memang sudah diisi tarif Van, jadi menimpanya lagi
+            // menagih kelebihan. Yang menimpa hanya Van SUKARELA di bawah
+            // ambang wajib.
             // (Jangan pernah menulis kutip ganda di blok x-data -- ia menutup
             // atributnya, dan sisa tag tercetak sebagai teks di halaman.)
-            if (this.vanAktif) return Number(this.pkgVehicle.price) || 0;
+            if (this.useVan && this.vanTersedia && !this.vanWajib) {
+                return Number(this.pkgVehicle.price) || 0;
+            }
             const t = this.activeTier;
             return (t && t.price != null) ? (Number(t.price) || 0) : this.package.price;
         },
@@ -1337,7 +1348,14 @@
                              tempatnya di atas layanan tambahan, bukan di dalamnya. -->
                         <div class="space-y-2" x-show="vanTersedia" x-cloak>
                             <label class="font-label-caps text-label-caps text-slate-700 mb-1 block uppercase tracking-wider">{{ __('Kendaraan') }}</label>
-                            <label class="flex items-center justify-between p-3 border border-outline-variant rounded-lg cursor-pointer hover:border-secondary transition"
+                            {{-- Begitu kursi Innova habis, pilihannya bukan pilihan lagi.
+                                 Barisnya disembunyikan, bukan sekadar dinonaktifkan:
+                                 menampilkan opsi yang tidak bisa dipakai hanya membuat
+                                 tamu mengira harganya bisa ditawar turun. --}}
+                            <p x-show="vanWajib" x-cloak class="text-[11px] text-on-surface-variant font-body-md -mt-1 mb-1">
+                                {{ __('Rombongan Anda melebihi kapasitas Innova, jadi perjalanan ini memakai Van.') }}
+                            </p>
+                            <label x-show="!vanWajib" class="flex items-center justify-between p-3 border border-outline-variant rounded-lg cursor-pointer hover:border-secondary transition"
                                    :class="!useVan ? 'border-secondary bg-secondary/5' : ''">
                                 <div class="flex items-center gap-3">
                                     <span class="material-symbols-outlined text-secondary text-[22px]">directions_car</span>
@@ -1354,10 +1372,18 @@
                                     <span class="material-symbols-outlined text-secondary text-[22px]">airport_shuttle</span>
                                     <div>
                                         <div class="font-body-md font-semibold text-slate-900 text-xs" x-text="(pkgVehicle && pkgVehicle.name) || 'Van'"></div>
-                                        <div class="text-[10px] text-on-surface-variant font-body-md"><span x-text="AppCurrency.format(pkgVehicle ? pkgVehicle.price : 0)"></span>/{{ __('orang') }} &middot; {{ __('bagasi lebih lega') }}</div>
+                                        <div class="text-[10px] text-on-surface-variant font-body-md">
+                                            <span x-text="AppCurrency.format(currentUnitPrice)"></span>/{{ __('orang') }}
+                                            <span x-show="!vanWajib"> &middot; {{ __('bagasi lebih lega') }}</span>
+                                            <span x-show="vanWajib" class="text-secondary font-semibold"> &middot; {{ __('wajib') }}</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <input type="radio" name="pilih_kendaraan" :checked="useVan" @change="useVan = true" class="w-4 h-4 text-secondary border-outline-variant focus:ring-0">
+                                {{-- Saat wajib, radionya diganti ikon centang mati: tidak ada
+                                     yang bisa dipilih, jadi jangan menampilkan kontrol yang
+                                     seolah bisa diklik. --}}
+                                <input x-show="!vanWajib" type="radio" name="pilih_kendaraan" :checked="useVan" @change="useVan = true" class="w-4 h-4 text-secondary border-outline-variant focus:ring-0">
+                                <span x-show="vanWajib" x-cloak class="material-symbols-outlined text-secondary text-[20px]">check_circle</span>
                             </label>
                         </div>
 

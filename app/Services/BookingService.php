@@ -301,7 +301,16 @@ class BookingService
             // diperiksa ulang di sini, bukan dipercaya dari form: rombongan
             // kecil yang mengirim use_van=1 tetap membayar tarif Innova.
             $kendaraan = $package->vehicleOptionFor($pax);
-            if ($pakaiVan && $kendaraan !== null) {
+            // Dua keadaan yang berbeda, jangan disatukan:
+            //
+            // WAJIB (pax melewati kapasitas Innova) -- tarifnya SUDAH ada di
+            // tier 7+, karena band itu memang diisi tarif Van. Menimpanya lagi
+            // dengan tarif Van 6-pax justru menagih kelebihan: di paket
+            // transport, 8 pax jadi RM 565/org padahal band-nya RM 446.
+            //
+            // SUKARELA (rombongan masih muat Innova tapi minta Van demi bagasi)
+            // -- di sini tarif Van memang menggantikan tarif tier.
+            if ($pakaiVan && $kendaraan !== null && ! $kendaraan['wajib']) {
                 $pricePerPerson = $kendaraan['price'];
                 $childPricePerPerson = $pricePerPerson * 0.5;
             }

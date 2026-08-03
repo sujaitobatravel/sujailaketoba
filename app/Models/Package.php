@@ -347,7 +347,13 @@ class Package extends Model
      * rombongannya belum mencapai ambang -- pilihannya memang tidak ditawarkan
      * ke rombongan kecil.
      *
-     * @return array{name: string, min_pax: int, price: float}|null
+     * `wajib` menyala begitu rombongan melewati kapasitas Innova: 7 orang tidak
+     * muat di mobil 6-7 kursi, jadi Van bukan lagi pilihan gaya hidup melainkan
+     * kenyataan. Selama ia masih bisa dibatalkan, satu rombongan 8 orang tinggal
+     * tidak mencentangnya, membayar tarif Innova, lalu datang butuh Van --
+     * selisihnya RM 800-1.000 per pemesanan dan tidak ada yang menandainya.
+     *
+     * @return array{name: string, min_pax: int, price: float, wajib: bool}|null
      */
     public function vehicleOptionFor(int $pax): ?array
     {
@@ -363,10 +369,15 @@ class Package extends Model
             return null;
         }
 
+        // Bawaan minPax + 1: Van boleh DIPILIH sejak rombongan cukup besar untuk
+        // butuh bagasi lega, tapi baru WAJIB begitu kursinya benar-benar habis.
+        $wajibDari = (int) ($v['wajib_dari'] ?? ($minPax + 1));
+
         return [
             'name' => trim((string) ($v['name'] ?? 'Van')),
             'min_pax' => $minPax,
             'price' => (float) $v['price'],
+            'wajib' => $pax >= $wajibDari,
         ];
     }
 
