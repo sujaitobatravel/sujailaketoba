@@ -1003,74 +1003,6 @@
             @if(! $showBookingForm)
                 @include('tour.partials.package-sales-blocks')
             @endif
-            <!-- Travel Specialist & PDF CTA Row -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 pt-8">
-                {{-- Brosur yang diunggah admin menang atas itinerary PDF yang
-                     dibangkitkan sistem: kalau admin sampai menyiapkan brosur
-                     sendiri untuk paket ini, itulah yang ingin ia berikan.
-
-                     Dua tindakan, bukan satu. Sebelumnya satu tombol "Unduh"
-                     berperilaku berbeda tergantung ada tidaknya brosur -- yang
-                     diunggah TERBUKA di tab baru, yang dibangkitkan sistem
-                     dipaksa TERUNDUH -- sementara tulisannya "Unduh" di kedua
-                     keadaan. Sekarang keduanya sama: buka dulu, unduh kalau
-                     memang mau disimpan.
-
-                     Atribut download pada tautan kedua hanya berlaku untuk
-                     sumber satu domain. Brosur duduk di /storage domain yang
-                     sama, jadi ia benar-benar mengunduh, bukan sekadar hiasan. --}}
-                @php $brochureUrl = $package->brochureUrl(); @endphp
-                <div class="flex flex-col items-center justify-center p-6 md:p-8 bg-white border border-outline-variant rounded-2xl shadow-lg hover:border-secondary hover:shadow-xl transition duration-300 group text-center h-full">
-                    <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary mb-3 md:mb-4 group-hover:scale-110 transition-transform">
-                        {{-- article, bukan picture_as_pdf: font ikon situs ini
-                             dipangkas jadi subset, dan nama yang tidak ada di
-                             dalamnya tampil sebagai teks ligatur mentah. --}}
-                        <span class="material-symbols-outlined text-[24px]">article</span>
-                    </div>
-                    <h3 class="font-headline-md text-body-lg font-semibold text-primary mb-1">
-                        {{ $brochureUrl ? __('Brosur Paket') : __('Rencana Perjalanan PDF') }}
-                    </h3>
-                    <p class="text-[13px] md:text-xs text-on-surface-variant font-body-md mb-4">{{ __('Dapatkan detail jadwal & informasi lengkap offline.') }}</p>
-
-                    <div class="flex items-center gap-2 w-full">
-                        <a href="{{ $brochureUrl ?? route('itinerary.download', $package->slug) }}"
-                           target="_blank" rel="noopener"
-                           class="flex-1 inline-flex items-center justify-center gap-1.5 min-h-[44px] bg-primary/5 text-primary border border-primary/20 rounded-xl font-bold text-[13px] hover:bg-primary hover:text-on-primary transition-colors">
-                            <span class="material-symbols-outlined text-[18px]">visibility</span>
-                            {{ __('Lihat') }}
-                        </a>
-                        <a href="{{ $brochureUrl ?? route('itinerary.download', [$package->slug, 'unduh' => 1]) }}"
-                           @if($brochureUrl) download @endif
-                           class="flex-1 inline-flex items-center justify-center gap-1.5 min-h-[44px] bg-primary text-on-primary rounded-xl font-bold text-[13px] hover:bg-primary-container transition-colors">
-                            <span class="material-symbols-outlined text-[18px]">download</span>
-                            {{ __('Unduh') }}
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Contact Specialist Card -->
-                <div class="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-sm relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -mr-10 -mt-10 group-hover:scale-125 transition-transform duration-500"></div>
-                    <div class="flex items-center gap-4 mb-4 relative z-10">
-                        <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-primary overflow-hidden border-2 border-white shadow-md">
-                            <img src="{{ imageUrl($siteSettings['cms_tour']['specialist_image_url'] ?? null, 'staff1') }}" loading="lazy" decoding="async" class="w-full h-full object-cover" onerror="this.src='{{ imageUrl('staff1') }}'">
-                        </div>
-                        <div>
-                            <p class="font-label-caps text-[9px] font-bold text-on-surface-variant uppercase tracking-wider">{{ __($siteSettings['cms_tour']['specialist_title'] ?? 'Travel Specialist') }}</p>
-                            <p class="text-sm font-bold text-primary font-body-md">{{ $siteSettings['cms_tour']['specialist_name'] ?? 'Sarah Anggraini' }}</p>
-                        </div>
-                    </div>
-                    <p class="text-[13px] md:text-[11px] text-slate-600 font-body-md font-normal leading-relaxed mb-4 relative z-10">{{ __($siteSettings['cms_tour']['specialist_desc'] ?? 'Punya pertanyaan khusus? Kami siap bantu pilih paket yang paling pas.') }}</p>
-                    <a :href="'https://wa.me/{{ \App\Helpers\ContactHelper::specialistDigits() }}?text=' + encodeURIComponent('Halo ' + ('{{ $siteSettings['cms_tour']['specialist_name'] ?? 'Sarah' }}').split(' ')[0] + ', saya tertarik bertanya tentang paket: ' + package.translated_name)" 
-                       target="_blank"
-                       class="flex items-center justify-center gap-1.5 min-h-[48px] md:min-h-0 md:py-2.5 bg-primary/5 text-primary rounded-xl font-semibold text-[12px] md:text-[10px] uppercase tracking-wider hover:bg-primary hover:text-on-primary transition relative z-10 border border-primary/20">
-                        <span class="material-symbols-outlined text-[16px]">chat</span>
-                        {{ __('Tanya Sekarang') }}
-                    </a>
-                </div>
-            </div>
-
-
             {{-- ============ ULASAN ============
                  Turun ke paling bawah. Ulasan itu penguat keputusan, bukan
                  bahan pertimbangan: tamu membacanya SESUDAH tahu isi paket dan
@@ -1145,6 +1077,74 @@
                     </div>
                 @endif
             </div>
+            <!-- Travel Specialist & PDF CTA Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 pt-8">
+                {{-- Brosur yang diunggah admin menang atas itinerary PDF yang
+                     dibangkitkan sistem: kalau admin sampai menyiapkan brosur
+                     sendiri untuk paket ini, itulah yang ingin ia berikan.
+
+                     Dua tindakan, bukan satu. Sebelumnya satu tombol "Unduh"
+                     berperilaku berbeda tergantung ada tidaknya brosur -- yang
+                     diunggah TERBUKA di tab baru, yang dibangkitkan sistem
+                     dipaksa TERUNDUH -- sementara tulisannya "Unduh" di kedua
+                     keadaan. Sekarang keduanya sama: buka dulu, unduh kalau
+                     memang mau disimpan.
+
+                     Atribut download pada tautan kedua hanya berlaku untuk
+                     sumber satu domain. Brosur duduk di /storage domain yang
+                     sama, jadi ia benar-benar mengunduh, bukan sekadar hiasan. --}}
+                @php $brochureUrl = $package->brochureUrl(); @endphp
+                <div class="flex flex-col items-center justify-center p-6 md:p-8 bg-white border border-outline-variant rounded-2xl shadow-lg hover:border-secondary hover:shadow-xl transition duration-300 group text-center h-full">
+                    <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                        {{-- article, bukan picture_as_pdf: font ikon situs ini
+                             dipangkas jadi subset, dan nama yang tidak ada di
+                             dalamnya tampil sebagai teks ligatur mentah. --}}
+                        <span class="material-symbols-outlined text-[24px]">article</span>
+                    </div>
+                    <h3 class="font-headline-md text-body-lg font-semibold text-primary mb-1">
+                        {{ $brochureUrl ? __('Brosur Paket') : __('Rencana Perjalanan PDF') }}
+                    </h3>
+                    <p class="text-[13px] md:text-xs text-on-surface-variant font-body-md mb-4">{{ __('Dapatkan detail jadwal & informasi lengkap offline.') }}</p>
+
+                    <div class="flex items-center gap-2 w-full">
+                        <a href="{{ $brochureUrl ?? route('itinerary.download', $package->slug) }}"
+                           target="_blank" rel="noopener"
+                           class="flex-1 inline-flex items-center justify-center gap-1.5 min-h-[44px] bg-primary/5 text-primary border border-primary/20 rounded-xl font-bold text-[13px] hover:bg-primary hover:text-on-primary transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">visibility</span>
+                            {{ __('Lihat') }}
+                        </a>
+                        <a href="{{ $brochureUrl ?? route('itinerary.download', [$package->slug, 'unduh' => 1]) }}"
+                           @if($brochureUrl) download @endif
+                           class="flex-1 inline-flex items-center justify-center gap-1.5 min-h-[44px] bg-primary text-on-primary rounded-xl font-bold text-[13px] hover:bg-primary-container transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">download</span>
+                            {{ __('Unduh') }}
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Contact Specialist Card -->
+                <div class="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -mr-10 -mt-10 group-hover:scale-125 transition-transform duration-500"></div>
+                    <div class="flex items-center gap-4 mb-4 relative z-10">
+                        <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-primary overflow-hidden border-2 border-white shadow-md">
+                            <img src="{{ imageUrl($siteSettings['cms_tour']['specialist_image_url'] ?? null, 'staff1') }}" loading="lazy" decoding="async" class="w-full h-full object-cover" onerror="this.src='{{ imageUrl('staff1') }}'">
+                        </div>
+                        <div>
+                            <p class="font-label-caps text-[9px] font-bold text-on-surface-variant uppercase tracking-wider">{{ __($siteSettings['cms_tour']['specialist_title'] ?? 'Travel Specialist') }}</p>
+                            <p class="text-sm font-bold text-primary font-body-md">{{ $siteSettings['cms_tour']['specialist_name'] ?? 'Sarah Anggraini' }}</p>
+                        </div>
+                    </div>
+                    <p class="text-[13px] md:text-[11px] text-slate-600 font-body-md font-normal leading-relaxed mb-4 relative z-10">{{ __($siteSettings['cms_tour']['specialist_desc'] ?? 'Punya pertanyaan khusus? Kami siap bantu pilih paket yang paling pas.') }}</p>
+                    <a :href="'https://wa.me/{{ \App\Helpers\ContactHelper::specialistDigits() }}?text=' + encodeURIComponent('Halo ' + ('{{ $siteSettings['cms_tour']['specialist_name'] ?? 'Sarah' }}').split(' ')[0] + ', saya tertarik bertanya tentang paket: ' + package.translated_name)" 
+                       target="_blank"
+                       class="flex items-center justify-center gap-1.5 min-h-[48px] md:min-h-0 md:py-2.5 bg-primary/5 text-primary rounded-xl font-semibold text-[12px] md:text-[10px] uppercase tracking-wider hover:bg-primary hover:text-on-primary transition relative z-10 border border-primary/20">
+                        <span class="material-symbols-outlined text-[16px]">chat</span>
+                        {{ __('Tanya Sekarang') }}
+                    </a>
+                </div>
+            </div>
+
+
 
         </div>
         </div> <!-- END LEFT COLUMN WRAPPER -->
@@ -1467,6 +1467,44 @@
             </div>
         </div>
 
+
+        {{-- CTA penutup. Dulu ia di dalam package-sales-blocks dan jatuh di
+             TENGAH halaman: ajakan menutup yang muncul sebelum tamu melihat
+             rincian harga, ulasan, dan brosur. Sekarang ia benar-benar
+             menutup -- item grid terakhir, sesudah kartu harga. --}}
+        @if(! $showBookingForm)
+        <div class="md:col-span-12 order-last">
+    {{-- ============ CTA WHATSAPP PENUTUP ============ --}}
+    @php
+        $ctaPesan = __('Halo, saya berminat dengan paket *:name*.', ['name' => $package->translated_name ?? $package->name])
+            ."\n".url()->current()
+            ."\n\n".__('Boleh minta info lebih lanjut?');
+    @endphp
+    <div class="pt-8">
+        <div class="bleed-mobile bg-primary text-on-primary md:rounded-[1.75rem] px-margin-mobile py-6 md:p-10 text-center">
+            <h2 class="font-headline-md text-lg md:text-2xl font-semibold uppercase tracking-[0.12em] md:tracking-normal md:normal-case mb-2">{{ __('Masih Ada Pertanyaan?') }}</h2>
+            <p class="text-sm opacity-80 font-body-md max-w-md mx-auto mb-6 leading-relaxed">
+                {{ __('Ceritakan rencana Anda — tanggal, jumlah orang, dan hal yang ingin dilihat. Kami susunkan yang paling masuk akal.') }}
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a href="https://wa.me/{{ \App\Helpers\ContactHelper::whatsappDigits() }}?text={{ rawurlencode($ctaPesan) }}"
+                   target="_blank" rel="noopener noreferrer"
+                   class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white text-primary px-8 min-h-[52px] rounded-full font-bold text-[15px] hover:bg-secondary hover:text-white transition-colors duration-300">
+                    <x-icon name="whatsapp" class="w-4 h-4" />
+                    {{ __('Tanya lewat WhatsApp') }}
+                </a>
+                {{-- Jalur memesan sendiri tetap dibuka: tidak semua tamu mau
+                     mengobrol dulu, dan halaman ini tidak punya form. --}}
+                <a href="{{ route('tour.package.detail', $package->slug) }}"
+                   class="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-white/30 px-8 min-h-[52px] rounded-full font-bold text-[15px] hover:bg-white/10 transition-colors duration-300">
+                    <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+                    {{ __('Pesan Sekarang') }}
+                </a>
+            </div>
+        </div>
+    </div>
+        </div>
+        @endif
 
     </section>
 

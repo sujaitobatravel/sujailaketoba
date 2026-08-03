@@ -96,32 +96,6 @@
     </div>
 @endif
 
-{{-- ============ CTA WHATSAPP PENUTUP ============ --}}
-@php
-    $ctaPesan = __('Halo, saya berminat dengan paket *:name*.', ['name' => $package->translated_name ?? $package->name])
-        ."\n".url()->current()
-        ."\n\n".__('Boleh minta info lebih lanjut?');
-@endphp
-<div class="pt-8">
-    <div class="bleed-mobile bg-primary text-on-primary md:rounded-[1.75rem] px-margin-mobile py-6 md:p-10 text-center">
-        <h2 class="font-headline-md text-lg md:text-2xl font-semibold uppercase tracking-[0.12em] md:tracking-normal md:normal-case mb-2">{{ __('Masih Ada Pertanyaan?') }}</h2>
-        <p class="text-sm opacity-80 font-body-md max-w-md mx-auto mb-6 leading-relaxed">
-            {{ __('Ceritakan rencana Anda — tanggal, jumlah orang, dan hal yang ingin dilihat. Kami susunkan yang paling masuk akal.') }}
-        </p>
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <a href="https://wa.me/{{ \App\Helpers\ContactHelper::whatsappDigits() }}?text={{ rawurlencode($ctaPesan) }}"
-               target="_blank" rel="noopener noreferrer"
-               class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white text-primary px-8 min-h-[52px] rounded-full font-bold text-[15px] hover:bg-secondary hover:text-white transition-colors duration-300">
-                <x-icon name="whatsapp" class="w-4 h-4" />
-                {{ __('Tanya lewat WhatsApp') }}
-            </a>
-            {{-- Jalur memesan sendiri tetap dibuka: tidak semua tamu mau
-                 mengobrol dulu, dan halaman ini tidak punya form. --}}
-            <a href="{{ route('tour.package.detail', $package->slug) }}"
-               class="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-white/30 px-8 min-h-[52px] rounded-full font-bold text-[15px] hover:bg-white/10 transition-colors duration-300">
-                <span class="material-symbols-outlined text-[18px]">calendar_month</span>
-                {{ __('Pesan Sekarang') }}
-            </a>
-        </div>
-    </div>
-</div>
+{{-- CTA penutup DIPINDAH ke package-detail.blade.php, tepat sesudah kartu
+     harga. Di sini ia jatuh di TENGAH halaman -- ajakan menutup yang
+     muncul sebelum tamu sempat melihat rincian harga, ulasan, dan brosur. --}}
