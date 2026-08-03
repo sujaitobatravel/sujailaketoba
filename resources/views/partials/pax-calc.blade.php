@@ -26,7 +26,11 @@
     <div class="flex items-center justify-between gap-2">
         <div class="min-w-0">
             <p class="text-[11px] font-semibold text-slate-700 leading-tight">{{ __('Anak-anak') }}</p>
+            {{-- Angka anaknya sudah tampil, tapi tanpa keterangan ia terbaca
+                 sebagai harga acak. Aturannya tetap: separuh harga dewasa,
+                 mengikuti tarif grosir yang sedang berlaku. --}}
             <p class="text-[10px] text-slate-400 leading-tight" x-text="fmt(childDisplay) + ' /{{ __('org') }}'"></p>
+            <p class="text-[9px] text-slate-400 leading-tight">{{ __('50% harga dewasa') }}</p>
         </div>
         <div class="flex items-center gap-1 shrink-0">
             <button type="button" @click="decC()" aria-label="{{ __('Kurangi anak') }}" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-toba-green hover:text-white text-slate-600 flex items-center justify-center text-base font-bold leading-none transition select-none">&minus;</button>
