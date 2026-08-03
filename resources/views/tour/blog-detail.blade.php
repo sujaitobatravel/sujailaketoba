@@ -15,7 +15,16 @@
 @endphp
 
 @section('title', ($post->translated_title ?? 'Blog') . ' – Sujai Laketoba')
-@section('description', \Illuminate\Support\Str::limit($post->content ?? '', 160))
+{{-- Isi artikel adalah HTML dari editor. Str::limit atas HTML mentah memotong
+     160 huruf PERTAMA -- yang sebagian besar berisi tag pembuka, bukan kalimat,
+     sehingga pratinjau tautan terbaca sebagai kode. Ringkasan dipakai lebih
+     dulu kalau penulisnya sudah menuliskannya. --}}
+@php
+    $metaArtikel = trim(preg_replace('/\s+/', ' ',
+        preg_replace('/<[^>]*>/', ' ', html_entity_decode((string) ($post->excerpt ?: $post->content ?? ''), ENT_QUOTES | ENT_HTML5))
+    ));
+@endphp
+@section('description', \Illuminate\Support\Str::limit($metaArtikel, 160))
 
 @section('og_image', ogBannerUrl($post))
 

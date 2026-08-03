@@ -104,7 +104,29 @@
     $originSuffix = isset($originCity) && $originCity ? ' dari ' . $originCity : '';
 @endphp
 @section('title', ($package->translated_name ?? 'Paket Wisata') . $originSuffix . ' – Sujai Laketoba')
-@section('description', (isset($originCity) && $originCity ? 'Paket ' . ($package->translated_name ?? 'Wisata') . ' keberangkatan dari ' . $originCity . '. ' : '') . ($package->translated_description ?? ''))
+
+{{-- Deskripsi paket datang dari editor teks kaya, jadi isinya HTML. Ditaruh
+     mentah ke meta description, hasilnya terbaca sebagai kode di pratinjau
+     tautan WhatsApp -- terlihat langsung di produksi sebagai
+     "&amp;lt;p&amp;gt;Nikmati pengalaman..." karena tagnya ter-escape dua kali:
+     sekali sudah tersimpan begitu di basis data, sekali lagi oleh Blade.
+
+     html_entity_decode DULU baru strip_tags. Urutannya tidak boleh dibalik:
+     strip_tags tidak mengenali "&lt;p&gt;" sebagai tag, jadi ia lolos utuh dan
+     baru berubah jadi <p> yang kelihatan setelah didekode.
+
+     Dipangkas 160 huruf: WhatsApp dan Google sama-sama memotong di sekitar
+     angka itu, dan potongan yang kita atur sendiri lebih rapi daripada
+     potongan mereka. --}}
+@php
+    $metaDeskripsi = trim(preg_replace('/\s+/', ' ',
+        preg_replace('/<[^>]*>/', ' ', html_entity_decode((string) ($package->translated_description ?? ''), ENT_QUOTES | ENT_HTML5))
+    ));
+    $metaAwalan = isset($originCity) && $originCity
+        ? 'Paket '.($package->translated_name ?? 'Wisata').' keberangkatan dari '.$originCity.'. '
+        : '';
+@endphp
+@section('description', \Illuminate\Support\Str::limit($metaAwalan.$metaDeskripsi, 160))
 
 {{-- Versi tanpa form isinya sama persis dengan versi berform. Canonical-nya
      ditunjuk ke versi berform supaya Google memilih satu pemenang, bukan
