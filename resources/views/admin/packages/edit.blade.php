@@ -305,6 +305,33 @@
                         </button>
                     </div>
 
+                    {{-- Kendaraan besar. Sengaja TIDAK di dalam daftar layanan:
+                         angkanya menggantikan tarif per pax, bukan menambahnya.
+                         Ditaruh sebagai layanan, satu pesanan Van 6 pax ditagih
+                         tarif Innova ditambah sekali biaya Van -- terlalu mahal,
+                         dan tidak ada gejalanya. --}}
+                    <div class="mb-4 p-4 bg-white border border-green-200 rounded-xl">
+                        <label class="block text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-widest">Pilihan Kendaraan Besar (tarif pengganti)</label>
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <div class="flex-1">
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1">Nama Kendaraan</label>
+                                <input type="text" name="pricingDetails[vehicle][name]" x-model="vehicle.name" placeholder="Van Toyota Hiace"
+                                    class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold focus:ring-2 focus:ring-green-400">
+                            </div>
+                            <div class="md:w-32">
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1">Mulai Dari (pax)</label>
+                                <input type="number" min="1" name="pricingDetails[vehicle][min_pax]" x-model.number="vehicle.min_pax" placeholder="6"
+                                    class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold focus:ring-2 focus:ring-green-400">
+                            </div>
+                            <div class="md:w-40">
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1">Tarif (RM/pax)</label>
+                                <input type="number" min="0" step="0.01" name="pricingDetails[vehicle][price]" x-model.number="vehicle.price" placeholder="700.00"
+                                    class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold focus:ring-2 focus:ring-green-400">
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-2 italic">* Tamu baru melihat pilihan ini setelah jumlah dewasa mencapai ambang di atas. Kalau dipilih, seluruh tarif per orang memakai angka ini — tarif grosir di atas diabaikan. Kosongkan tarifnya bila paket ini tidak menawarkan kendaraan besar.</p>
+                    </div>
+
                     <div class="space-y-3">
                         <template x-for="(service, index) in additionalServices" :key="index">
                             <div class="flex flex-col md:flex-row gap-4 p-4 bg-white border border-green-200 rounded-xl relative group animate-in fade-in duration-200">
@@ -474,6 +501,7 @@
                 ['name' => 'Private Jet Charter', 'icon' => 'flight_takeoff', 'price' => 0]
             ]),
             tiers: @js($package->pricingDetails['tiers'] ?? []),
+            vehicle: @js($package->pricingDetails['vehicle'] ?? ['name' => '', 'min_pax' => 6, 'price' => null]),
             isSubmitting: false,
             localFiles: [],
             localPreviews: [],

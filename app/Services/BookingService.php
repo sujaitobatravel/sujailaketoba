@@ -242,6 +242,7 @@ class BookingService
         $pax = $data['metadata']['pax'] ?? 1;
         $paxChildren = $data['metadata']['paxChildren'] ?? 0;
         $selectedServices = $data['metadata']['selected_services'] ?? [];
+        $pakaiVan = (bool) ($data['metadata']['use_van'] ?? false);
 
         // Bawaan NOL, bukan 11. Memungut 11% adalah keputusan yang hanya boleh
         // diambil sadar oleh pemilik -- memungut PPN tanpa berstatus PKP itu
@@ -296,6 +297,15 @@ class BookingService
                     ?? (($childTier['price'] ?? $pricePerPerson) * 0.5);
             }
 
+            // Van MENGGANTIKAN tarif per pax, tidak menambahnya. Ambangnya
+            // diperiksa ulang di sini, bukan dipercaya dari form: rombongan
+            // kecil yang mengirim use_van=1 tetap membayar tarif Innova.
+            $kendaraan = $package->vehicleOptionFor($pax);
+            if ($pakaiVan && $kendaraan !== null) {
+                $pricePerPerson = $kendaraan['price'];
+                $childPricePerPerson = $pricePerPerson * 0.5;
+            }
+
             $priceDewasa = $pricePerPerson * $pax;
             $priceAnak = $childPricePerPerson * $paxChildren;
             
@@ -308,11 +318,17 @@ class BookingService
             $detailedServices = [];
             foreach ($availableServices as $srv) {
                 if (in_array($srv['name'], $selectedServices)) {
-                    $srvPrice = $srv['price'] ?? 0;
+                    // Tarifnya PER PAX, bukan sekali per pesanan. Hiking Sibayak
+                    // RM 75/pax untuk 4 orang berarti RM 300 -- dulu ditagih
+                    // RM 75 saja, jadi setiap rombongan membayar kurang.
+                    $srvUnit = (float) ($srv['price'] ?? 0);
+                    $srvPrice = $srvUnit * ($pax + $paxChildren);
                     $additionalServicesPrice += $srvPrice;
                     $detailedServices[] = [
                         'name' => $srv['name'],
-                        'price' => $srvPrice
+                        'unit_price' => $srvUnit,
+                        'pax' => $pax + $paxChildren,
+                        'price' => $srvPrice,
                     ];
                 }
             }

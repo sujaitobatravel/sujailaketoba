@@ -62,6 +62,9 @@ class StoreBookingRequest extends FormRequest
             'paxChildren' => 'nullable|integer|min:0|max:99',
             'selected_services' => 'nullable|array',
             'selected_services.*' => 'string',
+            // Sekadar niat tamu. Kelayakannya (ambang pax) diperiksa ulang di
+            // BookingService -- form boleh berbohong, harga tidak boleh.
+            'use_van' => 'nullable|boolean',
             'notes' => 'nullable|string|max:2000',
             // Centang S&K dihapus atas permintaan pemilik: satu tindakan lagi
             // sebelum memesan. Persetujuannya TIDAK hilang -- ia pindah jadi

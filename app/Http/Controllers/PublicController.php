@@ -330,7 +330,8 @@ class PublicController extends Controller
                 'metadata' => [
                     'pax' => $validated['pax'],
                     'paxChildren' => $validated['paxChildren'] ?? 0,
-                    'selected_services' => $validated['selected_services'] ?? []
+                    'selected_services' => $validated['selected_services'] ?? [],
+                    'use_van' => (bool) ($validated['use_van'] ?? false),
                 ],
             ]));
 

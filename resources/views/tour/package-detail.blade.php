@@ -294,6 +294,10 @@
         pax: @js($formOld['pax']),
         paxChildren: @js($formOld['paxChildren']),
         pkgTiers: @js($package->pricingDetails['tiers'] ?? []),
+        // Kendaraan besar: tarif per pax PENGGANTI, bukan biaya tambahan.
+        // Pilihannya baru muncul setelah rombongan mencapai ambangnya.
+        pkgVehicle: @js($package->pricingDetails['vehicle'] ?? null),
+        useVan: false,
         services: (@js($package->pricingDetails['additional_services'] ?? [])).map(s => ({
             ...s,
             selected: false
@@ -330,7 +334,17 @@
         get activeTier() {
             return this.tierFor(this.pax);
         },
+        get vanTersedia() {
+            const v = this.pkgVehicle;
+            return !!(v && v.price != null && this.pax >= Number(v.min_pax || 6));
+        },
+        get vanAktif() {
+            return this.useVan && this.vanTersedia;
+        },
         get currentUnitPrice() {
+            // Van menang atas tier: di daftar harga operator, "6 pax pakai Van"
+            // adalah tarif tersendiri yang menggantikan tarif Innova.
+            if (this.vanAktif) return Number(this.pkgVehicle.price) || 0;
             const t = this.activeTier;
             return (t && t.price != null) ? (Number(t.price) || 0) : this.package.price;
         },
@@ -354,9 +368,12 @@
             return this.paxChildren * this.currentChildUnitPrice;
         },
         get additionalServicesPrice() {
+            // Per pax, sama seperti BookingService. Angka di form admin adalah
+            // tarif satu orang.
+            const jiwa = (Number(this.pax) || 0) + (Number(this.paxChildren) || 0);
             return (this.services || [])
                 .filter(s => s.selected)
-                .reduce((total, s) => total + parseFloat(s.price || 0), 0);
+                .reduce((total, s) => total + parseFloat(s.price || 0) * jiwa, 0);
         },
         get totalSebelumPajak() {
             return this.priceDewasa + this.priceAnak + this.additionalServicesPrice;
@@ -1223,6 +1240,9 @@
                         <template x-for="(service, idx) in services.filter(s => s.selected)" :key="idx">
                             <input type="hidden" name="selected_services[]" :value="service.name">
                         </template>
+                        {{-- Dikirim hanya bila benar-benar berlaku. Server memeriksa
+                             ambang pax-nya lagi, jadi ini sekadar niat tamu. --}}
+                        <input type="hidden" name="use_van" :value="vanAktif ? 1 : 0">
                         
                         <!-- Nama Lengkap -->
                         <div>
@@ -1310,6 +1330,35 @@
                             </div>
                         </div>
 
+                        <!-- Pilihan Kendaraan: muncul hanya setelah rombongan
+                             mencapai ambang. Ini tarif per pax PENGGANTI, jadi
+                             tempatnya di atas layanan tambahan, bukan di dalamnya. -->
+                        <div class="space-y-2" x-show="vanTersedia" x-cloak>
+                            <label class="font-label-caps text-label-caps text-slate-700 mb-1 block uppercase tracking-wider">{{ __('Kendaraan') }}</label>
+                            <label class="flex items-center justify-between p-3 border border-outline-variant rounded-lg cursor-pointer hover:border-secondary transition"
+                                   :class="!useVan ? 'border-secondary bg-secondary/5' : ''">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-secondary text-[22px]">directions_car</span>
+                                    <div>
+                                        <div class="font-body-md font-semibold text-slate-900 text-xs">{{ __('Innova (standar)') }}</div>
+                                        <div class="text-[10px] text-on-surface-variant font-body-md"><span x-text="AppCurrency.format(activeTier && activeTier.price != null ? activeTier.price : package.price)"></span>/{{ __('orang') }}</div>
+                                    </div>
+                                </div>
+                                <input type="radio" name="pilih_kendaraan" :checked="!useVan" @change="useVan = false" class="w-4 h-4 text-secondary border-outline-variant focus:ring-0">
+                            </label>
+                            <label class="flex items-center justify-between p-3 border border-outline-variant rounded-lg cursor-pointer hover:border-secondary transition"
+                                   :class="useVan ? 'border-secondary bg-secondary/5' : ''">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-secondary text-[22px]">airport_shuttle</span>
+                                    <div>
+                                        <div class="font-body-md font-semibold text-slate-900 text-xs" x-text="(pkgVehicle && pkgVehicle.name) || 'Van'"></div>
+                                        <div class="text-[10px] text-on-surface-variant font-body-md"><span x-text="AppCurrency.format(pkgVehicle ? pkgVehicle.price : 0)"></span>/{{ __('orang') }} &middot; {{ __('bagasi lebih lega') }}</div>
+                                    </div>
+                                </div>
+                                <input type="radio" name="pilih_kendaraan" :checked="useVan" @change="useVan = true" class="w-4 h-4 text-secondary border-outline-variant focus:ring-0">
+                            </label>
+                        </div>
+
                         <!-- Layanan Tambahan -->
                         <div class="space-y-3" x-show="services && services.length > 0">
                             <label class="font-label-caps text-label-caps text-slate-700 mb-1 block uppercase tracking-wider">{{ __('Layanan tambahan') }}</label>
@@ -1320,7 +1369,7 @@
                                         <span class="material-symbols-outlined text-secondary text-[22px]" x-text="service.icon || 'help'"></span>
                                         <div>
                                             <div class="font-body-md font-semibold text-slate-900 text-xs" x-text="service.name"></div>
-                                            <div class="text-[10px] text-on-surface-variant font-body-md">+ <span x-text="AppCurrency.format(service.price)"></span></div>
+                                            <div class="text-[10px] text-on-surface-variant font-body-md">+ <span x-text="AppCurrency.format(service.price)"></span>/{{ __('orang') }}</div>
                                         </div>
                                     </div>
                                     <input type="checkbox" x-model="service.selected" class="w-4 h-4 text-secondary border-outline-variant focus:ring-0 rounded"/>
@@ -1347,8 +1396,8 @@
                             </div>
                             <template x-for="(service, idx) in services" :key="idx">
                                 <div x-show="service.selected" class="flex justify-between text-xs text-slate-600 font-body-md">
-                                    <span x-text="service.name"></span>
-                                    <span x-text="AppCurrency.format(service.price)"></span>
+                                    <span><span x-text="service.name"></span> (<span x-text="pax + paxChildren"></span>x)</span>
+                                    <span x-text="AppCurrency.format(parseFloat(service.price || 0) * (pax + paxChildren))"></span>
                                 </div>
                             </template>
                             <template x-for="(item, idx) in surchargeItems" :key="idx">

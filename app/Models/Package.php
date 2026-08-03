@@ -334,6 +334,42 @@ class Package extends Model
         return $below ?? $lowest;
     }
 
+    /**
+     * Pilihan kendaraan besar, bila rombongannya sudah cukup besar untuk memilih.
+     *
+     * Van BUKAN biaya tambahan. Di daftar harga operator, "6 pax pakai Van"
+     * adalah tarif per pax TERSENDIRI yang menggantikan tarif Innova -- 4D3N
+     * enam orang: RM 700/pax dengan Van, bukan RM 600/pax lalu ditambah RM 700
+     * sekali. Selama Van masih disimpan di `additional_services`, setiap
+     * pemesanan Van ditagih terlalu mahal, dan tidak ada yang menandainya.
+     *
+     * Mengembalikan null bila paket ini tidak punya pilihan Van, atau bila
+     * rombongannya belum mencapai ambang -- pilihannya memang tidak ditawarkan
+     * ke rombongan kecil.
+     *
+     * @return array{name: string, min_pax: int, price: float}|null
+     */
+    public function vehicleOptionFor(int $pax): ?array
+    {
+        $v = $this->pricingDetails['vehicle'] ?? null;
+
+        if (! is_array($v) || ! isset($v['price'])) {
+            return null;
+        }
+
+        $minPax = (int) ($v['min_pax'] ?? 6);
+
+        if ($pax < $minPax) {
+            return null;
+        }
+
+        return [
+            'name' => trim((string) ($v['name'] ?? 'Van')),
+            'min_pax' => $minPax,
+            'price' => (float) $v['price'],
+        ];
+    }
+
     public function city()
     {
         return $this->belongsTo(City::class, 'cityId');
