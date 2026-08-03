@@ -242,6 +242,7 @@ class BookingService
         $pax = $data['metadata']['pax'] ?? 1;
         $paxChildren = $data['metadata']['paxChildren'] ?? 0;
         $selectedServices = $data['metadata']['selected_services'] ?? [];
+        $serviceQty = (array) ($data['metadata']['service_qty'] ?? []);
         $pakaiVan = (bool) ($data['metadata']['use_van'] ?? false);
 
         // Bawaan NOL, bukan 11. Memungut 11% adalah keputusan yang hanya boleh
@@ -327,16 +328,29 @@ class BookingService
             $detailedServices = [];
             foreach ($availableServices as $srv) {
                 if (in_array($srv['name'], $selectedServices)) {
-                    // Tarifnya PER PAX, bukan sekali per pesanan. Hiking Sibayak
-                    // RM 75/pax untuk 4 orang berarti RM 300 -- dulu ditagih
-                    // RM 75 saja, jadi setiap rombongan membayar kurang.
+                    // Tarifnya PER PAX, dan jumlah pesertanya belum tentu
+                    // serombongan: Hiking Sibayak sering cuma sebagian yang naik.
+                    //
+                    // Angka dari form DIJEPIT ke jumlah tamu. Tanpa itu, satu
+                    // permintaan yang disusun tangan bisa mengirim qty raksasa
+                    // (menagih tamu kelewat mahal) atau nol (jasa ikut jalan
+                    // tanpa dibayar). Tidak ada qty sama sekali -> jatuh ke
+                    // seluruh rombongan, perilaku lama.
+                    $jiwa = $pax + $paxChildren;
+                    $diminta = $serviceQty[$srv['name']] ?? null;
+                    $qty = $diminta === null ? $jiwa : max(0, min((int) $diminta, $jiwa));
+
+                    if ($qty === 0) {
+                        continue;
+                    }
+
                     $srvUnit = (float) ($srv['price'] ?? 0);
-                    $srvPrice = $srvUnit * ($pax + $paxChildren);
+                    $srvPrice = $srvUnit * $qty;
                     $additionalServicesPrice += $srvPrice;
                     $detailedServices[] = [
                         'name' => $srv['name'],
                         'unit_price' => $srvUnit,
-                        'pax' => $pax + $paxChildren,
+                        'pax' => $qty,
                         'price' => $srvPrice,
                     ];
                 }

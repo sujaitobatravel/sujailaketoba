@@ -300,7 +300,10 @@
         useVan: false,
         services: (@js($package->pricingDetails['additional_services'] ?? [])).map(s => ({
             ...s,
-            selected: false
+            // Jumlah peserta, bukan ya/tidak. Hiking Sibayak RM 75/pax tidak
+            // otomatis diikuti seluruh rombongan -- centangan membuat 8 orang
+            // ditagih padahal yang naik cuma 4.
+            qty: 0
         })),
         isSubmitting: false,
         notesUser: @js($formOld['notesUser']),
@@ -383,10 +386,17 @@
         get additionalServicesPrice() {
             // Per pax, sama seperti BookingService. Angka di form admin adalah
             // tarif satu orang.
-            const jiwa = (Number(this.pax) || 0) + (Number(this.paxChildren) || 0);
             return (this.services || [])
-                .filter(s => s.selected)
-                .reduce((total, s) => total + parseFloat(s.price || 0) * jiwa, 0);
+                .reduce((total, s) => total + parseFloat(s.price || 0) * (Number(s.qty) || 0), 0);
+        },
+        get jiwaTotal() {
+            return (Number(this.pax) || 0) + (Number(this.paxChildren) || 0);
+        },
+        naikLayanan(s) {
+            if ((Number(s.qty) || 0) < this.jiwaTotal) s.qty = (Number(s.qty) || 0) + 1;
+        },
+        turunLayanan(s) {
+            if ((Number(s.qty) || 0) > 0) s.qty = (Number(s.qty) || 0) - 1;
         },
         get totalSebelumPajak() {
             return this.priceDewasa + this.priceAnak + this.additionalServicesPrice;
@@ -420,8 +430,8 @@
             }
             if (this.services) {
                 this.services.forEach(s => {
-                    if (s.selected) {
-                        lines.push(s.name + ': Ya');
+                    if (Number(s.qty) > 0) {
+                        lines.push(s.name + ': ' + s.qty + ' orang');
                     }
                 });
             }
@@ -1250,8 +1260,14 @@
                         <input type="hidden" name="notes" :value="serializedNotes">
                         {{-- paxChildren dikirim oleh input angka yang terlihat di bawah; hidden
                              duplikat dihapus (dulu mengirim field yang sama dua kali). --}}
-                        <template x-for="(service, idx) in services.filter(s => s.selected)" :key="idx">
-                            <input type="hidden" name="selected_services[]" :value="service.name">
+                        <template x-for="(service, idx) in services.filter(s => Number(s.qty) > 0)" :key="idx">
+                            <span>
+                                <input type="hidden" name="selected_services[]" :value="service.name">
+                                {{-- Jumlah peserta dikirim terpisah, berkunci nama layanan.
+                                     Server tetap membatasinya ke jumlah tamu -- form boleh
+                                     mengirim angka apa pun, harga tidak boleh ikut. --}}
+                                <input type="hidden" :name="'service_qty[' + service.name + ']'" :value="service.qty">
+                            </span>
                         </template>
                         {{-- Dikirim hanya bila benar-benar berlaku. Server memeriksa
                              ambang pax-nya lagi, jadi ini sekadar niat tamu. --}}
@@ -1392,16 +1408,30 @@
                             <label class="font-label-caps text-label-caps text-slate-700 mb-1 block uppercase tracking-wider">{{ __('Layanan tambahan') }}</label>
                             
                             <template x-for="(service, idx) in services" :key="idx">
-                                <label class="flex items-center justify-between p-3 border border-outline-variant rounded-lg cursor-pointer hover:border-secondary transition" :class="service.selected ? 'border-secondary bg-secondary/5' : ''">
-                                    <div class="flex items-center gap-3">
+                                {{-- Penghitung, bukan centangan. Layanan ini bertarif per
+                                     orang dan tidak selalu diikuti seluruh rombongan --
+                                     Hiking Sibayak sering cuma sebagian yang naik. --}}
+                                <div class="flex items-center justify-between p-3 border border-outline-variant rounded-lg transition" :class="Number(service.qty) > 0 ? 'border-secondary bg-secondary/5' : ''">
+                                    <div class="flex items-center gap-3 min-w-0">
                                         <span class="material-symbols-outlined text-secondary text-[22px]" x-text="service.icon || 'help'"></span>
-                                        <div>
+                                        <div class="min-w-0">
                                             <div class="font-body-md font-semibold text-slate-900 text-xs" x-text="service.name"></div>
-                                            <div class="text-[10px] text-on-surface-variant font-body-md">+ <span x-text="AppCurrency.format(service.price)"></span>/{{ __('orang') }}</div>
+                                            <div class="text-[10px] text-on-surface-variant font-body-md">
+                                                <span x-text="AppCurrency.format(service.price)"></span>/{{ __('orang') }}
+                                                <span x-show="Number(service.qty) > 0"> &middot; <span x-text="AppCurrency.format(service.price * service.qty)"></span></span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <input type="checkbox" x-model="service.selected" class="w-4 h-4 text-secondary border-outline-variant focus:ring-0 rounded"/>
-                                </label>
+                                    <div class="flex items-center gap-1 shrink-0">
+                                        <button type="button" @click="turunLayanan(service)" :disabled="Number(service.qty) === 0"
+                                                :aria-label="'{{ __('Kurangi') }} ' + service.name"
+                                                class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-secondary hover:text-white text-slate-600 flex items-center justify-center text-base font-bold leading-none transition disabled:opacity-30 disabled:hover:bg-slate-100 disabled:hover:text-slate-600">&minus;</button>
+                                        <span class="w-7 text-center text-[13px] font-bold text-slate-800" x-text="Number(service.qty) || 0"></span>
+                                        <button type="button" @click="naikLayanan(service)" :disabled="Number(service.qty) >= jiwaTotal"
+                                                :aria-label="'{{ __('Tambah') }} ' + service.name"
+                                                class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-secondary hover:text-white text-slate-600 flex items-center justify-center text-base font-bold leading-none transition disabled:opacity-30 disabled:hover:bg-slate-100 disabled:hover:text-slate-600">+</button>
+                                    </div>
+                                </div>
                             </template>
                         </div>
 
@@ -1423,9 +1453,9 @@
                                 <span x-text="AppCurrency.format(priceAnak)"></span>
                             </div>
                             <template x-for="(service, idx) in services" :key="idx">
-                                <div x-show="service.selected" class="flex justify-between text-xs text-slate-600 font-body-md">
-                                    <span><span x-text="service.name"></span> (<span x-text="pax + paxChildren"></span>x)</span>
-                                    <span x-text="AppCurrency.format(parseFloat(service.price || 0) * (pax + paxChildren))"></span>
+                                <div x-show="Number(service.qty) > 0" class="flex justify-between text-xs text-slate-600 font-body-md">
+                                    <span><span x-text="service.name"></span> (<span x-text="service.qty"></span>x)</span>
+                                    <span x-text="AppCurrency.format(parseFloat(service.price || 0) * (Number(service.qty) || 0))"></span>
                                 </div>
                             </template>
                             <template x-for="(item, idx) in surchargeItems" :key="idx">

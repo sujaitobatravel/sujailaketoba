@@ -331,6 +331,7 @@ class PublicController extends Controller
                     'pax' => $validated['pax'],
                     'paxChildren' => $validated['paxChildren'] ?? 0,
                     'selected_services' => $validated['selected_services'] ?? [],
+                    'service_qty' => $validated['service_qty'] ?? [],
                     'use_van' => (bool) ($validated['use_van'] ?? false),
                 ],
             ]));

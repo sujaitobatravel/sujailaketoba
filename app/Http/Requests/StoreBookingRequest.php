@@ -62,6 +62,10 @@ class StoreBookingRequest extends FormRequest
             'paxChildren' => 'nullable|integer|min:0|max:99',
             'selected_services' => 'nullable|array',
             'selected_services.*' => 'string',
+            // Jumlah peserta per layanan, berkunci nama layanan. Dijepit ulang
+            // ke jumlah tamu di BookingService -- ini cuma penjaga bentuknya.
+            'service_qty' => 'nullable|array',
+            'service_qty.*' => 'nullable|integer|min:0|max:999',
             // Sekadar niat tamu. Kelayakannya (ambang pax) diperiksa ulang di
             // BookingService -- form boleh berbohong, harga tidak boleh.
             'use_van' => 'nullable|boolean',
