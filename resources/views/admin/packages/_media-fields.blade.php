@@ -117,6 +117,11 @@
                 <input type="text" :name="'accommodations[' + idx + '][class]'" x-model="row.class"
                        placeholder="Kelas (mis. Bintang 4)"
                        class="sm:w-44 px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-toba-green focus:border-transparent transition">
+                {{-- Video penginapan malam ini. Tautan selain YouTube/Vimeo
+                     diabaikan saat ditampilkan, sama seperti video paket. --}}
+                <input type="url" :name="'accommodations[' + idx + '][video]'" x-model="row.video"
+                       placeholder="Video hotel (YouTube, opsional)"
+                       class="sm:w-56 px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-toba-green focus:border-transparent transition">
                 {{-- Foto lama ikut terkirim sebagai hidden: tanpa ini, menyimpan
                      ulang tanpa memilih berkas baru akan menghapus fotonya. --}}
                 <input type="hidden" :name="'accommodations[' + idx + '][image]'" :value="row.image || ''">

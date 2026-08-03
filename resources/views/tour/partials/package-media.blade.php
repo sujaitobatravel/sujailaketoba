@@ -42,7 +42,11 @@
                                             title="{{ $video['title'] ?: ($package->translated_name ?? $package->name) }}"
                                             class="absolute inset-0 w-full h-full"
                                             loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
-                                            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            {{-- fullscreen ditulis di allow, bukan cuma
+                                                 lewat atribut allowfullscreen: tanpa itu
+                                                 tombol perbesar di pemutar YouTube tidak
+                                                 berfungsi di dalam iframe. --}}
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                                             allowfullscreen></iframe>
                                 @else
                                     <video src="{{ $video['url'] }}" controls preload="metadata" playsinline

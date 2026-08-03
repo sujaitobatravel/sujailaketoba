@@ -40,7 +40,23 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             @foreach($stays as $stay)
-                <div class="flex items-center gap-4 p-4 bg-white border border-outline-variant rounded-2xl hover:border-secondary transition-colors duration-300">
+                {{-- Videonya langsung terbuka, tanpa tombol buka-tutup.
+                     Versi sebelumnya membungkus iframe dalam x-if + x-show:
+                     pemutarnya memang muncul, tapi tidak bisa dijalankan.
+                     Beratnya ditahan lewat loading=lazy -- pemutar baru ditarik
+                     ketika kartunya benar-benar mendekati layar. --}}
+                <div class="bg-white border border-outline-variant rounded-2xl hover:border-secondary transition-colors duration-300 overflow-hidden">
+                @if($stay['video'])
+                    <div class="relative aspect-video bg-slate-900">
+                        <iframe src="{{ $stay['video'] }}"
+                                title="{{ $stay['name'] }}"
+                                class="absolute inset-0 w-full h-full"
+                                loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                                allowfullscreen></iframe>
+                    </div>
+                @endif
+                <div class="flex items-center gap-4 p-4">
                     @if($stay['image'])
                         <img src="{{ imageUrl($stay['image']) }}" alt="{{ $stay['name'] }}"
                              loading="lazy" decoding="async"
@@ -59,6 +75,7 @@
                             <p class="text-[11px] text-on-surface-variant font-body-md mt-0.5">{{ $stay['class'] }}</p>
                         @endif
                     </div>
+                </div>
                 </div>
             @endforeach
         </div>

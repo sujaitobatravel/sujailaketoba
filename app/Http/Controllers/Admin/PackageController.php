@@ -112,6 +112,10 @@ class PackageController extends Controller
             'accommodations.*.name' => 'nullable|string|max:255',
             'accommodations.*.class' => 'nullable|string|max:100',
             'accommodations.*.image' => 'nullable|string|max:500',
+            // Bentuknya saja yang dijaga di sini. Yang menentukan tautan itu
+            // benar-benar boleh dirender adalah Package::videoEmbedUrl(), dan
+            // tautan tak dikenali dibuang di sana -- bukan diteruskan ke <iframe>.
+            'accommodations.*.video' => 'nullable|string|max:500',
             'highlights' => 'nullable|array',
             'highlights.*.title' => 'nullable|string|max:255',
             'highlights.*.text' => 'nullable|string|max:1000',
@@ -231,6 +235,10 @@ class PackageController extends Controller
             'accommodations.*.name' => 'nullable|string|max:255',
             'accommodations.*.class' => 'nullable|string|max:100',
             'accommodations.*.image' => 'nullable|string|max:500',
+            // Bentuknya saja yang dijaga di sini. Yang menentukan tautan itu
+            // benar-benar boleh dirender adalah Package::videoEmbedUrl(), dan
+            // tautan tak dikenali dibuang di sana -- bukan diteruskan ke <iframe>.
+            'accommodations.*.video' => 'nullable|string|max:500',
             'highlights' => 'nullable|array',
             'highlights.*.title' => 'nullable|string|max:255',
             'highlights.*.text' => 'nullable|string|max:1000',

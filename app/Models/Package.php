@@ -165,11 +165,18 @@ class Package extends Model
 
             $image = trim((string) ($row['image'] ?? ''));
 
+            // Video penginapan per malam. Dinormalkan di sini, sama seperti
+            // videoList(): tautan yang tidak dikenali DIBUANG, bukan diteruskan
+            // apa adanya -- nilai ini masuk ke atribut src <iframe>.
+            $video = trim((string) ($row['video'] ?? ''));
+            $videoEmbed = $video !== '' ? self::videoEmbedUrl($video) : null;
+
             $out[] = [
                 'night' => (int) ($row['night'] ?? 0) ?: count($out) + 1,
                 'name' => $name,
                 'class' => trim((string) ($row['class'] ?? '')),
                 'image' => $image !== '' ? $image : null,
+                'video' => $videoEmbed,
             ];
         }
 
