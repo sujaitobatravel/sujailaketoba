@@ -85,6 +85,34 @@ if (! function_exists('imageUrl')) {
 
         $lower = strtolower($path);
 
+        // BERKAS NYATA MENANG. Seluruh pemetaan kata kunci di bawah ini adalah
+        // jaring pengaman untuk path warisan yang berkasnya sudah tidak ada
+        // (mis. `assets/images/packages/toba-1.jpg`), bukan aturan penggantian.
+        //
+        // Dulu urutannya terbalik: kata kunci diperiksa lebih dulu, pemeriksaan
+        // berkas paling akhir. Akibatnya foto asli yang benar-benar diunggah
+        // pun dibajak begitu namanya memuat 'toba', 'samosir', 'medan', dan
+        // seterusnya -- admin mengunggah foto hotel bernama "danau-toba-1.jpg",
+        // yang muncul di halaman justru gambar bawaan. Tidak ada gejalanya:
+        // halaman tetap menampilkan gambar yang terlihat wajar.
+        //
+        // Hanya berlaku untuk path lokal. URL penuh, data:, dan blob: tetap
+        // diurus oleh cabangnya sendiri di bawah.
+        if (! preg_match('~^(https?:)?//|^(data|blob):~i', $path)) {
+            $nyata = ltrim($path, '/');
+            if (str_starts_with($nyata, '_static/')) {
+                $nyata = substr($nyata, 8);
+            }
+            $tanpaStorage = str_starts_with($nyata, 'storage/') ? substr($nyata, 8) : $nyata;
+
+            if ($nyata !== '' && file_exists(public_path($nyata)) && ! is_dir(public_path($nyata))) {
+                return asset($nyata);
+            }
+            if ($tanpaStorage !== '' && Storage::disk('public')->exists($tanpaStorage)) {
+                return Storage::disk('public')->url($tanpaStorage);
+            }
+        }
+
         // Special local fallback keys or avatar keywords
         if (str_contains($lower, 'staff1')) {
             return asset('images/sumut/specialist_avatar.webp');

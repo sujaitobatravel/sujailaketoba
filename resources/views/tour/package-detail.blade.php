@@ -342,8 +342,10 @@
             return this.useVan && this.vanTersedia;
         },
         get currentUnitPrice() {
-            // Van menang atas tier: di daftar harga operator, "6 pax pakai Van"
+            // Van menang atas tier: di daftar harga operator, 6 pax pakai Van
             // adalah tarif tersendiri yang menggantikan tarif Innova.
+            // (Jangan pernah menulis kutip ganda di blok x-data -- ia menutup
+            // atributnya, dan sisa tag tercetak sebagai teks di halaman.)
             if (this.vanAktif) return Number(this.pkgVehicle.price) || 0;
             const t = this.activeTier;
             return (t && t.price != null) ? (Number(t.price) || 0) : this.package.price;
