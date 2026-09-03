@@ -76,6 +76,17 @@
                 </span>
             </div>
             @endif
+
+            {{-- Wishlist Heart Button --}}
+            <button type="button"
+                    @click.prevent.stop="$store.wishlist.toggle(@js($slug))"
+                    aria-label="{{ __('Simpan paket ke favorit') }}"
+                    class="absolute bottom-3 right-3 z-20 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-slate-600 shadow-md backdrop-blur-sm flex items-center justify-center transition active:scale-90 select-none cursor-pointer"
+                    :class="$store.wishlist.has(@js($slug)) && 'text-red-500 bg-white'">
+                <span class="material-symbols-outlined text-[17px]"
+                      :class="$store.wishlist.has(@js($slug)) ? 'text-red-500' : 'text-slate-500'"
+                      style="font-variation-settings: 'FILL' 1;">favorite</span>
+            </button>
         </div>
 
         {{-- Info --}}

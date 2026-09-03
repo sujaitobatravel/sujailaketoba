@@ -44,9 +44,10 @@ return [
             // storage/app/public. On Hostinger the public/storage symlink cannot be created
             // because public/storage already exists as a real committed directory, so files
             // saved to storage/app/public were never reachable via the /storage URL.
-            'root' => str_contains(base_path(), 'public_html') 
-                        ? dirname(base_path()) . '/persistent_uploads'
-                        : public_path('storage'),
+            'root' => env('STORAGE_ROOT_PATH')
+                        ?: (str_contains(base_path(), 'public_html') 
+                            ? dirname(base_path()) . '/persistent_uploads'
+                            : public_path('storage')),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',
             'serve' => true,

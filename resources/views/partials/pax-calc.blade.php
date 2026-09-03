@@ -9,6 +9,28 @@
      grid /tour/packages mengirim `pkg.price_image_url` dari objek JS-nya --
      satu jalur kode untuk dua sumber data. --}}
 <div x-data="{{ $xdata }}" class="border-t border-slate-100 px-4 py-3 space-y-2">
+    {{-- Mini Currency Switcher --}}
+    <div class="flex items-center justify-between pb-1 text-[10px] select-none" x-data>
+        <span class="text-slate-400 font-semibold">{{ __('Kalkulator Pax') }}</span>
+        <div class="inline-flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-md border border-slate-200/80">
+            <button type="button" @click="AppCurrency.setCurrency('MYR')"
+                    :class="AppCurrency.currency === 'MYR' ? 'bg-white text-green-800 font-bold shadow-2xs' : 'text-slate-500 hover:text-slate-800'"
+                    class="px-1.5 py-0.5 rounded text-[9px] transition">
+                MYR
+            </button>
+            <button type="button" @click="AppCurrency.setCurrency('IDR')"
+                    :class="AppCurrency.currency === 'IDR' ? 'bg-white text-green-800 font-bold shadow-2xs' : 'text-slate-500 hover:text-slate-800'"
+                    class="px-1.5 py-0.5 rounded text-[9px] transition">
+                IDR
+            </button>
+            <button type="button" @click="AppCurrency.setCurrency('SGD')"
+                    :class="AppCurrency.currency === 'SGD' ? 'bg-white text-green-800 font-bold shadow-2xs' : 'text-slate-500 hover:text-slate-800'"
+                    class="px-1.5 py-0.5 rounded text-[9px] transition">
+                SGD
+            </button>
+        </div>
+    </div>
+
     {{-- Baris Dewasa --}}
     <div class="flex items-center justify-between gap-2">
         <div class="min-w-0">
@@ -37,6 +59,18 @@
             <input type="text" inputmode="numeric" x-model.number="children" @change="normC()" @blur="normC()" aria-label="{{ __('Jumlah anak') }}" class="w-8 text-center text-[13px] font-bold text-slate-800 bg-transparent border-0 outline-none p-0">
             <button type="button" @click="incC()" aria-label="{{ __('Tambah anak') }}" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-toba-green hover:text-white text-slate-600 flex items-center justify-center text-base font-bold leading-none transition select-none">+</button>
         </div>
+    </div>
+
+    {{-- Micro Trust Badges --}}
+    <div class="flex items-center justify-between text-[10px] font-semibold text-slate-500 pt-1.5 border-t border-slate-100">
+        <span class="inline-flex items-center gap-1 text-green-800">
+            <span class="material-symbols-outlined text-[13px] text-green-700">restaurant</span>
+            {{ __('100% Halal Food') }}
+        </span>
+        <span class="inline-flex items-center gap-1 text-slate-700">
+            <span class="material-symbols-outlined text-[13px] text-slate-600">directions_car</span>
+            {{ __('Private Trip') }}
+        </span>
     </div>
 
     {{-- Estimasi total + tombol Booking & WhatsApp.
@@ -112,12 +146,20 @@
              meleset dari 4:3. Dibungkus <a> supaya bisa diketuk ke ukuran penuh. --}}
         @if(! empty($priceImage))
         <template x-if="!tiers.length && {{ $priceImage }}">
-            <a :href="{{ $priceImage }}" target="_blank" rel="noopener noreferrer"
-               class="block rounded-lg overflow-hidden border border-slate-100 bg-slate-50 hover:border-slate-200 transition"
-               aria-label="{{ __('Lihat informasi harga ukuran penuh') }}">
+            <a :href="{{ $priceImage }}"
+               @click.prevent="$dispatch('zoom-image', { url: {{ $priceImage }}, title: '{{ __('Informasi & Brosur Harga') }}' })"
+               class="block rounded-lg overflow-hidden border border-slate-100 bg-slate-50 hover:border-slate-200 transition relative group cursor-zoom-in"
+               aria-label="{{ __('Lihat informasi harga ukuran penuh') }}"
+               title="{{ __('Klik untuk perbesar informasi harga') }}">
                 <div class="relative aspect-[4/3]">
                     <img :src="{{ $priceImage }}" alt="{{ __('Informasi harga') }}" loading="lazy" decoding="async"
                          class="absolute inset-0 w-full h-full object-contain">
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <span class="px-2.5 py-1 rounded-md bg-slate-900/80 text-white text-[10px] font-bold tracking-wider uppercase backdrop-blur-sm flex items-center gap-1 shadow-md">
+                            <span class="material-symbols-outlined text-xs">zoom_in</span>
+                            <span>{{ __('Perbesar') }}</span>
+                        </span>
+                    </div>
                 </div>
             </a>
         </template>

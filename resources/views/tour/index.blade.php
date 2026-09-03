@@ -88,6 +88,57 @@
     <x-home-slider :settings="$settings" :packages="$packages" />
     @endif
 
+    <!-- Kenapa Memilih Sujai Laketoba (4 Keunggulan Utama) -->
+    <section class="py-6 md:py-10 bg-white border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-5 md:px-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                <!-- Poin 1 -->
+                <div class="flex items-start gap-4 p-4 md:p-5 rounded-2xl bg-slate-50/80 border border-slate-100 hover:border-toba-green/30 hover:bg-green-50/40 transition duration-300 group">
+                    <div class="w-12 h-12 rounded-xl bg-toba-green/10 text-toba-green flex items-center justify-center shrink-0 group-hover:bg-toba-green group-hover:text-white transition duration-300 shadow-sm">
+                        <span class="material-symbols-outlined text-2xl">badge</span>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900 leading-tight mb-1">{{ __('Pemandu Asli Danau Toba') }}</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">{{ __('Lahir &amp; tumbuh di Danau Toba, menguasai sejarah, kearifan Batak, dan spot tersembunyi.') }}</p>
+                    </div>
+                </div>
+
+                <!-- Poin 2 -->
+                <div class="flex items-start gap-4 p-4 md:p-5 rounded-2xl bg-slate-50/80 border border-slate-100 hover:border-toba-green/30 hover:bg-green-50/40 transition duration-300 group">
+                    <div class="w-12 h-12 rounded-xl bg-toba-green/10 text-toba-green flex items-center justify-center shrink-0 group-hover:bg-toba-green group-hover:text-white transition duration-300 shadow-sm">
+                        <span class="material-symbols-outlined text-2xl">directions_car</span>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900 leading-tight mb-1">{{ __('Armada Bersih &amp; Prima') }}</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">{{ __('Kendaraan ber-AC sejuk, terawat rutin, dengan driver andal rute perbukitan Sumatera.') }}</p>
+                    </div>
+                </div>
+
+                <!-- Poin 3 -->
+                <div class="flex items-start gap-4 p-4 md:p-5 rounded-2xl bg-slate-50/80 border border-slate-100 hover:border-toba-green/30 hover:bg-green-50/40 transition duration-300 group">
+                    <div class="w-12 h-12 rounded-xl bg-toba-green/10 text-toba-green flex items-center justify-center shrink-0 group-hover:bg-toba-green group-hover:text-white transition duration-300 shadow-sm">
+                        <span class="material-symbols-outlined text-2xl">receipt_long</span>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900 leading-tight mb-1">{{ __('Harga Jujur &amp; Transparan') }}</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">{{ __('Tanpa pungutan tersembunyi. Tiket wisata, akomodasi, dan rincian fasilitas tertulis jelas.') }}</p>
+                    </div>
+                </div>
+
+                <!-- Poin 4 -->
+                <div class="flex items-start gap-4 p-4 md:p-5 rounded-2xl bg-slate-50/80 border border-slate-100 hover:border-toba-green/30 hover:bg-green-50/40 transition duration-300 group">
+                    <div class="w-12 h-12 rounded-xl bg-toba-green/10 text-toba-green flex items-center justify-center shrink-0 group-hover:bg-toba-green group-hover:text-white transition duration-300 shadow-sm">
+                        <span class="material-symbols-outlined text-2xl">support_agent</span>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900 leading-tight mb-1">{{ __('Fleksibel &amp; Konsultasi Ramah') }}</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">{{ __('Bebas custom jadwal untuk keluarga, rombongan, atau gathering. Siap bantu 24/7 via WhatsApp.') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Featured Packages -->
     @if($settings['show_featured'] ?? true)
     <section class="py-6 md:py-8 bg-surface overflow-hidden"
@@ -458,7 +509,7 @@
                 </div>
                 <a target="_blank" rel="noopener"
                    href="https://wa.me/{{ \App\Helpers\ContactHelper::specialistDigits() }}?text={{ urlencode('Halo ' . ($settings['specialist_name'] ?? 'Sarah') . ', saya ingin tanya paket tour...') }}"
-                   class="inline-flex items-center gap-2.5 px-6 py-3 bg-toba-green hover:bg-emerald-500 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-md shrink-0 transform hover:scale-105">
+                   class="inline-flex items-center gap-2.5 px-6 py-3 bg-toba-green hover:bg-green-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-md shrink-0 transform hover:scale-105">
                     <x-icon name="whatsapp" class="w-4 h-4" />
                     <span>{{ __('WHATSAPP') }}</span>
                 </a>

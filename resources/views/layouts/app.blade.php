@@ -110,6 +110,29 @@
             decimals: {{ $currencyConfig['decimals'] }},
             thousandsSep: @json($currencyConfig['thousandsSep']),
             decPoint: @json($currencyConfig['decPoint']),
+            all: {
+                'MYR': { symbol: 'RM ', rate: 1, decimals: 0, thousandsSep: ',', decPoint: '.' },
+                'IDR': { symbol: 'Rp ', rate: {{ \App\Helpers\CurrencyHelper::getRate('IDR') }}, decimals: 0, thousandsSep: '.', decPoint: ',' },
+                'SGD': { symbol: 'S$ ', rate: {{ \App\Helpers\CurrencyHelper::getRate('SGD') }}, decimals: 0, thousandsSep: ',', decPoint: '.' }
+            },
+            setCurrency: function(code) {
+                if (this.all[code]) {
+                    this.currency = code;
+                    this.rate = this.all[code].rate;
+                    this.symbol = this.all[code].symbol;
+                    this.decimals = this.all[code].decimals;
+                    this.thousandsSep = this.all[code].thousandsSep;
+                    this.decPoint = this.all[code].decPoint;
+                    if (window.SUJAI_CUR) {
+                        window.SUJAI_CUR.rate = this.rate;
+                        window.SUJAI_CUR.symbol = this.symbol;
+                        window.SUJAI_CUR.decimals = this.decimals;
+                        window.SUJAI_CUR.thousandsSep = this.thousandsSep;
+                        window.SUJAI_CUR.decPoint = this.decPoint;
+                    }
+                    window.dispatchEvent(new CustomEvent('currency-changed', { detail: code }));
+                }
+            },
             // Takes a SELLING price in MYR (the currency the catalogue is
             // stored in) and renders it for the active locale.
             format: function(priceInMyr) {
@@ -124,6 +147,28 @@
                 return this.symbol + parts.join(this.decPoint);
             }
         };
+
+        // Wishlist Store Alpine (Tersimpan di browser tamu)
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('wishlist', {
+                items: JSON.parse(localStorage.getItem('sujai_wishlist') || '[]'),
+                has(slug) {
+                    return this.items.includes(slug);
+                },
+                toggle(slug) {
+                    if (this.has(slug)) {
+                        this.items = this.items.filter(s => s !== slug);
+                    } else {
+                        this.items.push(slug);
+                    }
+                    localStorage.setItem('sujai_wishlist', JSON.stringify(this.items));
+                    window.dispatchEvent(new CustomEvent('wishlist-updated', { detail: this.items }));
+                },
+                count() {
+                    return this.items.length;
+                }
+            });
+        });
     </script>
 
     @stack('styles')
@@ -258,6 +303,13 @@
                     slug: slug || '',
                     name: name || '',
                     tiers: tierList,
+                    curTicker: 0,
+                    init: function () {
+                        var self = this;
+                        window.addEventListener('currency-changed', function () {
+                            self.curTicker++;
+                        });
+                    },
                     _clamp: function (v, lo, hi) { v = parseInt(v, 10); if (isNaN(v)) v = lo; return Math.min(hi, Math.max(lo, v)); },
                     incA: function () { this.adults = this._clamp(this.adults + 1, 1, 30); },
                     decA: function () { this.adults = this._clamp(this.adults - 1, 1, 30); },
@@ -317,11 +369,17 @@
                         // sehingga kartu memasang angka lebih mahal dari tagihan.
                         return baseChild != null ? baseChild : this.adultUnit * 0.5;
                     },
-                    get rate() { return window.SUJAI_CUR.rate; },
+                    get rate() {
+                        var _ = this.curTicker;
+                        return window.SUJAI_CUR.rate;
+                    },
                     get adultDisplay() { return this.adultUnit * this.rate; },
                     get childDisplay() { return this.childUnit * this.rate; },
                     get total() { return (this.adults * this.adultUnit + this.children * this.childUnit) * this.rate; },
-                    fmt: function (n) { return window.sujaiMoney(n); },
+                    fmt: function (n) {
+                        var _ = this.curTicker;
+                        return window.sujaiMoney(n);
+                    },
                     get bookingUrl() { return '/tour/package/' + this.slug + '?pax=' + this.adults + '&anak=' + this.children; },
                     // Pesan WhatsApp dibangun dari state kalkulator yang sedang
                     // dilihat tamu -- jumlah pax dan totalnya persis yang tertera
@@ -497,6 +555,30 @@
             });
         }
     </script>
+
+    <!-- Universal Zoomable Lightbox Modal -->
+    <x-image-zoom-modal />
+
+    <!-- Floating Back to Top Button -->
+    <div x-data="{ showTop: false }"
+         @scroll.window="showTop = (window.scrollY > 400)"
+         x-show="showTop"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 translate-y-4 scale-90"
+         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+         x-transition:leave-end="opacity-0 translate-y-4 scale-90"
+         class="fixed bottom-24 right-4 md:bottom-8 md:right-8 z-40"
+         style="display: none;">
+        <button type="button"
+                @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
+                class="w-11 h-11 rounded-full bg-white/95 hover:bg-green-700 text-slate-700 hover:text-white border border-slate-200 hover:border-green-700 shadow-xl flex items-center justify-center transition-all duration-300 backdrop-blur-md active:scale-95 group cursor-pointer"
+                title="{{ __('Kembali ke atas') }}"
+                aria-label="{{ __('Kembali ke atas') }}">
+            <span class="material-symbols-outlined text-[20px] group-hover:-translate-y-0.5 transition-transform">arrow_upward</span>
+        </button>
+    </div>
 
     <!-- Scripts -->
     @stack('scripts')

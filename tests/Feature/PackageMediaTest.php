@@ -406,8 +406,22 @@ class PackageMediaTest extends TestCase
         $this->assertStringContainsString($penanda, $htmlBanyak);
 
         // Fotonya dicetak server, bukan menunggu Alpine: kisi ini SATU-SATUNYA
-        // alasan bloknya ada, dan tanpa JavaScript ia tetap harus utuh. Tujuh,
-        // bukan enam: satu kemunculan lagi adalah definisi metodenya di x-data.
-        $this->assertSame(7, substr_count($htmlBanyak, 'bukaDi('));
+        // alasan bloknya ada, dan tanpa JavaScript ia tetap harus utuh.
+        // Di halaman dengan 6 foto vs 3 foto, terdapat 9 kemunculan zoom-image tambahan (3 di mobile strip + 6 di kisi galeri).
+        $this->assertSame(9, substr_count($htmlBanyak, 'zoom-image') - substr_count($htmlSedikit, 'zoom-image'));
+    }
+
+    public function test_modal_zoom_gambar_hadir_secara_global(): void
+    {
+        $paket = $this->paket(['images' => ['foto1.webp', 'foto2.webp']]);
+
+        $response = $this->get(route('tour.package.detail.plain', $paket->slug));
+        $response->assertOk();
+
+        // Modal zoom interaktif harus terpasang di DOM dan mendengarkan event @zoom-image
+        $response->assertSee('@zoom-image.window="openModal($event.detail)"', false);
+        $response->assertSee('zoomIn()', false);
+        $response->assertSee('zoomOut()', false);
+        $response->assertSee('resetZoom()', false);
     }
 }

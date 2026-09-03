@@ -418,7 +418,7 @@
                 </div>
                 <a target="_blank" rel="noopener"
                    href="https://wa.me/{{ \App\Helpers\ContactHelper::specialistDigits() }}?text={{ urlencode('Halo ' . ($settings['specialist_name'] ?? 'Sarah') . ', saya ingin tanya paket tour...') }}"
-                   class="inline-flex items-center gap-2.5 px-6 py-3 bg-toba-green hover:bg-emerald-500 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-md shrink-0 transform hover:scale-105">
+                   class="inline-flex items-center gap-2.5 px-6 py-3 bg-toba-green hover:bg-green-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-md shrink-0 transform hover:scale-105">
                     <x-icon name="whatsapp" class="w-4 h-4" />
                     <span>{{ __('WHATSAPP') }}</span>
                 </a>

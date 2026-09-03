@@ -673,6 +673,27 @@ document.addEventListener('alpine:init', () => {
                             </div>
                         </label>
                     </div>
+
+                    <!-- Panduan Ukuran Hero Slider -->
+                    <div class="p-4 rounded-2xl bg-green-50 border border-green-200 text-xs text-slate-700 space-y-2 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2 font-black text-slate-900 text-xs uppercase tracking-wider">
+                                <i class="fas fa-ruler-combined text-toba-green"></i>
+                                <span>Standar Ukuran Hero Slider</span>
+                            </div>
+                            <button type="button" @click="$dispatch('open-image-guide')"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-green-700 hover:bg-green-800 text-white font-bold text-[10px] transition shadow-sm">
+                                <i class="fas fa-table-list text-[9px]"></i>
+                                <span>Lihat Semua Ukuran</span>
+                            </button>
+                        </div>
+                        <p class="text-xs leading-relaxed text-slate-600">
+                            • <strong>Desktop (16:9):</strong> <span class="font-bold text-slate-900">1920 &times; 1080 px</span> (minimal 1600 &times; 900 px). Safe zone 15% dari tepi.<br>
+                            • <strong>Mobile (4:5 / 1:1):</strong> <span class="font-bold text-slate-900">1080 &times; 1350 px</span> atau 800 &times; 800 px untuk layar smartphone.<br>
+                            • <strong>Catatan:</strong> Lanskap luas Danau Toba. Area tengah bawah sedikit digelapkan agar teks judul putih terbaca jelas.
+                        </p>
+                    </div>
+
                     <div class="flex justify-end">
                         <button type="button" @click="addSlide()" class="px-4 py-2 bg-green-800 text-white rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg shadow-green-300 hover:bg-green-900 transition flex items-center gap-2">
                             <i class="fas fa-plus"></i> Tambah Slide

@@ -39,6 +39,25 @@
             </div>
         </div>
 
+        <!-- Image Guidelines Quick Card -->
+        <div class="bg-gradient-to-br from-green-800 to-green-950 rounded-[2.5rem] p-6 text-white shadow-xl relative overflow-hidden group">
+            <div class="relative z-10">
+                <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-green-300">
+                    <i class="fas fa-ruler-combined"></i>
+                    <span>Ukuran &amp; Rasio</span>
+                </div>
+                <h4 class="text-base font-black mt-2 leading-tight">Standar Desain Aset</h4>
+                <p class="text-[10px] font-medium text-green-100/70 mt-1 leading-relaxed">
+                    Galeri 4:3 (1600&times;1200), Brosur (1200&times;900), Hero 16:9 (1920&times;1080).
+                </p>
+                <button type="button" @click="$dispatch('open-image-guide')"
+                        class="mt-4 w-full py-2.5 px-4 bg-green-600 hover:bg-green-500 text-white rounded-xl font-black text-xs uppercase tracking-wider transition shadow-md flex items-center justify-center gap-2">
+                    <i class="fas fa-table-list text-xs"></i>
+                    <span>Buka Panduan Lengkap</span>
+                </button>
+            </div>
+        </div>
+
         <!-- Folder List -->
         <nav class="bg-white rounded-[2.5rem] p-6 border border-slate-100 shadow-sm space-y-2">
             <div class="flex items-center justify-between px-4 mb-4">

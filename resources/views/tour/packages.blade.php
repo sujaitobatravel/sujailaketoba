@@ -164,6 +164,17 @@
                                     <div class="bg-slate-950 text-white px-2.5 py-1 rounded-lg text-[9px] font-semibold uppercase tracking-wider">{{ $pkg->duration }}</div>
                                     @endif
                                 </div>
+
+                                {{-- Wishlist Heart Button --}}
+                                <button type="button"
+                                        @click.prevent.stop="$store.wishlist.toggle(@js($pkgSlug))"
+                                        aria-label="{{ __('Simpan paket ke favorit') }}"
+                                        class="absolute bottom-3 right-3 z-20 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-slate-600 shadow-md backdrop-blur-sm flex items-center justify-center transition active:scale-90 select-none cursor-pointer"
+                                        :class="$store.wishlist.has(@js($pkgSlug)) && 'text-red-500 bg-white'">
+                                    <span class="material-symbols-outlined text-[17px]"
+                                          :class="$store.wishlist.has(@js($pkgSlug)) ? 'text-red-500' : 'text-slate-500'"
+                                          style="font-variation-settings: 'FILL' 1;">favorite</span>
+                                </button>
                             </div>
 
                             <div class="px-6 pt-6 pb-4 flex flex-col flex-grow">

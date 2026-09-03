@@ -57,20 +57,21 @@
     </style>
 </head>
 @php
-    $pax        = max((int) ($booking->metadata['pax'] ?? 1), 1);
-    $unitPrice  = $booking->totalPrice / $pax;
-
-    // Rincian yang dibekukan saat pemesanan. Kunci-kuncinya ditulis oleh
-    // BookingService::calculateTotalPriceAndCost — perhatikan `subtotal_base`,
-    // BUKAN `subtotal`. Baris Subtotal di bawah dulu membaca `subtotal` yang
-    // tidak pernah ada, lalu jatuh ke totalPrice yang SUDAH termasuk pajak.
-    // Akibatnya di dokumen keuangan ini Subtotal + Pajak tidak sama dengan
-    // Total, dan pajaknya terlihat dipungut dua kali.
+    $pax           = max((int) ($booking->metadata['pax'] ?? 1), 1);
     $pb            = $booking->metadata['price_breakdown'] ?? null;
     $subtotalBase  = $pb['subtotal_base'] ?? null;
     $surchargeRows = $pb['surcharges'] ?? [];
     $taxAmount     = $pb['tax'] ?? null;
     $taxPercent    = $pb['tax_percentage'] ?? null;
+
+    // Unit price dihitung dari harga dasar sebelum pajak & surcharge, sehingga
+    // harga satuan x pax benar-benar sama dengan Subtotal di bawahnya.
+    $unitPrice     = ($subtotalBase !== null && $subtotalBase > 0)
+        ? ($subtotalBase / $pax)
+        : ($booking->totalPrice / $pax);
+    $itemLineTotal = ($subtotalBase !== null && $subtotalBase > 0)
+        ? $subtotalBase
+        : $booking->totalPrice;
 
     // Tenggat pelunasan: 7 hari sebelum keberangkatan (S&K pasal 2). Tanpa ini
     // invoice tidak pernah menyebut kapan harus dibayar — penyebab paling umum
@@ -279,7 +280,7 @@
                                 </td>
                                 <td class="py-6 px-6 align-middle text-center font-semibold text-neutral-700">{{ $pax }} {{ __('Pax') }}</td>
                                 <td class="py-6 px-6 align-middle text-right text-neutral-700">{{ \App\Helpers\CurrencyHelper::formatRecord($unitPrice, $cur) }}</td>
-                                <td class="py-6 px-6 align-middle text-right text-neutral-900 font-bold">{{ \App\Helpers\CurrencyHelper::formatRecord($booking->totalPrice, $cur) }}</td>
+                                <td class="py-6 px-6 align-middle text-right text-neutral-900 font-bold">{{ \App\Helpers\CurrencyHelper::formatRecord($itemLineTotal, $cur) }}</td>
                             </tr>
                         @endif
                         <tr class="table-row-hover bg-white/50 h-8">

@@ -193,7 +193,7 @@
                             </a>
                             <form action="{{ route('admin.packages.toggle-status', $package) }}" method="POST" onsubmit="return confirm('{{ $package->status === 'active' ? 'Nonaktifkan paket ini?' : 'Aktifkan paket ini?' }}')">
                                 @csrf
-                                <button type="submit" class="w-10 h-10 rounded-xl {{ $package->status === 'active' ? 'bg-amber-50 text-amber-600 hover:bg-amber-500' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600' }} flex items-center justify-center hover:text-white transition shadow-sm" title="{{ $package->status === 'active' ? 'Nonaktifkan' : 'Aktifkan' }}">
+                                <button type="submit" class="w-10 h-10 rounded-xl {{ $package->status === 'active' ? 'bg-amber-50 text-amber-600 hover:bg-amber-500' : 'bg-green-50 text-green-600 hover:bg-green-600' }} flex items-center justify-center hover:text-white transition shadow-sm" title="{{ $package->status === 'active' ? 'Nonaktifkan' : 'Aktifkan' }}">
                                     <i class="fas {{ $package->status === 'active' ? 'fa-toggle-on' : 'fa-toggle-off' }} text-xs"></i>
                                 </button>
                             </form>

@@ -119,4 +119,49 @@ class PackageContentTest extends TestCase
         $this->assertSame(['Hotel bintang 3', 'Transportasi AC', 'Tiket masuk'], $payload['includes']);
         $this->assertSame(['Tiket pesawat', 'Pengeluaran pribadi'], $payload['excludes']);
     }
+
+    public function test_detail_page_has_customer_experience_features(): void
+    {
+        $package = $this->makePackage();
+
+        // 1. Halaman /tour/package/{slug} (mode form)
+        $response = $this->get(route('tour.package.detail', $package->slug));
+        $response->assertOk();
+
+        $response->assertSee('Bagikan', false);
+        $response->assertSee('Salin', false);
+        $response->assertSee('api.whatsapp.com/send?text=', false);
+        $response->assertSee('100% Halal Food Guaranteed', false);
+        $response->assertSee('Private Tour (Tanpa Gabung)', false);
+        $response->assertSee('Jemput Bandara KNO / Silangit', false);
+        $response->assertSee('Buka Semua Hari', false);
+        $response->assertSee('toggleDay', false);
+        $response->assertSee('Pertanyaan Yang Sering Ditanyakan', false);
+        $response->assertSee('Apakah makanan selama tour terjamin Halal 100%?', false);
+        $response->assertSee('Bagaimana jika penerbangan kami tiba terlambat (delay) di bandara?', false);
+
+        // Fitur Kenyamanan Baru (UX/CX Perfection)
+        $response->assertSee('$store.wishlist', false);
+        $response->assertSee("AppCurrency.setCurrency('MYR')", false);
+        $response->assertSee("AppCurrency.setCurrency('IDR')", false);
+        $response->assertSee("AppCurrency.setCurrency('SGD')", false);
+        $response->assertSee('KNO ➔ Parapat', false);
+        $response->assertSee('Parapat ➔ Samosir', false);
+        $response->assertSee('Silangit (DTB)', false);
+        $response->assertSee('Kembali ke atas', false);
+
+        // 2. Halaman /tour/detail/{slug} (mode plain tanpa form)
+        $responsePlain = $this->get(route('tour.package.detail.plain', $package->slug));
+        $responsePlain->assertOk();
+
+        $responsePlain->assertSee('Bagikan', false);
+        $responsePlain->assertSee('100% Halal Food Guaranteed', false);
+        $responsePlain->assertSee('Buka Semua Hari', false);
+        $responsePlain->assertSee('Pertanyaan Yang Sering Ditanyakan', false);
+        $responsePlain->assertSee('Respon Cepat', false);
+        $responsePlain->assertSee('$store.wishlist', false);
+        $responsePlain->assertSee("AppCurrency.setCurrency('MYR')", false);
+        $responsePlain->assertSee('KNO ➔ Parapat', false);
+        $responsePlain->assertSee('Kembali ke atas', false);
+    }
 }

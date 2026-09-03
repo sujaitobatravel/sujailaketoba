@@ -101,8 +101,11 @@
 
     {{-- ============ PENGINAPAN PER MALAM ============ --}}
     <div x-data="{ nights: @js($akomodasiRows) }">
-        <label class="block text-sm font-bold text-gray-700 mb-2">Penginapan per Malam</label>
-        <p class="text-[11px] text-gray-400 mb-3 italic">* Tampil di halaman detail tanpa form. Baris tanpa nama hotel diabaikan.</p>
+        <label class="block text-sm font-bold text-gray-700 mb-1">Penginapan per Malam</label>
+        <p class="text-[11px] text-gray-500 mb-3 flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-1 font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md"><i class="fas fa-ruler-combined text-toba-green"></i> Rekomendasi Foto Hotel: 800 &times; 600 px (4:3) atau 600 &times; 600 px (1:1)</span>
+            <span class="text-gray-400 italic">• Tampil di halaman detail tanpa form. Baris tanpa nama hotel diabaikan.</span>
+        </p>
 
         <template x-for="(row, idx) in nights" :key="'night' + idx">
             <div class="flex flex-col sm:flex-row gap-2 mb-2 items-start">
@@ -128,7 +131,9 @@
                 <div class="flex items-center gap-2 shrink-0">
                     <template x-if="row.image">
                         <img :src="'/storage/' + String(row.image).replace(/^\/?storage\//, '')"
-                             class="w-10 h-10 rounded-lg object-cover border border-gray-200">
+                             @click="$dispatch('zoom-image', { url: '/storage/' + String(row.image).replace(/^\/?storage\//, ''), title: row.name || 'Foto Hotel' })"
+                             class="w-10 h-10 rounded-lg object-cover border border-gray-200 cursor-zoom-in hover:opacity-80 transition"
+                             title="Klik untuk zoom foto hotel">
                     </template>
                     <label class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-600 flex items-center justify-center transition cursor-pointer" title="Foto hotel">
                         <i class="fas fa-camera text-xs"></i>
@@ -205,13 +210,47 @@
 
     {{-- ============ GAMBAR INFORMASI HARGA ============ --}}
     <div>
-        <label class="block text-sm font-bold text-gray-700 mb-2">Gambar Informasi Harga</label>
+        <label class="block text-sm font-bold text-gray-700 mb-1">Gambar Informasi Harga</label>
+
+        <!-- Design Guidelines Guide -->
+        <div class="mb-3 p-3.5 rounded-xl bg-green-50 border border-green-200 text-xs text-slate-700 space-y-1.5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 font-black text-slate-900 text-[11px] uppercase tracking-wider">
+                    <i class="fas fa-ruler-combined text-toba-green"></i>
+                    <span>Standar Desain Brosur / Gambar Informasi Harga</span>
+                </div>
+                <button type="button" @click="$dispatch('open-image-guide')"
+                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-green-700 hover:bg-green-800 text-white font-bold text-[10px] transition shadow-sm">
+                    <i class="fas fa-table-list text-[9px]"></i>
+                    <span>Lihat Semua Ukuran</span>
+                </button>
+            </div>
+            <p class="text-[11px] leading-relaxed text-slate-600">
+                • <strong>Dimensi Rekomendasi:</strong> <span class="font-bold text-slate-900">1200 &times; 900 px</span> (Rasio <strong>4:3</strong>), minimal 1024 &times; 768 px.<br>
+                • <strong>Margin Aman (Safe Zone):</strong> Berikan ruang kosong minimal <strong>40 px</strong> di keempat sisi agar tabel/angka harga tidak terpotong di layar HP.<br>
+                • <strong>Tipografi &amp; Kontras:</strong> Gunakan font tebal dengan kontras tinggi terhadap latar belakang. Format didukung: JPG, PNG, WebP (maks 15 MB).
+            </p>
+        </div>
+
         @if($package?->priceImage)
-            <div class="flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 mb-3">
-                <img src="{{ $package->price_image_url }}" alt="Pratinjau gambar harga"
-                     class="w-20 aspect-[4/3] object-contain bg-slate-50 rounded-lg border border-gray-100 shrink-0">
-                <a href="{{ $package->price_image_url }}" target="_blank" rel="noopener"
-                   class="text-xs text-slate-600 hover:text-toba-green truncate flex-1 transition">{{ basename($package->priceImage) }}</a>
+            <div class="flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 mb-3 bg-slate-50/50">
+                <div class="relative group cursor-zoom-in shrink-0"
+                     @click="$dispatch('zoom-image', { url: '{{ $package->price_image_url }}', title: 'Gambar Informasi Harga' })"
+                     title="Klik untuk zoom pratinjau">
+                    <img src="{{ $package->price_image_url }}" alt="Pratinjau gambar harga"
+                         class="w-20 aspect-[4/3] object-contain bg-white rounded-lg border border-gray-200 group-hover:opacity-80 transition">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition rounded-lg">
+                        <i class="fas fa-search-plus text-white text-xs"></i>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold text-slate-800 truncate">{{ basename($package->priceImage) }}</p>
+                    <button type="button" @click="$dispatch('zoom-image', { url: '{{ $package->price_image_url }}', title: 'Gambar Informasi Harga' })"
+                            class="inline-flex items-center gap-1 text-[11px] text-toba-green font-semibold hover:underline mt-0.5">
+                        <i class="fas fa-expand-alt text-[10px]"></i>
+                        <span>Lihat &amp; Zoom Gambar</span>
+                    </button>
+                </div>
                 <label class="flex items-center gap-2 cursor-pointer shrink-0">
                     <input type="checkbox" name="remove_price_image" value="1"
                            class="w-4 h-4 rounded border-gray-300 text-rose-600 focus:ring-rose-500">

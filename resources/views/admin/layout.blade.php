@@ -227,6 +227,11 @@
                                 <i class="fas fa-photo-film w-5 text-sm {{ request()->routeIs('admin.media.*') ? 'text-white' : 'text-green-500' }}"></i>
                                 Media Pusat
                             </a>
+                            <button type="button" @click="$dispatch('open-image-guide')"
+                                    class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition font-bold text-[13px] text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-left">
+                                <i class="fas fa-ruler-combined w-5 text-sm text-green-500"></i>
+                                Panduan Gambar
+                            </button>
                              @if(auth()->user()->isSuperAdmin())
                              <a href="{{ route('admin.cities.index') }}"
                                 class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition font-bold text-[13px]
@@ -420,6 +425,14 @@
                         </div>
                     </div>
 
+                    <!-- Tombol Panduan Ukuran Desain Gambar -->
+                    <button type="button" @click="$dispatch('open-image-guide')"
+                            class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-green-50 text-green-800 hover:bg-green-600 hover:text-white transition font-bold text-xs shadow-sm border border-green-200/70"
+                            title="Panduan Ukuran &amp; Rasio Gambar">
+                        <i class="fas fa-ruler-combined text-xs"></i>
+                        <span class="hidden md:inline">Panduan Gambar</span>
+                    </button>
+
                     <a href="{{ route('index') }}" target="_blank"
                        class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-100 text-[10px] font-black text-slate-400 hover:text-slate-900 hover:border-slate-300 uppercase tracking-widest transition">
                         View Site
@@ -581,6 +594,8 @@
     </div>
 
     <x-media-modal />
+    <x-image-zoom-modal />
+    <x-admin-image-guide-modal />
     @stack('scripts')
 
     {{-- PWA Service Worker: didaftarkan hanya untuk Superadmin, scope dibatasi ke /admin/ --}}

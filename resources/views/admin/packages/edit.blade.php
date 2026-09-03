@@ -47,14 +47,41 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Package Images</label>
                     
+                    <!-- Design Guidelines Guide -->
+                    <div class="mb-4 p-4 rounded-2xl bg-green-50 border border-green-200 text-xs text-slate-700 space-y-2 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2 font-black text-slate-900 text-xs uppercase tracking-wider">
+                                <i class="fas fa-ruler-combined text-toba-green"></i>
+                                <span>Panduan Standar Ukuran &amp; Rasio Gambar</span>
+                            </div>
+                            <button type="button" @click="$dispatch('open-image-guide')"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-green-700 hover:bg-green-800 text-white font-bold text-[11px] transition shadow-sm">
+                                <i class="fas fa-table-list text-[10px]"></i>
+                                <span>Lihat Tabel Lengkap</span>
+                            </button>
+                        </div>
+                        <p class="text-xs leading-relaxed text-slate-600">
+                            • <strong>Galeri Paket (Rekomendasi Utama):</strong> <span class="font-bold text-slate-900">1600 &times; 1200 px</span> (Rasio <strong>4:3</strong>), minimal 1200 &times; 900 px.<br>
+                            • <strong>Foto Sampul Kartu:</strong> Foto urutan pertama otomatis menjadi cover kartu beranda, kartu paket wisata, dan banner WhatsApp preview.<br>
+                            • <strong>Aman Tampil (Safe Zone):</strong> Posisikan subjek wisata di area tengah dengan margin 10% dari tepi agar tidak terpotong di berbagai layar perangkat.<br>
+                            • <strong>Format &amp; Kompresi:</strong> JPG, PNG, atau WebP (maks 15 MB). Sistem secara otomatis mengoptimasi resolusi dan menyajikan WebP ringan dengan srcset responsif.
+                        </p>
+                    </div>
+
                     @if($package->images && count($package->images) > 0)
                         <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4 mb-4">
                             @foreach($package->images as $image)
                                 <div class="relative aspect-square rounded-lg overflow-hidden border border-gray-200 shadow-sm group transition"
                                      :class="isRemoving('{{ $image }}') ? 'ring-4 ring-red-500 opacity-50 scale-95' : ''">
                                     <img src="{{ $package->resolveImageUrl($image) }}" class="w-full h-full object-cover">
-                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                                        <label class="cursor-pointer bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition">
+                                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+                                        <button type="button" @click="$dispatch('zoom-image', { url: '{{ $package->resolveImageUrl($image) }}', title: '{{ addslashes($package->name) }}' })"
+                                                class="w-8 h-8 rounded-lg bg-slate-900/90 hover:bg-slate-900 text-white flex items-center justify-center shadow-lg transition"
+                                                title="Lihat & Zoom Foto">
+                                            <i class="fas fa-search-plus text-xs"></i>
+                                        </button>
+                                        <label class="cursor-pointer bg-red-600 hover:bg-red-700 text-white w-8 h-8 rounded-lg flex items-center justify-center transition"
+                                               title="Hapus / Kembalikan">
                                             <input type="checkbox" name="remove_images[]" value="{{ $image }}" class="hidden" @change="toggleRemove('{{ $image }}')">
                                             <i class="fas" :class="isRemoving('{{ $image }}') ? 'fa-undo' : 'fa-trash-alt'"></i>
                                         </label>
@@ -79,13 +106,18 @@
                         <template x-for="(item, idx) in selectedMedia" :key="'media'+item.id">
                             <div class="relative aspect-square rounded-lg overflow-hidden border-2 border-green-700 shadow-lg group">
                                 <img :src="'/storage/' + (item.path.replace(/^\/?storage\//, ''))" class="w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                                    <button type="button" @click="selectedMedia.splice(idx, 1)" class="w-8 h-8 rounded-lg bg-rose-500 text-white flex items-center justify-center shadow-lg">
+                                <div class="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+                                    <button type="button" @click="$dispatch('zoom-image', { url: '/storage/' + (item.path.replace(/^\/?storage\//, '')), title: item.title || 'Foto Galeri' })"
+                                            class="w-8 h-8 rounded-lg bg-slate-900/90 hover:bg-slate-900 text-white flex items-center justify-center shadow-lg transition"
+                                            title="Lihat & Zoom Foto">
+                                        <i class="fas fa-search-plus text-xs"></i>
+                                    </button>
+                                    <button type="button" @click="selectedMedia.splice(idx, 1)" class="w-8 h-8 rounded-lg bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center shadow-lg transition" title="Batal Pilih">
                                         <i class="fas fa-times text-xs"></i>
                                     </button>
                                 </div>
                                 <input type="hidden" name="media_ids[]" :value="item.id">
-                                <div class="absolute top-1 right-1 bg-green-800 text-[7px] text-white px-1.5 py-0.5 rounded-full font-black tracking-widest">GALLERY</div>
+                                <div class="absolute top-1 right-1 bg-green-800 text-[7px] text-white px-1.5 py-0.5 rounded-full font-black tracking-widest pointer-events-none">GALLERY</div>
                             </div>
                         </template>
                     </div>
@@ -100,16 +132,21 @@
                         <template x-for="(preview, idx) in localPreviews" :key="'local'+idx">
                             <div class="relative aspect-square rounded-lg overflow-hidden border-2 border-green-500 shadow-lg group">
                                 <img :src="preview.url" class="w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                                    <button type="button" @click="removeLocalFile(idx)" class="w-8 h-8 rounded-lg bg-rose-500 text-white flex items-center justify-center shadow-lg">
+                                <div class="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+                                    <button type="button" @click="$dispatch('zoom-image', { url: preview.url, title: preview.file.name })"
+                                            class="w-8 h-8 rounded-lg bg-slate-900/90 hover:bg-slate-900 text-white flex items-center justify-center shadow-lg transition"
+                                            title="Lihat & Zoom Foto">
+                                        <i class="fas fa-search-plus text-xs"></i>
+                                    </button>
+                                    <button type="button" @click="removeLocalFile(idx)" class="w-8 h-8 rounded-lg bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center shadow-lg transition" title="Hapus">
                                         <i class="fas fa-times text-xs"></i>
                                     </button>
                                 </div>
-                                <div class="absolute top-1 right-1 bg-green-600 text-[7px] text-white px-1.5 py-0.5 rounded-full font-black tracking-widest">LOCAL</div>
+                                <div class="absolute top-1 right-1 bg-green-600 text-[7px] text-white px-1.5 py-0.5 rounded-full font-black tracking-widest pointer-events-none">LOCAL</div>
                             </div>
                         </template>
                     </div>
-                    <p class="text-xs text-gray-400 mt-2 italic">* Hover over existing images to delete them.</p>
+                    <p class="text-xs text-gray-400 mt-2 italic">* Arahkan kursor ke foto untuk memperbesar atau menandai hapus.</p>
                 </div>
 
                 @include('admin.packages._media-fields')

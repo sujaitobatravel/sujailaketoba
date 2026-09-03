@@ -52,10 +52,18 @@
     <!-- 1. Topbar (Minimalist Dark) -->
     <div class="hidden sm:block bg-slate-900 text-slate-300">
         <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center gap-6 py-2.5 text-[11.5px] tracking-wide">
-            <!-- Lokasi Kantor -->
-            <div class="flex items-center gap-2 min-w-0 opacity-90 hover:opacity-100 hover:text-white transition-all">
-                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                <span class="truncate">{{ $officeAddress }}</span>
+            <div class="flex items-center gap-4 min-w-0">
+                <!-- Lokasi Kantor -->
+                <div class="flex items-center gap-2 min-w-0 opacity-90 hover:opacity-100 hover:text-white transition-all">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span class="truncate">{{ $officeAddress }}</span>
+                </div>
+                <span class="w-px h-3 bg-slate-700 hidden md:block" aria-hidden="true"></span>
+                <!-- Kontak Telepon Langsung -->
+                <a href="tel:+6282277848855" class="hidden md:flex items-center gap-1.5 opacity-90 hover:opacity-100 hover:text-white transition-all text-green-400 font-semibold shrink-0">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                    <span>+62 822-7784-8855</span>
+                </a>
             </div>
 
             <!-- Sosial + Bahasa -->
@@ -186,7 +194,19 @@
                     @endforeach
                 </div>
 
-                <div class="hidden lg:flex items-center shrink-0 ml-6">
+                <div class="hidden lg:flex items-center gap-3 shrink-0 ml-6">
+                    <!-- Wishlist Button Desktop -->
+                    <a href="/tour/packages"
+                       class="relative p-2 rounded-full text-slate-600 hover:text-red-500 hover:bg-slate-50 transition"
+                       title="{{ __('Paket Tersimpan') }}"
+                       aria-label="{{ __('Paket Tersimpan') }}">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+                        <span x-show="$store.wishlist && $store.wishlist.count() > 0"
+                              x-text="$store.wishlist.count()"
+                              x-cloak
+                              class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-extrabold flex items-center justify-center"></span>
+                    </a>
+
                     <a :href="'https://wa.me/' + contact.whatsapp" target="_blank" rel="noopener noreferrer"
                        class="group inline-flex items-center gap-2.5 border border-toba-green text-toba-green hover:bg-toba-green hover:text-white px-6 py-2.5 rounded-full font-medium text-[13.5px] tracking-wide transition-all duration-300">
                         <span>{{ __('Hubungi Kami') }}</span>
@@ -196,6 +216,26 @@
 
                 <!-- Aksi Mobile — menu pindah ke strip di bawah -->
                 <div class="lg:hidden flex items-center gap-2 shrink-0">
+                    <!-- Wishlist Button Mobile -->
+                    <a href="/tour/packages"
+                       class="relative w-8 h-8 rounded-full bg-slate-50 text-slate-600 hover:text-red-500 flex items-center justify-center border border-slate-200 active:scale-95 transition-all"
+                       title="{{ __('Paket Tersimpan') }}"
+                       aria-label="{{ __('Paket Tersimpan') }}">
+                        <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+                        <span x-show="$store.wishlist && $store.wishlist.count() > 0"
+                              x-text="$store.wishlist.count()"
+                              x-cloak
+                              class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-red-500 text-white text-[9px] font-extrabold flex items-center justify-center"></span>
+                    </a>
+
+                    <!-- Tombol Telepon Cepat Mobile -->
+                    <a href="tel:+6282277848855"
+                       class="w-8 h-8 rounded-full bg-green-50 text-green-700 flex items-center justify-center border border-green-200 active:scale-95 transition-all"
+                       title="{{ __('Telepon Langsung') }}"
+                       aria-label="{{ __('Telepon Kami') }}">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                    </a>
+
                     {{-- Kembaran pemilih bahasa milik topbar. Topbar itu `hidden
                          sm:block`, jadi di bawah 640px pemilihnya lenyap sama
                          sekali; chip ini menutup lubang itu dan `sm:hidden`

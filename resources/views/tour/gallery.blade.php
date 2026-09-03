@@ -10,7 +10,7 @@
         activeCategory: 'Semua', 
         searchQuery: '', 
         images: @js($images),
-        lightbox: { open: false, index: 0 },
+        lightbox: { open: false, index: 0, zoom: 1 },
         {{-- values() itu WAJIB: unique() mempertahankan kunci aslinya, sehingga
              toArray() menghasilkan objek {0:...,2:...}, bukan array. Objek tidak
              iterable, jadi new Set(...) melempar TypeError dan SELURUH x-data
@@ -60,20 +60,36 @@
         
         openLightbox(index) {
             this.lightbox.index = index;
+            this.lightbox.zoom = 1;
             this.lightbox.open = true;
             document.body.classList.add('overflow-hidden');
         },
         
         closeLightbox() {
             this.lightbox.open = false;
+            this.lightbox.zoom = 1;
             document.body.classList.remove('overflow-hidden');
+        },
+
+        zoomIn() {
+            this.lightbox.zoom = Math.min(3, Math.round((this.lightbox.zoom + 0.5) * 10) / 10);
+        },
+
+        zoomOut() {
+            this.lightbox.zoom = Math.max(1, Math.round((this.lightbox.zoom - 0.5) * 10) / 10);
+        },
+
+        resetZoom() {
+            this.lightbox.zoom = 1;
         },
         
         prev() {
+            this.resetZoom();
             this.lightbox.index = (this.lightbox.index - 1 + this.filteredImages.length) % this.filteredImages.length;
         },
         
         next() {
+            this.resetZoom();
             this.lightbox.index = (this.lightbox.index + 1) % this.filteredImages.length;
         }
     }"
@@ -248,13 +264,33 @@
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
         >
-            <!-- Close Button -->
-            <button
-                @click="closeLightbox()"
-                class="absolute top-[max(1.5rem,env(safe-area-inset-top))] right-6 w-12 h-12 bg-white/5 hover:bg-red-600 hover:text-white rounded-xl flex items-center justify-center text-white transition z-[210] border border-white/10 group cursor-pointer"
-            >
-                <span class="material-symbols-outlined text-2xl group-hover:rotate-90 transition-transform duration-500">close</span>
-            </button>
+            <!-- Right Controls: Zoom Toolbar & Close Button -->
+            <div class="absolute top-[max(1.5rem,env(safe-area-inset-top))] right-6 flex items-center gap-2 z-[210]">
+                <div class="flex items-center bg-white/10 backdrop-blur-md rounded-xl p-1 gap-1 border border-white/10">
+                    <button type="button" @click.stop="zoomOut()" :disabled="lightbox.zoom <= 1"
+                            class="w-9 h-9 rounded-lg flex items-center justify-center text-white hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-transparent transition active:scale-95"
+                            title="{{ __('Perkecil') }}">
+                        <span class="material-symbols-outlined text-lg">zoom_out</span>
+                    </button>
+                    <button type="button" @click.stop="resetZoom()"
+                            class="px-2 h-9 rounded-lg flex items-center justify-center text-xs font-mono font-bold text-white hover:bg-white/20 transition active:scale-95"
+                            title="{{ __('Kembalikan 100%') }}">
+                        <span x-text="Math.round(lightbox.zoom * 100) + '%'"></span>
+                    </button>
+                    <button type="button" @click.stop="zoomIn()" :disabled="lightbox.zoom >= 3"
+                            class="w-9 h-9 rounded-lg flex items-center justify-center text-white hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-transparent transition active:scale-95"
+                            title="{{ __('Perbesar') }}">
+                        <span class="material-symbols-outlined text-lg">zoom_in</span>
+                    </button>
+                </div>
+                <button
+                    @click="closeLightbox()"
+                    class="w-11 h-11 bg-white/10 hover:bg-red-600 hover:text-white rounded-xl flex items-center justify-center text-white transition border border-white/10 group cursor-pointer active:scale-95"
+                    title="{{ __('Tutup') }}"
+                >
+                    <span class="material-symbols-outlined text-2xl group-hover:rotate-90 transition-transform duration-500">close</span>
+                </button>
+            </div>
 
             <!-- Counter Info -->
             <div class="absolute top-6 left-6 bg-white/5 backdrop-blur-md border border-white/10 px-5 py-2.5 rounded-xl text-white text-[10px] font-black uppercase tracking-widest z-[210] hidden md:block">
@@ -278,11 +314,13 @@
             </div>
 
             <!-- Lightbox Image Content -->
-            <div class="relative w-full h-full flex flex-col items-center justify-center" @click.stop>
+            <div class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden" @click.stop>
                 <div class="relative max-w-5xl w-full h-full flex flex-col items-center justify-center p-6 md:p-14">
                     <img
                         :src="filteredImages[lightbox.index].image_url"
-                        class="max-w-full max-h-[70vh] object-contain rounded-3xl shadow-2xl border border-white/10"
+                        class="max-w-full max-h-[70vh] object-contain rounded-3xl shadow-2xl border border-white/10 transition-transform duration-200"
+                        :style="'transform: scale(' + lightbox.zoom + '); cursor: ' + (lightbox.zoom > 1 ? 'zoom-out' : 'zoom-in')"
+                        @click.stop="lightbox.zoom > 1 ? resetZoom() : zoomIn()"
                         x-transition:enter="transition ease-out duration-500 delay-75"
                         x-transition:enter-start="opacity-0 scale-95"
                         x-transition:enter-end="opacity-100 scale-100"
